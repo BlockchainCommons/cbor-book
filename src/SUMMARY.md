@@ -1,17 +1,24 @@
 # Summary
 
-- [Preface](./preface.md)
+# Preface
+
+- [Why this Book?](./preface/why_this_book.md)
+- [Who this Book is For](./preface/who_this_book_is_for.md)
+- [Prerequisites and Assumptions](./preface/prerequisites_and_assumptions.md)
+- [Code Examples and Tooling](./preface/code_examples_and_tooling.md)
+- [Acknowledgements](./preface/acknowledgements.md)
 
 # Part I: CBOR
 
+- [From XML to JSON to CBOR](./part_1/from_xml_to_json_to_cbor.md)
 - [Introducing CBOR](./part_1/introducing_cbor.md)
 - [CBOR Data Model](./part_1/cbor_data_model.md)
 - [Using CBOR in Practice](./part_1/using_cbor_in_practice.md)
 - [Determinism and Canonicalization in CBOR](./part_1/determinism_and_canonicalization.md)
 
-# Part II: DCBOR
+# Part II: dCBOR
 
-- [Introducing DCBOR](./part_2/introducing_dcbor.md)
+- [Introducing dCBOR](./part_2/introducing_dcbor.md)
 - [Motivation for dCBOR](./part_2/motivation_for_dcbor.md)
 - [The dCBOR Specification](./part_2/dcbor_specification.md)
 - [Implementing dCBOR](./part_2/implementing_dcbor.md)

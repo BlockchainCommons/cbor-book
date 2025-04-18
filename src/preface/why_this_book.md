@@ -4,4 +4,4 @@ by Wolf McNally and Christopher Allen
 
 [Blockchain Commons](https://www.blockchaincommons.com/)
 
-## Preface
+## Why This Book?
