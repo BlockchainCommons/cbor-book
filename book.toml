@@ -1,0 +1,6 @@
+[book]
+authors = ["Wolf McNally"]
+language = "en"
+multilingual = false
+src = "src"
+title = "The CBOR, dCBOR, and Gordian Envelope Book"
