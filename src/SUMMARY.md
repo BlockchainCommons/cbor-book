@@ -1,17 +1,15 @@
 # Summary
 
-# Preface
+# Introduction
 
-- [Why this Book?](./preface/why_this_book.md)
-- [Who this Book is For](./preface/who_this_book_is_for.md)
-- [Prerequisites and Assumptions](./preface/prerequisites_and_assumptions.md)
-- [Code Examples and Tooling](./preface/code_examples_and_tooling.md)
-- [Acknowledgements](./preface/acknowledgements.md)
+- [Introduction](./introduction/introduction.md)
+- [From XML to JSON to CBOR](./introduction/from_xml_to_json_to_cbor.md)
+- [CBOR vs. the Other Guys](./introduction/cbor_vs_the_other_guys.md)
+- [Code Examples and Tooling](./introduction/code_examples_and_tooling.md)
+- [Acknowledgements](./introduction/acknowledgements.md)
 
 # Part I: CBOR
 
-- [From XML to JSON to CBOR](./part_1/from_xml_to_json_to_cbor.md)
-- [Introducing CBOR](./part_1/introducing_cbor.md)
 - [CBOR Data Model](./part_1/cbor_data_model.md)
 - [Using CBOR in Practice](./part_1/using_cbor_in_practice.md)
 - [Determinism and Canonicalization in CBOR](./part_1/determinism_and_canonicalization.md)
@@ -35,9 +33,9 @@
 
 # Appendices
 
-- [Appendix A: CBOR Diagnostic Notation Cheat Sheet](./appendix_a_cbor_diagnostic_notation.md)
-- [Appendix B: dCBOR Reduction Examples](./appendix_b_dcbor_reduction_examples.md)
-- [Appendix C: Envelope DSL Overview](./appendix_c_envelope_dsl.md)
-- [Appendix D: Tag Registry](./appendix_d_tag_registry.md)
-- [Appendix E: Glossary](./appendix_e_glossary.md)
-- [Appendix F: Resources](./appendix_f_resources.md)
+- [Appendix A: CBOR Diagnostic Notation Cheat Sheet](./appendices/appendix_a_cbor_diagnostic_notation.md)
+- [Appendix B: dCBOR Reduction Examples](./appendices/appendix_b_dcbor_reduction_examples.md)
+- [Appendix C: Envelope DSL Overview](./appendices/appendix_c_envelope_dsl.md)
+- [Appendix D: Tag Registry](./appendices/appendix_d_tag_registry.md)
+- [Appendix E: Glossary](./appendices/appendix_e_glossary.md)
+- [Appendix F: Resources](./appendices/appendix_f_resources.md)
