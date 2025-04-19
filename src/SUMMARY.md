@@ -10,6 +10,7 @@
 
 # Part I: CBOR
 
+- [A Practical Introduction to CBOR](./part_1/practical_introduction_to_cbor.md)
 - [CBOR Data Model](./part_1/cbor_data_model.md)
 - [Using CBOR in Practice](./part_1/using_cbor_in_practice.md)
 - [Determinism and Canonicalization in CBOR](./part_1/determinism_and_canonicalization.md)
@@ -33,9 +34,9 @@
 
 # Appendices
 
-- [Appendix A: CBOR Diagnostic Notation Cheat Sheet](./appendices/appendix_a_cbor_diagnostic_notation.md)
-- [Appendix B: dCBOR Reduction Examples](./appendices/appendix_b_dcbor_reduction_examples.md)
-- [Appendix C: Envelope DSL Overview](./appendices/appendix_c_envelope_dsl.md)
-- [Appendix D: Tag Registry](./appendices/appendix_d_tag_registry.md)
-- [Appendix E: Glossary](./appendices/appendix_e_glossary.md)
-- [Appendix F: Resources](./appendices/appendix_f_resources.md)
+- [Appendix A: CBOR Header Bytes](./appendices/cbor_header_bytes.md)
+- [Appendix B: dCBOR Reduction Examples](./appendices/dcbor_reduction_examples.md)
+- [Appendix C: Envelope DSL Overview](./appendices/envelope_dsl.md)
+- [Appendix D: Tag Registry](./appendices/tag_registry.md)
+- [Appendix E: Glossary](./appendices/glossary.md)
+- [Appendix F: Resources](./appendices/resources.md)
