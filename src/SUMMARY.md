@@ -2,21 +2,23 @@
 
 # Introduction
 
+- [Cover](./introduction/cover.md)
+- [Colophon](./introduction/colophon.md)
 - [Introduction](./introduction/introduction.md)
 - [From XML to JSON to CBOR](./introduction/from_xml_to_json_to_cbor.md)
 - [CBOR vs. the Other Guys](./introduction/cbor_vs_the_other_guys.md)
-- [Code Examples and Tooling](./introduction/code_examples_and_tooling.md)
-- [Acknowledgements](./introduction/acknowledgements.md)
 
 # Part I: CBOR
 
 - [A Practical Introduction to CBOR](./part_1/practical_introduction_to_cbor.md)
 - [Extending Semantics with CBOR Tags](./part_1/cbor_tags.md)
-- [Using CBOR in Practice](./part_1/using_cbor_in_practice.md)
-- [Determinism and Canonicalization in CBOR](./part_1/determinism_and_canonicalization.md)
+- [Indefinite-Length Items](./part_1/indefinite_length_items.md)
+- [Sequences: Streaming Independent Data Items](./part_1/cbor_sequences.md)
+- [CBOR Schemas with CDDL](./part_1/cbor_schemas_with_cddl.md)
 
 # Part II: dCBOR
 
+- [Determinism and Canonicalization in CBOR](./part_2/determinism_and_canonicalization.md)
 - [Introducing dCBOR](./part_2/introducing_dcbor.md)
 - [Motivation for dCBOR](./part_2/motivation_for_dcbor.md)
 - [The dCBOR Specification](./part_2/dcbor_specification.md)
