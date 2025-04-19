@@ -11,7 +11,7 @@
 # Part I: CBOR
 
 - [A Practical Introduction to CBOR](./part_1/practical_introduction_to_cbor.md)
-- [CBOR Data Model](./part_1/cbor_data_model.md)
+- [Extending Semantics with CBOR Tags](./part_1/cbor_tags.md)
 - [Using CBOR in Practice](./part_1/using_cbor_in_practice.md)
 - [Determinism and Canonicalization in CBOR](./part_1/determinism_and_canonicalization.md)
 
