@@ -1,0 +1,9 @@
+[package]
+name = "book-dcbor-envelope"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+dcbor = "0.17.0"
+hex = "0.4.3"

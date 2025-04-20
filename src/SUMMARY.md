@@ -19,11 +19,8 @@
 # Part II: dCBOR
 
 - [Determinism: Why Consistent Encodings Matter](./part_2/determinism.md)
-- [Introducing dCBOR](./part_2/introducing_dcbor.md)
-- [Motivation for dCBOR](./part_2/motivation_for_dcbor.md)
-- [The dCBOR Specification](./part_2/dcbor_specification.md)
-- [Implementing dCBOR](./part_2/implementing_dcbor.md)
-- [Testing and Validation](./part_2/testing_and_validation.md)
+- [From CBOR, to CDE, to dCBOR](./part_2/cbor_cde_dcbor.md)
+- [Using dCBOR](./part_2/using_dcbor.md)
 
 # Part III: Gordian Envelope
 

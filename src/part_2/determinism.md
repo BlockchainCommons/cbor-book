@@ -1,4 +1,4 @@
-# Chapter 1: Determinism: Why Consistent Encodings Matter
+# Determinism: Why Consistent Encodings Matter
 
 ## 1.1 Introduction: The Illusion of Sameness
 
