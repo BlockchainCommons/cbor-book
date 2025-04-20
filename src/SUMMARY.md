@@ -34,8 +34,3 @@
 # Appendices
 
 - [Appendix A: CBOR Header Bytes](./appendices/cbor_header_bytes.md)
-- [Appendix B: dCBOR Reduction Examples](./appendices/dcbor_reduction_examples.md)
-- [Appendix C: Envelope DSL Overview](./appendices/envelope_dsl.md)
-- [Appendix D: Tag Registry](./appendices/tag_registry.md)
-- [Appendix E: Glossary](./appendices/glossary.md)
-- [Appendix F: Resources](./appendices/resources.md)

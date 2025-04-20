@@ -1,43 +1,38 @@
 #!/usr/bin/env bash
 
-# This only needs to be run once to set up GitHub Pages for the book.
-
 set -euo pipefail
 
-# Get the slug from the current directory name
 BOOK_DIR="$(basename "$PWD")"
+REPO_URL="$(git remote get-url origin)"
+DEPLOY_DIR="/tmp/book-deploy"
 
 # Ensure we're in a Git repo
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "Error: not inside a Git repository."
+  echo "❌ Error: not inside a Git repository."
   exit 1
 fi
 
-# Ensure build is up to date
+# Build the book
 mdbook build
 
-# Create orphan gh-pages branch
-git worktree add /tmp/book-deploy gh-pages || {
-  echo "Error: gh-pages branch may already exist. You can delete it with:"
-  echo "  git branch -D gh-pages"
-  echo "  git push origin --delete gh-pages"
-  exit 1
-}
+# Clean up old deploy dir if it exists
+rm -rf "$DEPLOY_DIR"
 
-# Copy book output into branch
-rm -rf /tmp/book-deploy/*
-cp -r book/* /tmp/book-deploy/
+# Create an orphan gh-pages branch in a temporary directory
+mkdir -p "$DEPLOY_DIR"
+pushd "$DEPLOY_DIR" >/dev/null
 
-pushd /tmp/book-deploy >/dev/null
 git init
-git checkout -b gh-pages
+git checkout --orphan gh-pages
+cp -r "$OLDPWD/book/"* .
+touch .nojekyll  # prevents GitHub from treating it as a Jekyll site
 git add .
 git commit -m "Initial deploy of $BOOK_DIR to GitHub Pages"
-git remote add origin "$(git -C "$OLDPWD" remote get-url origin)"
+git remote add origin "$REPO_URL"
 git push -u origin gh-pages
+
 popd >/dev/null
+rm -rf "$DEPLOY_DIR"
 
-# Cleanup
-rm -rf /tmp/book-deploy
-
-echo "✅ GitHub Pages setup complete. Now go to your repo settings and enable Pages for the gh-pages branch."
+echo "✅ GitHub Pages branch 'gh-pages' created and deployed."
+echo "👉 Go to your GitHub repo settings → Pages → set source to 'gh-pages' branch, root directory."

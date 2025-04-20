@@ -3,26 +3,33 @@
 set -euo pipefail
 
 BOOK_DIR="$(basename "$PWD")"
+DEPLOY_DIR="/tmp/book-deploy"
 
 # Ensure clean working tree
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "❌ Working directory is not clean. Commit or stash changes before deploying."
+  echo "❌ Working directory is not clean. Commit or stash your changes first."
   exit 1
 fi
+
+# Ensure gh-pages branch exists remotely
+if ! git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
+  echo "❌ The 'gh-pages' branch does not exist on origin. Run './setup-deploy' first."
+  exit 1
+fi
+
+# Clean up old deploy dir if it exists
+rm -rf "$DEPLOY_DIR"
 
 # Build the book
 mdbook build
 
-# Use a temp deploy directory
-DEPLOY_DIR="/tmp/book-deploy"
+# Add a worktree for gh-pages branch
+git worktree add -B gh-pages "$DEPLOY_DIR" origin/gh-pages
 
-# Remove any prior temp deploy dir
-rm -rf "$DEPLOY_DIR"
-git worktree add "$DEPLOY_DIR" gh-pages
-
-# Copy built book into deploy dir
+# Copy book contents into worktree
 rm -rf "$DEPLOY_DIR"/*
 cp -r book/* "$DEPLOY_DIR/"
+touch "$DEPLOY_DIR/.nojekyll"  # optional, but wise
 
 # Commit and push
 pushd "$DEPLOY_DIR" >/dev/null
@@ -31,7 +38,7 @@ git commit -m "Deploy $BOOK_DIR: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 git push origin gh-pages
 popd >/dev/null
 
-# Clean up worktree
+# Clean up
 git worktree remove "$DEPLOY_DIR"
 
-echo "✅ Deployed $BOOK_DIR to GitHub Pages on branch gh-pages."
+echo "✅ Successfully deployed $BOOK_DIR to GitHub Pages (branch: gh-pages)."
