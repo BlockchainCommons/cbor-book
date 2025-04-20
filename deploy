@@ -5,25 +5,25 @@ set -euo pipefail
 BOOK_DIR="$(basename "$PWD")"
 DEPLOY_DIR="/tmp/book-deploy"
 
-# Ensure we're inside a Git repository
+# Ensure we are in a git repo
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "❌ Error: not inside a Git repository."
+  echo "❌ Not inside a Git repository."
   exit 1
 fi
 
-# Ensure clean working tree
+# Ensure clean working directory
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "❌ Working directory is not clean. Please commit or stash your changes before deploying."
+  echo "❌ Working directory is not clean. Please commit or stash changes first."
   exit 1
 fi
 
-# Ensure gh-pages exists remotely
+# Ensure gh-pages exists on remote
 if ! git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
   echo "❌ The 'gh-pages' branch does not exist on origin. Run './setup-deploy' first."
   exit 1
 fi
 
-# Ensure the local ref to origin/gh-pages exists
+# Make sure we have a local ref to origin/gh-pages
 if ! git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
   echo "🔄 Fetching 'gh-pages' from origin..."
   git fetch origin gh-pages
@@ -33,32 +33,36 @@ fi
 echo "📖 Building mdBook..."
 mdbook build
 
-# Clean up any prior worktree
+# Remove any old worktree (if forcibly left)
 rm -rf "$DEPLOY_DIR"
 
-# Add gh-pages worktree
-echo "🌿 Creating temporary worktree for gh-pages..."
+# Add worktree cleanly
+echo "🌿 Creating worktree for gh-pages..."
 git worktree add -B gh-pages "$DEPLOY_DIR" origin/gh-pages
 
-# Sync book output to gh-pages worktree
-echo "📦 Syncing book output to deployment directory..."
+# Compare built book to current deploy target
+echo "🔍 Checking for changes..."
+if diff -qr book "$DEPLOY_DIR" --exclude=.git --exclude=.nojekyll >/dev/null; then
+  echo "🟡 No changes to publish. Skipping deployment."
+  git worktree remove "$DEPLOY_DIR"
+  exit 0
+fi
+
+# Copy over book output
+echo "📦 Syncing new content..."
 rsync -a --delete book/ "$DEPLOY_DIR/"
 touch "$DEPLOY_DIR/.nojekyll"
 
-# Check for actual changes
+# Commit and push
+echo "🚀 Committing and pushing changes..."
 pushd "$DEPLOY_DIR" >/dev/null
-if git diff --quiet --exit-code; then
-  echo "🟡 No changes since last deploy. Skipping commit and push."
-else
-  echo "🚀 Changes detected. Committing and pushing..."
-  git add .
-  git commit -m "Deploy $BOOK_DIR: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
-  git push origin gh-pages
-fi
+git add .
+git commit -m "Deploy $BOOK_DIR: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+git push origin gh-pages
 popd >/dev/null
 
-# Remove the temporary worktree
+# Clean up worktree
 echo "🧹 Cleaning up worktree..."
 git worktree remove "$DEPLOY_DIR"
 
-echo "✅ Deploy script completed."
+echo "✅ Successfully deployed $BOOK_DIR to GitHub Pages."
