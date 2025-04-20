@@ -1,7 +1,5 @@
 # From XML to JSON to CBOR
 
-**NOTE:** You probably don't need to read this, unless you are interested in historical context. If you just want to know how to use CBOR, you can skip this section and go straight to [Using CBOR in Practice](../part_1/using_cbor_in_practice.md).
-
 ## A *Lingua Franca* for Data?
 
 In modern computing, data exchange is foundational to everything from web browsing to microservices and IoT devices. The ability for different systems to represent, share, and interpret structured information drives our digital world. Yet no single perfect format has emerged to meet all needs. Instead, we've seen an evolution of data interchange formats, each addressing the specific challenges and technical requirements of its time.
