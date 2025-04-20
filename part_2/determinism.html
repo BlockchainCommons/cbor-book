@@ -1,0 +1,414 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Determinism: Why Consistent Encodings Matter - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="determinism-why-consistent-encodings-matter"><a class="header" href="#determinism-why-consistent-encodings-matter">Determinism: Why Consistent Encodings Matter</a></h1>
+<h2 id="11-introduction-the-illusion-of-sameness"><a class="header" href="#11-introduction-the-illusion-of-sameness">1.1 Introduction: The Illusion of Sameness</a></h2>
+<p>Consider a common scenario in software engineering: comparing two data structures that represent the same logical information. Perhaps they are configuration objects loaded from different sources, snapshots of system state taken at different times but believed to be identical, or messages exchanged between distributed components. A developer might reasonably expect that if these structures hold the same values—field for field, element for element—a simple byte-wise comparison of their serialized forms would confirm their equality. Yet, surprisingly often, this comparison fails. Two objects, logically identical, produce different sequences of bytes when serialized.</p>
+<p>This discrepancy arises because many common data serialization formats, including text-based ones like JSON and even efficient binary formats like Protocol Buffers or CBOR itself, allow flexibility in how data is represented. The same logical map might have its keys ordered differently; the same number might be encoded with varying precision or length; the same string might have subtle variations in character encoding or normalization. While these variations are often <em>semantically irrelevant</em> at the data model level, they result in distinct byte sequences.</p>
+<p>This phenomenon, where serialization yields inconsistent byte outputs for logically equivalent inputs, can be deeply problematic. Processes downstream that rely on these byte representations—such as cryptographic hashing, digital signature verification, distributed consensus mechanisms, or simple data comparison—may behave unpredictably or fail entirely. This variability acts much like a hidden, uncontrolled input, introducing non-determinism into systems that are otherwise expected to be predictable, leading to bugs that are notoriously difficult to diagnose and fix, akin to issues stemming from uninitialized memory or thread race conditions. Understanding and controlling this variability through deterministic encoding is therefore not merely an academic exercise but a practical necessity for building robust, secure, and interoperable systems. This chapter explores the fundamental need for deterministic encoding, the challenges involved, and the landscape of previous efforts to achieve it.</p>
+<h2 id="12-defining-deterministic-encoding"><a class="header" href="#12-defining-deterministic-encoding">1.2 Defining Deterministic Encoding</a></h2>
+<p>At its core, <strong>Deterministic Encoding</strong> is an encoding process designed to eliminate ambiguity. It employs specific rules and makes deliberate choices during serialization to ensure that logically equivalent inputs at the data model level <em>always</em> produce the exact same sequence of encoded bytes. This is distinct from the general term <strong>Serialization</strong>, which simply refers to the process of representing data model items (like numbers, strings, arrays, maps) as encoded data items, potentially allowing for multiple valid representations.</p>
+<p>The term <strong>Canonicalization</strong> is often used synonymously with deterministic encoding, emphasizing the goal of producing a single, standard, or "canonical" form for any given piece of data. Several systems aim for this canonical property, where the serialization guarantees byte consistency for the same in-memory data structure, regardless of the implementation or environment.</p>
+<p>Within the CBOR ecosystem (RFC 8949), related concepts exist that represent steps towards reducing variability, though they don't necessarily guarantee full cross-implementation determinism on their own:</p>
+<ul>
+<li><strong>Preferred Serialization:</strong> A recommendation aiming for the shortest possible encoding for a data item's head (the initial bytes indicating type and length/value), without expending extra effort like sorting map keys.</li>
+<li><strong>Basic Serialization:</strong> Builds on Preferred Serialization by adding the constraint that indefinite-length encoding (where the total length isn't known upfront) must not be used for strings, arrays, or maps.</li>
+</ul>
+<p>While Preferred and Basic Serialization reduce encoding variability, true Deterministic Encoding, such as <a href="https://datatracker.ietf.org/doc/draft-ietf-cbor-cde/">CBOR Common Deterministic Encoding (CDE)</a>, imposes stricter rules, like mandatory map key sorting, to achieve the goal of a unique byte sequence for equivalent data.</p>
+<p>Understanding why these stricter rules are necessary requires examining the common sources of non-determinism in data serialization:</p>
+<ul>
+<li>
+<p><strong>Map/Object Key Order:</strong> In data models like JSON objects or CBOR maps, the order of key-value pairs is generally considered semantically insignificant. <code>{"name": "Alice", "id": 123}</code> is logically the same as <code>{"id": 123, "name": "Alice"}</code>. However, without a rule mandating a specific order (e.g., sorting keys alphabetically), serializers might output these pairs in different orders, leading to different byte sequences. This is a major source of non-determinism in formats like JSON, Protobuf, and basic CBOR. Deterministic schemes typically mandate sorting keys based on a well-defined comparison, such as lexicographical sorting of the UTF-16 key strings (as in <a href="https://www.rfc-editor.org/rfc/rfc8785">JCS</a>) or byte-wise lexicographical sorting of the <em>encoded</em> keys (as in CBOR CDE).</p>
+</li>
+<li>
+<p><strong>Number Representation:</strong> Numbers can often be encoded in multiple ways:</p>
+<ul>
+<li><em>Integers:</em> Small integers might fit into short forms, but longer encodings could technically be valid in some formats. Varint encodings (used in Protobuf) can sometimes represent the same number using different byte lengths, especially if leading zeros aren't strictly prohibited. CBOR's Preferred Serialization aims for the shortest form, but deterministic rules make this mandatory. Arbitrary-precision integers (bignums) also need clear rules to avoid ambiguity with standard integer types.</li>
+<li><em>Floating-Point Numbers:</em> These present significant challenges. <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> allows multiple binary representations (e.g., half, single, double precision), and the same value might be representable in several. Special values like NaN (Not a Number) can have different binary payloads, and positive zero (+0) and negative zero (−0) have distinct representations. Deterministic schemes must specify canonical forms, such as always using the shortest valid representation and defining a single canonical NaN.</li>
+</ul>
+</li>
+<li>
+<p><strong>String Encoding &amp; Unicode:</strong> While UTF-8 is the dominant encoding today, subtleties remain. The most significant is Unicode normalization. A single character with an accent (like 'é') can often be represented either as a single precomposed character (U+00E9) or as a base character ('e', U+0065) followed by a combining accent mark (U+0301). These result in different byte sequences but represent the same visual character. Some canonicalization schemes require normalizing strings to a specific form (like NFC or NFD) before encoding, while others, like JCS and CBOR CDE, explicitly <em>avoid</em> this step, considering it an application-level concern due to complexity and potential information loss.</p>
+</li>
+<li>
+<p><strong>Indefinite Lengths:</strong> Formats like CBOR allow encoding arrays, maps, and strings without specifying their length upfront, using a special "break" marker to signal the end. This "indefinite-length" encoding is useful for streaming but introduces non-determinism, as the same data could be encoded with either a definite or indefinite length. Deterministic schemes like CBOR CDE typically disallow indefinite-length items.</p>
+</li>
+<li>
+<p><strong>Default Values / Optional Fields:</strong> In formats like Protobuf, if a field is set to its default value (e.g., an integer field to 0), it might be omitted entirely during serialization, or it might be explicitly included. Since the deserialized result is the same in either case (the field has the default value), this creates representational ambiguity. Deterministic schemes often require omitting default values, similar to how <a href="https://en.wikipedia.org/wiki/X.690#DER_encoding">ASN. DER</a> forbids encoding default values.</p>
+</li>
+<li>
+<p><strong>Extensibility Issues (Tags/Unknown Fields):</strong> How a format handles data not explicitly defined in its schema can impact determinism. Protobuf preserves "unknown fields" encountered during parsing, which aids forward/backward compatibility but significantly hinders canonicalization because the type (and thus canonical representation) of these fields isn't known. CBOR uses tags for extensibility; while the content <em>within</em> a tag might be canonicalized according to standard rules, ensuring that application-level data is consistently mapped <em>to</em> specific tags and representations might require additional application-specific rules (sometimes called Application-Level Deterministic Representation or ALDR).</p>
+</li>
+</ul>
+<p>It becomes clear that achieving deterministic encoding involves navigating a spectrum of choices. At one end lies basic, potentially non-deterministic serialization. Moving along the spectrum, we encounter implementation-specific determinism (where a single library might be deterministic but not interoperable), recommended practices like CBOR's Preferred or Basic Serialization, and finally, fully specified canonical forms like ASN.1 DER, JCS, BCS, or CBOR CDE, which aim for a single, universally verifiable representation. The choice of where to be on this spectrum depends heavily on the application's requirements for consistency, interoperability, and security.</p>
+<h2 id="13-the-motivation-why-determinism-is-crucial"><a class="header" href="#13-the-motivation-why-determinism-is-crucial">1.3 The Motivation: Why Determinism is Crucial</a></h2>
+<p>The quest for deterministic encoding is driven by the significant problems that arise from its absence. When the same logical data can manifest as different byte sequences unpredictably, it introduces a subtle but pervasive form of non-determinism into computing systems, leading to a range of issues that can be difficult for engineers to anticipate and resolve.</p>
+<p>One major consequence is the emergence of <strong>hard-to-diagnose bugs</strong>. Systems relying on byte-wise comparisons or hashing of serialized data may fail intermittently or produce inconsistent results depending on factors like which library version is used, the internal state of the serializer (e.g., hash table iteration order affecting map key output), or even timing variations. Debugging such issues is challenging because the root cause lies not in the application logic itself, but in the seemingly innocuous step of data serialization. Failures might appear non-reproducible until the underlying serialization variability is understood and controlled.</p>
+<p>Furthermore, non-deterministic serialization can <strong>undermine security guarantees</strong>. Digital signatures, for instance, rely on the verifier being able to compute the exact same hash of the message data as the signer. If the data is re-serialized between signing and verification, and the serialization is non-deterministic, the hashes will mismatch, causing valid signatures to fail verification. This not only breaks functionality but could potentially be exploited in certain scenarios. Similarly, consensus protocols in distributed systems depend on nodes agreeing on the state based on identical data representations; non-determinism breaks this agreement.</p>
+<p><strong>Inefficiency</strong> is another consequence. Caching mechanisms often use hashes of data as keys. If logically identical data produces different serialized forms (and thus different hashes), caches will suffer unnecessary misses, leading to redundant computation or data transfer. Content-addressable storage systems lose their deduplication benefits if identical content doesn't serialize identically.</p>
+<p>Finally, non-determinism severely <strong>hinders interoperability</strong>. If different systems, or even different versions of the same software, serialize the same data differently, they may be unable to reliably communicate or agree on shared state. This is particularly problematic in heterogeneous environments or long-lived systems where components evolve independently. Protocol Buffers' documentation explicitly warns that its default "deterministic" mode is not canonical across languages or versions precisely for these reasons.</p>
+<p>These diverse problems highlight a fundamental point: non-determinism in serialization erodes the foundation of trust in computational processes. Digital systems rely on predictable, repeatable behavior to function correctly and securely. When the basic representation of data—its byte sequence—becomes unpredictable for the same logical content, the operations built upon that representation (comparison, hashing, verification, agreement) become inherently unreliable. This variability undermines the integrity and dependability required for critical applications, from secure communication and financial transactions to distributed databases and verifiable records. Achieving deterministic, canonical encoding is therefore essential for building systems where computational results can be consistently verified and trusted. The need for deterministic processes is not unique to serialization; it's a recurring theme in diverse fields like coding theory, machine learning, and state machine design, reflecting a general need for predictable and reliable computation.</p>
+<h2 id="14-key-use-cases-demanding-determinism"><a class="header" href="#14-key-use-cases-demanding-determinism">1.4 Key Use Cases Demanding Determinism</a></h2>
+<p>The need for deterministic encoding is not theoretical; it is driven by the practical requirements of numerous critical computing applications. Several key use cases fundamentally depend on the ability to produce a consistent, predictable byte representation for data.</p>
+<h3 id="141-distributed-consensus"><a class="header" href="#141-distributed-consensus">1.4.1 Distributed Consensus</a></h3>
+<p>Distributed systems, ranging from replicated databases to modern blockchain networks, rely on consensus algorithms (such as Paxos, Raft, or variants of Byzantine Fault Tolerance (BFT)) to ensure that multiple independent nodes agree on a single, consistent state or order of operations. This agreement process frequently involves nodes proposing, validating, and replicating data structures like transaction logs, state updates, or proposed blocks.</p>
+<p>A core requirement for these algorithms is that all non-faulty nodes must reach the same decision based on the same information. Often, this involves nodes independently processing received data, serializing it (or parts of it), and then hashing the result to compare with hashes received from other nodes or to include in subsequent proposals. If the serialization process is non-deterministic, two nodes processing the <em>exact same logical transaction or block data</em> could generate different byte sequences. These different sequences would produce different cryptographic hashes, leading the nodes to disagree, even though they started with identical information. This disagreement prevents the system from reaching consensus, potentially halting progress or leading to inconsistent states across nodes.</p>
+<p>Blockchains are a prominent example where this is critical. In a decentralized network without a central authority, nodes must independently verify transactions and agree on the contents of new blocks to add to the chain. This verification relies heavily on cryptographic hashing and consistent data representation. Deterministic serialization ensures that all nodes compute the same hashes for the same transactions and blocks, enabling the consensus mechanism (whether Proof-of-Work, Proof-of-Stake, or BFT-based) to function correctly and maintain the integrity of the shared ledger. Formats like Binary Canonical Serialization (BCS) were explicitly designed with this use case in mind, providing guaranteed byte consistency for consensus in blockchain environments.</p>
+<p>In essence, for decentralized systems that establish trust algorithmically through consensus protocols, deterministic encoding is not merely a technical optimization but a foundational requirement. It ensures that all participants operate on verifiably identical representations of shared data, making algorithmic agreement possible and enabling trust in the absence of a central coordinator. Without it, the entire model of decentralized consensus breaks down.</p>
+<h3 id="142-verifiable-data-and-digital-signatures"><a class="header" href="#142-verifiable-data-and-digital-signatures">1.4.2 Verifiable Data and Digital Signatures</a></h3>
+<p>Digital signatures are a cornerstone of modern digital security, providing three key properties:</p>
+<ul>
+<li><strong>Authenticity:</strong> Verifying the identity of the signer.</li>
+<li><strong>Integrity:</strong> Ensuring the data has not been altered since it was signed.</li>
+<li><strong>Non-repudiation:</strong> Preventing the signer from later denying that they signed the data.</li>
+</ul>
+<p>The process typically involves creating a cryptographic hash (a fixed-size digest) of the data to be signed, and then encrypting this hash using the signer's private key. To verify the signature, a recipient recalculates the hash of the received data using the same hash algorithm, decrypts the received signature using the signer's public key, and compares the recalculated hash with the decrypted hash. If they match, the signature is valid.</p>
+<p>This entire process hinges on one critical assumption: both the signer and the verifier must be able to produce the <em>exact same hash</em> from the <em>same logical data</em>. Since cryptographic hashes are extremely sensitive to input changes (a single bit flip drastically changes the output), the byte sequence fed into the hash function must be identical for both parties.</p>
+<p>If the data is serialized non-deterministically, the signer might serialize the data one way, calculate a hash, and sign it. The verifier might receive the same logical data, but upon re-serializing it (perhaps using a different library or version), obtain a different byte sequence. This different byte sequence will produce a different hash, causing the signature verification to fail, even though the data's integrity was never compromised and the signature itself is cryptographically sound. This necessitates a deterministic, canonical representation of the data <em>before</em> hashing and signing.</p>
+<p>This requirement is crucial for applications like Verifiable Credentials (VCs), where data integrity proofs (often digital signatures) are used to ensure the authenticity and tamper-evidence of claims. Standards like the <a href="https://www.w3.org/TR/vc-data-integrity/">W3C Data Integrity specification</a> explicitly involve transforming data into a canonical form before hashing and signing/proving.</p>
+<p>An important advantage of using canonicalization in this context is that it decouples the format used for signing from the format used for transmission or storage. Data can be signed based on its canonical form, but then transmitted or displayed in a more convenient, possibly non-canonical format (e.g., pretty-printed JSON for readability). The verifier simply needs to re-canonicalize the received data according to the agreed-upon rules before performing the verification step. This avoids forcing systems to use potentially inefficient or human-unfriendly formats solely for the purpose of signing, offering flexibility without sacrificing security.</p>
+<h3 id="143-content-addressable-systems-and-caching"><a class="header" href="#143-content-addressable-systems-and-caching">1.4.3 Content-Addressable Systems and Caching</a></h3>
+<p><strong>Content-Addressable Storage (CAS)</strong> is a storage paradigm where data is identified and retrieved based on a cryptographic hash of its content, rather than a user-assigned name or location (like a file path). The hash acts as the unique address for the data. This approach inherently relies on deterministic encoding: the same content must always produce the same hash to be reliably stored and retrieved.</p>
+<p>CAS offers several significant advantages:</p>
+<ul>
+<li><strong>Automatic Deduplication:</strong> If the same piece of content is stored multiple times, it will always generate the same hash. CAS systems recognize this and store the actual data only once, simply adding references to the existing content. This can lead to substantial storage savings, especially in backup systems or large datasets with redundant information.</li>
+<li><strong>Data Integrity Verification:</strong> The content hash serves as a built-in checksum. When data is retrieved, its hash can be recalculated and compared to the requested address (hash). A mismatch immediately indicates data corruption.</li>
+<li><strong>Suitability for Distributed Systems:</strong> Content addressing works well in distributed or decentralized environments (like <a href="https://ipfs.tech/">IPFS</a> or <a href="https://git-scm.com/">Git</a>) because data can be located and retrieved based solely on its hash, without needing a central directory or knowledge of specific server locations.</li>
+</ul>
+<p>Deterministic encoding underpins the reliability of CAS. If serialization were non-deterministic, identical logical content could produce different hashes, defeating deduplication and potentially causing data retrieval issues. Furthermore, trustworthy deduplication relies on the guarantee that only truly identical data maps to the same hash. While cryptographic hash collisions are extremely rare with strong functions, non-deterministic serialization could theoretically create attack vectors if an adversary could manipulate the serialization process to force a hash collision between different logical data, potentially tricking a system into retrieving incorrect information. Deterministic encoding ensures that the hash reliably represents the logical content, making deduplication both efficient and secure.</p>
+<p>Similarly, <strong>caching mechanisms</strong> benefit greatly from deterministic encoding. Hashes derived from canonical representations of data serve as excellent cache keys. When a system needs to check if a piece of data (e.g., a database query result, a complex object, a web resource bundle) is already in the cache, it can compute the canonical hash of the data and look it up. If the serialization were non-deterministic, logically identical data might produce different hashes upon subsequent requests, leading to cache misses and forcing redundant computations or data fetches. <a href="https://adlrocha.substack.com/p/adlrocha-webbundles-are-built-for">Content-addressable web bundles</a>, for example, leverage this principle to improve browser cache efficiency by ensuring that a bundle's content hash only changes if the content itself changes. Deterministic behavior is also a sought-after property in lower-level caching systems within hardware and operating systems to ensure predictable performance.</p>
+<h3 id="144-other-applications"><a class="header" href="#144-other-applications">1.4.4 Other Applications</a></h3>
+<p>Beyond these major areas, deterministic encoding provides benefits in several other contexts:</p>
+<ul>
+<li><strong>Secure Comparison and Fingerprinting:</strong> Comparing large datasets or complex objects for equality can be done efficiently and securely by comparing the hashes of their canonical representations. This avoids transmitting the full data and ensures that only truly identical data matches. This is useful for verifying configuration consistency, detecting changes in stored records, or fingerprinting data for various tracking purposes.</li>
+<li><strong>Testing and Diagnostics:</strong> In automated testing, ensuring that a given input always produces the exact same byte output simplifies verification, allowing for simple byte-wise comparisons of expected versus actual results. For diagnostics, presenting logged data or system states in a canonical form minimizes inconsequential differences (like map key order), making it easier for humans or tools to spot meaningful changes. It can also help in reproducing bugs that might otherwise seem non-deterministic due to variations introduced by serialization.</li>
+<li><strong>Object Hashing:</strong> Creating consistent, cross-language hash values for complex, nested data structures (often represented as combinations of lists, maps, and primitive types in memory) requires a canonical representation strategy. This is essential for using such objects reliably in hash tables or other contexts requiring stable identifiers derived from the object's state. Naive approaches like hashing the default string representation often fail due to non-determinism.</li>
+</ul>
+<h2 id="15-the-challenges-of-achieving-determinism"><a class="header" href="#15-the-challenges-of-achieving-determinism">1.5 The Challenges of Achieving Determinism</a></h2>
+<p>While the need for deterministic encoding is clear, achieving it presents several non-trivial technical challenges. These stem from the inherent ambiguities in data representation and the need to impose strict, unambiguous rules across diverse platforms and implementations. Overcoming the sources of non-determinism identified earlier requires careful algorithmic design and often involves trade-offs.</p>
+<ul>
+<li>
+<p><strong>Map Key Sorting:</strong> Defining a consistent order for map keys requires specifying a stable sorting algorithm that works identically everywhere. Lexicographical sorting is a common choice. However, the details matter: should the sort operate on the raw key strings (e.g., based on UTF-16 code units, as in JCS) or on the encoded byte representation of the keys (as in CBOR CDE)? Each choice has implications for implementation complexity and performance. Furthermore, sorting adds computational overhead compared to simply iterating through a map's elements in whatever order the underlying implementation provides.</p>
+</li>
+<li>
+<p><strong>Floating-Point Representation:</strong> The complexities of IEEE 754 floating-point arithmetic make canonicalization difficult. Rules must precisely define how to handle different precisions (half, single, double), ensuring the shortest valid representation is chosen. Canonical forms must be defined for special values like <code>NaN</code> (potentially collapsing different <code>NaN</code> payloads into one) and distinguishing <code>+0</code> from <code>−0</code>. An additional complication is that floating-point calculations themselves can sometimes yield slightly different results across different hardware platforms or compiler optimizations, meaning the values <em>input</em> to the serializer might differ even before encoding rules are applied.</p>
+</li>
+<li>
+<p><strong>Number Representation Ambiguity:</strong> A value like '42' could potentially be represented as a standard integer, a floating-point number, or even a bignum in some formats. A canonical scheme must provide unambiguous rules for choosing the representation, such as always preferring the simplest integer type if the value fits.</p>
+</li>
+<li>
+<p><strong>Unicode Normalization:</strong> Deciding how to handle different Unicode representations of the same visual character is a significant challenge. Enforcing a specific Normalization Form (like NFC or NFD) ensures that visually identical strings have the same canonical byte sequence, but it adds a potentially costly processing step and might not be desirable in all applications (e.g., if preserving the exact original byte sequence is important). Schemes like JCS and CBOR CDE deliberately omit mandatory Unicode normalization, pushing the responsibility to the application layer if needed. This simplifies the canonicalization protocol but means that <code>{"café": 1}</code> and <code>{"cafe\u0301": 1}</code> might have different canonical forms despite looking identical.</p>
+</li>
+<li>
+<p><strong>Handling Extensibility:</strong> Integrating extensibility mechanisms (like Protobuf's unknown fields or CBOR's tags) with canonicalization is difficult. Preserving unknown fields, crucial for Protobuf's compatibility story, fundamentally conflicts with canonicalization because their type and structure aren't known. For CBOR tags, while the tag's content can often be canonicalized using standard rules, ensuring the consistent use and representation of the tags themselves often requires application-level agreements (ALDR) beyond the scope of the core canonical encoding specification. A truly universal canonical format might need to restrict or disallow unknown data or require extensions to define their own canonicalization rules.</p>
+</li>
+<li>
+<p><strong>Performance Overhead:</strong> Implementing the rules required for canonicalization—sorting keys, normalizing numbers, checking for shortest forms, potentially normalizing Unicode—inevitably adds computational cost compared to simpler serialization methods that don't enforce these constraints. This overhead might be negligible in many applications but can be significant in high-throughput or resource-constrained environments.</p>
+</li>
+</ul>
+<p>This inherent trade-off between the robustness offered by canonicalization and the potential performance impact is a key consideration. Systems must carefully evaluate their specific needs. The desire for performance often leads developers to use simpler, potentially non-deterministic serialization methods by default. This explains why canonical encoding isn't universally applied and why formats like CBOR offer different levels of determinism (Preferred, Basic, CDE), allowing applications to choose the appropriate balance between strictness and speed.</p>
+<h2 id="16-surveying-the-landscape-previous-efforts"><a class="header" href="#16-surveying-the-landscape-previous-efforts">1.6 Surveying the Landscape: Previous Efforts</a></h2>
+<p>Over the years, various efforts have been made to address the need for deterministic or canonical representations, particularly for common data formats used in distributed systems and security protocols. Examining these provides valuable context and highlights recurring patterns and challenges.</p>
+<h3 id="161-jsons-canonicalization-conundrum"><a class="header" href="#161-jsons-canonicalization-conundrum">1.6.1 JSON's Canonicalization Conundrum</a></h3>
+<p>JSON (JavaScript Object Notation), despite its ubiquity, lacks a built-in canonical representation defined in its base specification (<a href="https://datatracker.ietf.org/doc/html/rfc8259">RFC 8259</a>). This omission means that naive serialization of JSON objects can easily lead to non-deterministic output due to varying property order and potential whitespace differences.</p>
+<p>Several approaches have emerged to fill this gap:</p>
+<ul>
+<li>
+<p><strong>RFC 8785: JSON Canonicalization Scheme (JCS):</strong> This is arguably the most prominent standard for JSON canonicalization. JCS achieves determinism by defining a strict set of rules:</p>
+<ul>
+<li><strong>Data Subset:</strong> Input JSON must conform to the I-JSON profile (<a href="https://datatracker.ietf.org/doc/html/rfc7493">RFC 7493</a>), which disallows duplicate object keys and imposes limits on number precision.</li>
+<li><strong>Primitive Serialization:</strong> Relies on the well-defined serialization of primitives (strings, numbers, booleans, null) specified by ECMAScript. Whitespace between tokens is forbidden.</li>
+<li><strong>String Handling:</strong> Specifies precise escaping rules for control characters and special characters like backslash and double-quote. Notably, it does <em>not</em> mandate Unicode normalization.</li>
+<li><strong>Number Handling:</strong> Numbers are serialized according to ECMAScript rules, effectively using IEEE 754 double-precision representation.</li>
+<li><strong>Object Key Sorting:</strong> Object properties MUST be sorted recursively based on the lexicographical order of their keys, comparing the keys as sequences of UTF-16 code units.</li>
+<li><strong>Array Element Order:</strong> The order of elements within JSON arrays is preserved.</li>
+<li><strong>Encoding:</strong> The final output must be UTF-8 encoded.</li>
+</ul>
+<p>JCS is published as an Informational RFC, meaning it's not an IETF standard but represents a community consensus. It has seen adoption in specific contexts, such as for JSON Web Key (JWK) Thumbprints (<a href="https://www.rfc-editor.org/rfc/rfc7638.html">RFC 7638</a>) and systems like Keybase, and libraries exist in multiple languages. However, it is not universally adopted across the JSON ecosystem, leading to a degree of fragmentation where applications might implement their own ad-hoc canonicalization or use different schemes.</p>
+</li>
+<li>
+<p><strong>ObjectHash:</strong> This represents a different philosophy. Instead of producing a canonical <em>text</em> representation, <a href="https://github.com/benlaurie/objecthash">ObjectHash</a> computes a cryptographic hash directly from the semantic structure of a JSON-like object (lists, dictionaries, primitives). It defines specific hashing procedures for each type, including sorting dictionary keys before hashing. A key feature is its support for redaction: parts of a structure can be replaced by the hash of the redacted part, allowing verification of the overall structure even with hidden data. This approach avoids intermediate text serialization altogether.</p>
+</li>
+<li>
+<p><strong>Other Ad-hoc Methods:</strong> Many systems implement simpler, non-standardized canonicalization, often just involving sorting object keys alphabetically before using a standard JSON serializer. While better than no canonicalization, these methods lack the precise rules for primitive serialization found in JCS and may not be interoperable.</p>
+</li>
+</ul>
+<p>The situation for JSON highlights the difficulty of retrofitting canonicalization onto a widely adopted, flexible format without a single, mandated standard.</p>
+<p><strong>Comparison of Selected JSON Canonicalization Approaches</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Feature</th><th>RFC 8785 JCS</th><th>ObjectHash</th><th>Ad-hoc Sorting + JSON.stringify</th></tr></thead><tbody>
+<tr><td><strong>Approach</strong></td><td>Canonical Text Serialization</td><td>Direct Cryptographic Hashing of Structure</td><td>Text Serialization after Key Sort</td></tr>
+<tr><td><strong>Output</strong></td><td>UTF-8 JSON Text</td><td>Cryptographic Hash (e.g., SHA-256)</td><td>JSON Text (often UTF-8)</td></tr>
+<tr><td><strong>Basis</strong></td><td>RFC 8785 (Informational)</td><td>Custom Specification</td><td>Application-specific</td></tr>
+<tr><td><strong>Object/Map Key Ordering</strong></td><td>Mandatory Lexicographical Sort (UTF-16 units)</td><td>Mandatory Lexicographical Sort (before hashing)</td><td>Typically Lexicographical Sort (implementation varies)</td></tr>
+<tr><td><strong>Number Handling</strong></td><td>ECMAScript standard (IEEE 754 double)</td><td>Specific hashing rule for numbers</td><td>Depends on underlying JSON serializer</td></tr>
+<tr><td><strong>String Handling</strong></td><td>ECMAScript standard; No Unicode Normalization</td><td>Specific hashing rule; No Unicode Normalization</td><td>Depends on underlying JSON serializer</td></tr>
+<tr><td><strong>Extensibility/Unknowns</strong></td><td>Constrained by I-JSON; No explicit unknown handling</td><td>Handles basic JSON types; Redaction mechanism</td><td>Depends on underlying JSON serializer</td></tr>
+<tr><td><strong>Key Features</strong></td><td>Interoperable text form, Cryptographic use</td><td>Redactability, Avoids text intermediate</td><td>Simplicity (potentially fragile)</td></tr>
+<tr><td><strong>Adoption Notes</strong></td><td>Used in JWK Thumbprint, Keybase; Libraries exist</td><td>Used in specific projects (e.g., Certificate Transparency logs)</td><td>Common but non-standardized</td></tr>
+</tbody></table>
+</div>
+<h3 id="162-asn1-distinguished-encoding-rules-der"><a class="header" href="#162-asn1-distinguished-encoding-rules-der">1.6.2 ASN.1 Distinguished Encoding Rules (DER)</a></h3>
+<p>Abstract Syntax Notation One (<a href="https://en.wikipedia.org/wiki/ASN.1">ASN.1</a>) is a mature standard from the ITU-T for defining data structures, widely used in telecommunications and security protocols. Associated with ASN.1 are several encoding rule sets that specify how to serialize data structures into bytes. The most relevant for canonicalization is the <strong>Distinguished Encoding Rules (DER)</strong>, specified in ITU-T X.690.</p>
+<p>DER is a specialized subset of the more flexible Basic Encoding Rules (BER). While BER allows multiple ways to encode the same value (e.g., different length specifications, constructed vs. primitive string forms), DER restricts these choices to ensure that any given ASN.1 value has exactly one valid DER encoding. This canonical property is achieved primarily through restriction: DER mandates specific choices where BER offers flexibility:</p>
+<ul>
+<li><strong>Length Encoding:</strong> Length fields must use the definite form and the minimum possible number of octets. Indefinite lengths (allowed in BER) are prohibited.</li>
+<li><strong>String Types:</strong> Primitive encoding must be used for string types like OCTET STRING and BIT STRING (BER allows constructed forms). Unused bits in the final octet of a BIT STRING must be zero.</li>
+<li><strong>Boolean Values:</strong> FALSE must be encoded as a single byte <code>0x00</code>, and TRUE as a single byte <code>0xFF</code>.</li>
+<li><strong>Set Ordering:</strong> Elements within a SET OF construct must be sorted according to their tag value and encoded bytes.</li>
+<li><strong>Default Values:</strong> Fields with default values defined in the ASN.1 schema must NOT be encoded if they hold the default value.</li>
+</ul>
+<p>The primary application of DER is in Public Key Infrastructure (PKI), particularly for encoding <strong>X.509 digital certificates</strong> and Certificate Revocation Lists (CRLs). The unambiguous nature of DER is critical for ensuring that certificates can be parsed and validated consistently across different systems and that digital signatures covering certificate contents are reliable.</p>
+<p>DER's success lies in its long-standing use and effectiveness within its specific domain (PKI). It demonstrates that canonicalization can be achieved and maintained over decades. However, ASN.1 and DER are often perceived as complex and potentially verbose compared to more modern formats like JSON or CBOR, which has limited their adoption in web-centric APIs and applications.</p>
+<h3 id="163-hashing-and-signing-strategies"><a class="header" href="#163-hashing-and-signing-strategies">1.6.3 Hashing and Signing Strategies</a></h3>
+<p>The interaction between data serialization and cryptographic operations like hashing and digital signing is a critical area where determinism is paramount. The overwhelmingly standard practice is to <strong>canonicalize the data first, then apply the cryptographic operation (hash or signature) to the resulting canonical byte stream</strong>.</p>
+<p>Signing non-canonical data introduces significant risks. A signature created over one specific byte representation might be valid only for that exact sequence. If the recipient re-serializes the data differently (due to non-deterministic rules), the signature verification will fail, even if the logical data is unchanged. This can lead to false integrity failures or, in more complex scenarios, potentially allow an attacker to craft a different serialization of the same logical data that bypasses certain checks while still matching the original signature under lenient verification rules. Canonicalization before signing ensures that the signature is bound to the <em>semantic content</em> rather than a specific, potentially fragile, byte layout.</p>
+<p>It is important to distinguish the canonicalization of the <em>message</em> input from the determinism of the <em>signature algorithm</em> itself. Some signature algorithms, like DSA and ECDSA, traditionally required a random number (nonce) for each signature. Flaws in the random number generation process have historically led to catastrophic private key compromises. To mitigate this, <strong>deterministic signature generation</strong> schemes have been developed, such as RFC 6979 for DSA/ECDSA and the inherent design of algorithms like Ed25519. These schemes derive the necessary nonce deterministically from the private key and the message hash, eliminating the need for external randomness during signing.</p>
+<p>Therefore, achieving robust and reliable digital signatures often involves ensuring determinism at two distinct layers:</p>
+<ol>
+<li><strong>Deterministic Message Representation:</strong> Using canonicalization to ensure the input to the hash function is consistent.</li>
+<li><strong>Deterministic Signature Computation:</strong> Using algorithms that derive internal randomness (like nonces) deterministically to avoid reliance on potentially flawed external random sources. Both layers address different potential failure points and contribute to the overall security and reliability of the signing process.</li>
+</ol>
+<h3 id="164-other-binary-formats-brief-mention"><a class="header" href="#164-other-binary-formats-brief-mention">1.6.4 Other Binary Formats (Brief Mention)</a></h3>
+<p>While JSON and ASN.1/DER represent major text and schema-driven binary approaches, other binary formats also grapple with determinism:</p>
+<ul>
+<li>
+<p><strong>Protocol Buffers (Protobuf):</strong> As mentioned earlier, Protobuf offers a "deterministic serialization" mode. However, the documentation clearly states this is <em>not</em> canonical. It guarantees byte consistency only for a specific binary build and schema version, but not across different language implementations, library versions, or even schema evolution (due to the handling of unknown fields). Its design prioritizes compatibility and efficiency over strict canonicalization. Specific deterministic schemes have been layered on top for specific use cases, like Cosmos SDK's ADR-027, which adds rules for field ordering, varint encoding, and default value handling.</p>
+</li>
+<li>
+<p><strong>Binary Canonical Serialization (BCS):</strong> In contrast to Protobuf, <a href="https://move-book.com/programmability/bcs.html">BCS</a> was explicitly designed from the ground up with canonicalization as a primary goal. Originating in the Diem blockchain project (defunct) and now used widely in the Move language ecosystem (Sui, Aptos), BCS aims for simplicity, efficiency, and a guaranteed one-to-one mapping between in-memory values and byte representations. It defines strict rules for encoding primitives (little-endian integers, ULEB128 for lengths), sequences, maps (implicitly requiring ordered keys for canonicalization, though the base spec focuses more on structs), and structs (fields serialized in definition order). Its primary motivation is to support cryptographic hashing and consensus mechanisms in blockchains.</p>
+</li>
+</ul>
+<h2 id="17-lessons-learned-successes-shortcomings-and-the-path-forward"><a class="header" href="#17-lessons-learned-successes-shortcomings-and-the-path-forward">1.7 Lessons Learned: Successes, Shortcomings, and the Path Forward</a></h2>
+<p>The survey of deterministic and canonical encoding efforts reveals valuable lessons about what has worked, what challenges persist, and what properties are desirable in future solutions.</p>
+<p><strong>Successes:</strong></p>
+<ul>
+<li><strong>Domain-Specific Stability:</strong> ASN.1 DER demonstrates that a strict canonical encoding standard can achieve long-term stability and interoperability within a well-defined domain like PKI, serving as the foundation for X.509 certificates for decades.</li>
+<li><strong>Addressing Common Formats:</strong> Efforts like JCS (RFC 8785) provide a viable, albeit not universally adopted, solution for canonicalizing JSON, leveraging existing widespread technologies like ECMAScript for primitive serialization.</li>
+<li><strong>Purpose-Built Solutions:</strong> Formats like BCS show that when canonicalization is a primary design goal, especially for demanding use cases like blockchain consensus, efficient and effective binary formats can be created.</li>
+<li><strong>Enabling Critical Patterns:</strong> Canonicalization is demonstrably essential for enabling robust digital signatures, reliable distributed consensus, and efficient content-addressable storage and caching.</li>
+</ul>
+<p><strong>Shortcomings and Persistent Challenges:</strong></p>
+<ul>
+<li><strong>Fragmentation:</strong> For popular, flexible formats like JSON, the lack of a single, universally mandated canonicalization standard leads to fragmentation, with multiple competing schemes or ad-hoc solutions.</li>
+<li><strong>Design Conflicts:</strong> Some formats, like Protocol Buffers, have core design features (e.g., handling of unknown fields for compatibility) that inherently conflict with the requirements for true canonicalization across different contexts.</li>
+<li><strong>Complexity and Overhead:</strong> Achieving canonicalization often introduces complexity in implementation and runtime overhead due to steps like sorting or normalization, creating a trade-off against performance. This can make canonical forms less appealing for performance-critical applications if the benefits are not strictly required. ASN.1/DER, while successful, is often perceived as overly complex for simpler web-based use cases.</li>
+<li><strong>Handling Nuances:</strong> Accurately and consistently handling the subtleties of floating-point arithmetic and Unicode across all platforms remains a persistent challenge requiring explicit and careful rule definition.</li>
+<li><strong>Extensibility:</strong> Integrating extensibility mechanisms (like tags or user-defined types) into a canonical framework without requiring constant updates to the core specification or relying heavily on application-level agreements remains difficult.</li>
+</ul>
+<p>A recurring theme emerges from these observations: the inherent tension between designing a data format for maximum flexibility and extensibility, and achieving strict, simple canonicalization. Features enhancing flexibility—multiple number encodings, optional fields, variable map ordering, mechanisms for unknown data—often introduce the very ambiguities that canonicalization seeks to eliminate. Consequently, canonical formats frequently achieve their goal by <em>restricting</em> the flexibility of the underlying data model or base encoding rules (DER restricts BER, CDE restricts CBOR, JCS restricts JSON via I-JSON). Designing a format that balances flexibility with ease of canonicalization requires careful consideration from the outset.</p>
+<p>The Path Forward:</p>
+<p>The increasing prevalence of distributed systems, the demand for verifiable data (like VCs), and the constant need for robust security mechanisms ensure that the need for reliable deterministic and canonical encoding will only grow. An ideal solution, building on the lessons learned, should strive for:</p>
+<ul>
+<li><strong>Unambiguity:</strong> Clear, precise rules that leave no room for interpretation and lead to a single, verifiable canonical form.</li>
+<li><strong>Efficiency:</strong> Minimize computational overhead compared to non-canonical serialization, making it practical for a wider range of applications.</li>
+<li><strong>Simplicity:</strong> Easy to understand and implement correctly, reducing the likelihood of errors (a key goal of CBOR itself).</li>
+<li><strong>Robustness:</strong> Handle common data types, including integers, floating-point numbers, and strings (with clear rules regarding Unicode), effectively.</li>
+<li><strong>Well-Defined Extensibility:</strong> Provide a clear path for extending the format without breaking canonical properties or requiring constant core specification updates.</li>
+</ul>
+<p>These desirable properties set the stage for exploring more advanced solutions designed to meet these needs within the context of modern data formats. The subsequent chapters will delve into how dCBOR aims to provide such a solution within the CBOR ecosystem.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_1/cbor_schemas_with_cddl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_2/cbor_cde_dcbor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_1/cbor_schemas_with_cddl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_2/cbor_cde_dcbor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Introduction - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<h2 id="tldr-who-is-this-book-for"><a class="header" href="#tldr-who-is-this-book-for">TL;DR: Who is This Book For?</a></h2>
+<ul>
+<li>
+<p>If your primary goal is to understand a modern, efficient binary serialization format that offers significant performance and size benefits over JSON, Part I provides a comprehensive guide to CBOR.</p>
+</li>
+<li>
+<p>If your application requires absolute, verifiable consistency – for digital signatures, content hashing, consensus, or interoperable verification – Part II delves into the principles of determinism and the specifics of dCBOR, including a tutorial for the <code>dcbor</code> Rust crate.</p>
+</li>
+<li>
+<p>For those building applications that require structured, verifiable, and privacy-preserving data – <em>smart documents</em> – Part III explores the groundbreaking capabilities of Gordian Envelope, including usage of the <code>bc-envelope</code> Rust crate.</p>
+</li>
+</ul>
+<hr />
+<h2 id="navigating-the-landscape-of-modern-data-representation"><a class="header" href="#navigating-the-landscape-of-modern-data-representation">Navigating the Landscape of Modern Data Representation</a></h2>
+<p>Modern software engineering demands tools that can handle the dual pressures of performance and trust. As systems grow more distributed and data security becomes paramount, developers must move beyond formats that were designed for a simpler era. JSON, while readable and ubiquitous, can introduce unacceptable inefficiencies—slowing performance, bloating payloads, and leaving room for ambiguity where certainty is required.</p>
+<p>This book introduces a progressive technological stack—CBOR, dCBOR, and Gordian Envelope—that addresses these modern challenges head-on. Together, they form a path from compact binary encoding to cryptographically verifiable and privacy-preserving data structures. Understanding these tools enables engineers and decision-makers to build faster, leaner, and more trustworthy systems—without compromise.</p>
+<h2 id="part-i-the-foundation--achieving-efficiency-with-cbor"><a class="header" href="#part-i-the-foundation--achieving-efficiency-with-cbor">Part I: The Foundation – Achieving Efficiency with CBOR</a></h2>
+<p>At the core of this stack is CBOR: Concise Binary Object Representation, defined in RFC 8949. It was designed for constrained environments, enabling implementations with minimal memory and CPU usage—ideal for IoT devices, embedded systems, and high-throughput applications.</p>
+<p>CBOR offers significant efficiency over JSON. Its binary encoding means faster parsing, smaller messages, and lower latency. It also supports an extended data model, including binary byte strings, which simplifies integration with existing JSON systems while enabling more advanced use cases.</p>
+<p>Crucially, CBOR is extensible. New tags can be introduced without breaking older implementations, reducing long-term maintenance burdens. Protocols can evolve without costly version negotiations, and features can be rolled out faster and more safely.</p>
+<p>While JSON emphasizes human readability, CBOR prioritizes performance, resource efficiency, and future-proof extensibility. In many systems—especially where network bandwidth, power, or processing time is scarce—CBOR isn’t just better. It’s necessary.</p>
+<h2 id="part-ii-the-guarantee--ensuring-verifiable-consistency-with-dcbor"><a class="header" href="#part-ii-the-guarantee--ensuring-verifiable-consistency-with-dcbor">Part II: The Guarantee – Ensuring Verifiable Consistency with dCBOR</a></h2>
+<p>Efficiency alone isn’t enough for systems that rely on trust. Distributed ledgers, digital signatures, and content-addressed data all depend on one principle: the exact same data must always serialize to the exact same bytes.</p>
+<p>CBOR provides guidelines for deterministic encoding—but leaves enough leeway to produce different byte sequences for the same logical structure. This is a problem for cryptography and consensus protocols, where even one byte of variance invalidates signatures or breaks agreement.</p>
+<p>Deterministic CBOR (dCBOR) solves this. It is a strict profile of CBOR that eliminates ambiguity. It defines canonical rules for numeric encoding (e.g., converting <code>2.0</code> to <code>2</code>, collapsing NaNs into a single representation), mandates lexicographic sorting of map keys by their encoded form, and forbids features like indefinite-length values that undermine determinism.</p>
+<p>dCBOR isn’t a fork. It’s fully valid CBOR, but with stricter rules and mandatory validation. Encoders must produce canonical output. Decoders must reject anything that isn’t. This guards against inconsistency, manipulation, and protocol divergence—critical when trust is on the line.</p>
+<p>For engineering teams building security-critical systems, dCBOR provides the byte-level reliability needed to anchor hashing, signing, auditing, and cross-platform integrity checks. It replaces ambiguity with assurance.</p>
+<h2 id="part-iii-the-breakthrough--secure-structured-privacy-enhancing-data-with-gordian-envelope"><a class="header" href="#part-iii-the-breakthrough--secure-structured-privacy-enhancing-data-with-gordian-envelope">Part III: The Breakthrough – Secure, Structured, Privacy-Enhancing Data with Gordian Envelope</a></h2>
+<p>Once determinism is in place, it becomes possible to build something far more powerful: a structured, secure, and privacy-aware data format that can adapt to the demands of modern identity, privacy, and trust. That’s what Gordian Envelope delivers.</p>
+<p>Built atop dCBOR, Gordian Envelope enables deeply structured data with built-in cryptographic integrity. It’s a semantic format—often modeled as subject-predicate-object triples—wrapped in a Merkle-like digest tree. This structure guarantees that every element, not just the whole, can be independently verified.</p>
+<p>What sets Envelope apart is <strong>holder-controlled elision</strong>: the ability to redact or hide portions of the data without invalidating the overall structure or breaking attached signatures. This enables minimal disclosure, progressive trust, and user-controlled privacy—foundational principles for self-sovereign identity and modern data sovereignty.</p>
+<p>Envelope also supports advanced layering: encryption, compression, nested signatures, and semantic annotations. These features don’t just bolt on—they integrate directly with the underlying structure, allowing powerful capabilities like verifiable redaction, authenticated subtrees, and selective disclosure proofs.</p>
+<p>Its use cases are broad and high-impact: verifiable credentials, digital wallets, secure logs, privacy-preserving data sharing, and cryptographic asset management. More fundamentally, Envelope shifts control from institutions to individuals. Data no longer belongs solely to the issuer. It’s held, managed, and selectively revealed by the user.</p>
+<p>This is the architecture of trust, built from the bottom up: efficient encoding, deterministic consistency, and cryptographic structure, all aligned with privacy and user agency.</p>
+<p>CBOR is the foundation. dCBOR is the guarantee. Gordian Envelope is the future.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../introduction/colophon.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../introduction/from_xml_to_json_to_cbor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../introduction/colophon.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../introduction/from_xml_to_json_to_cbor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Extending Semantics with CBOR Tags - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="extending-semantics-with-cbor-tags"><a class="header" href="#extending-semantics-with-cbor-tags">Extending Semantics with CBOR Tags</a></h1>
+<h2 id="beyond-basic-types-the-need-for-meaning"><a class="header" href="#beyond-basic-types-the-need-for-meaning">Beyond Basic Types: The Need for Meaning</a></h2>
+<p>In the previous chapter, we explored the fundamental mechanics of CBOR encoding, focusing on how basic data types like integers, strings, arrays, and maps are represented in a compact binary form. We saw how CBOR leverages a simple initial byte structure (Major Type and Additional Information) to create a self-describing format at the byte level, closely mirroring the familiar JSON data model but optimized for efficiency.</p>
+<p>However, real-world data often carries meaning beyond these fundamental structures. How do we distinguish a simple integer representing a count from one representing seconds since an epoch? How do we represent a date, a URI, or a number larger than standard 64-bit integers can hold? While applications could implicitly agree on the meaning of specific fields (e.g., "the 'timestamp' field is always epoch seconds"), this approach lacks standardization and can lead to ambiguity and interoperability issues.</p>
+<p>CBOR addresses this need for richer semantics through its <strong>tagging mechanism</strong>. Tags allow us to annotate underlying data items, providing additional context or type information without fundamentally changing the encoding structure. They are a cornerstone of CBOR's extensibility, enabling the representation of a vast range of data types beyond the core set, from standard types like dates and URIs to application-specific structures.</p>
+<p>This chapter delves into CBOR Tags (Major Type 6). We will explore:</p>
+<ul>
+<li>How tags work mechanically.</li>
+<li>Their purpose in adding semantic meaning and enabling extensibility.</li>
+<li>The IANA registry that standardizes tag definitions.</li>
+<li>The different ranges of tag numbers and their implications for interoperability.</li>
+<li>A selection of commonly used ("notable") tags with practical examples.</li>
+</ul>
+<p>By the end of this chapter, you will understand how to use and interpret CBOR tags, unlocking a powerful feature for representing complex and meaningful data structures efficiently.</p>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> As before, this chapter aims for practical understanding. For definitive details, always refer to the official specification,(<a href="https://datatracker.ietf.org/doc/html/rfc8949">https://datatracker.ietf.org/doc/html/rfc8949</a>), and the IANA registries it defines.</p>
+</blockquote>
+<h2 id="tagging-mechanism-major-type-6"><a class="header" href="#tagging-mechanism-major-type-6">Tagging Mechanism (Major Type 6)</a></h2>
+<p>CBOR dedicates Major Type 6 specifically for tags. A tag consists of two parts:</p>
+<ol>
+<li><strong>Tag Number:</strong> An unsigned integer (ranging from 0 up to 2⁶⁴−1) that identifies the tag's meaning.</li>
+<li><strong>Tag Content:</strong> A single, subsequent CBOR data item that is being tagged.</li>
+</ol>
+<pre><code>┌──────────────────────┐
+│   TAG HEADER BYTE    │   → Major Type 6 + AI (determines length of tag number)
+├──────────────────────┤
+│   TAG NUMBER BYTES   │   → (0 to 8 bytes depending on AI)
+└──────────────────────┘
+           ↓
+┌──────────────────────┐
+│   TAGGED DATA ITEM   │   → Any valid CBOR item (primitive, array, map, etc.)
+└──────────────────────┘
+</code></pre>
+<p>The encoding follows the standard CBOR pattern. The initial byte has its high-order 3 bits set to <code>110</code> (Major Type 6). The low-order 5 bits (Additional Information) encode the tag number itself, using the same rules used for all the major types:</p>
+<div class="table-wrapper"><table><thead><tr><th>Tag Number Range</th><th>Initial Byte</th><th>Additional Bytes</th><th>Total Tag Header Size</th><th>Notes</th></tr></thead><tbody>
+<tr><td>0 to 23</td><td><code>0xC0</code> to <code>0xD7</code></td><td>None</td><td>1 byte</td><td>Tag number in AI (0–23)</td></tr>
+<tr><td>24 to 255</td><td><code>0xD8</code></td><td>1 byte (uint8)</td><td>2 bytes</td><td>AI = 24</td></tr>
+<tr><td>256 to 65535</td><td><code>0xD9</code></td><td>2 bytes (uint16)</td><td>3 bytes</td><td>AI = 25</td></tr>
+<tr><td>65536 to 4294967295</td><td><code>0xDA</code></td><td>4 bytes (uint32)</td><td>5 bytes</td><td>AI = 26</td></tr>
+<tr><td>4294967296 to 2⁶⁴−1</td><td><code>0xDB</code></td><td>8 bytes (uint64)</td><td>9 bytes</td><td>AI = 27</td></tr>
+</tbody></table>
+</div>
+<p>Immediately following the initial byte(s) that encode the tag number comes the complete encoding of the single data item that serves as the tag's content.</p>
+<p><strong>Example:</strong> Tag 2 (unsigned bignum) applied to the byte string <code>h'0102'</code></p>
+<div class="table-wrapper"><table><thead><tr><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>c2</code></td><td>6</td><td>2</td><td>Tag(2): Major Type 6, AI encodes tag number 2</td></tr>
+<tr><td><code>42</code></td><td>2</td><td>2</td><td>Byte String (Major Type 2), length = 2 bytes</td></tr>
+<tr><td><code>0102</code></td><td>–</td><td>–</td><td>Tag Content: raw bytes <code>0x01</code>, <code>0x02</code></td></tr>
+</tbody></table>
+</div>
+<p><strong>CBOR Diagnostic Notation:</strong> <code>2(h'0102')</code></p>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> If you put this diagnostic notation into the <a href="https://cbor.me/">CBOR playground</a>, convert it to its hexadecimal representation and back, you will get the value <code>258</code>! This is because the playground understands that byte strings tagged with <strong>Tag 2</strong> (unsigned bignum) are interpreted as a single integer value. In this case, the first byte <code>0x01</code> is the most significant byte, and the second byte <code>0x02</code> is the least significant byte, leading to the calculation: <code>(1 * 256 + 2) = 258</code>. This is the playground enforcing <em>preferred serialization</em> of numbers, which is a feature of the playground, not a requirement of CBOR itself.</p>
+</blockquote>
+<h3 id="purpose-of-tags"><a class="header" href="#purpose-of-tags">Purpose of Tags</a></h3>
+<p>Why introduce this extra layer? Tags serve several crucial purposes aligned with CBOR's design goals:</p>
+<ul>
+<li><strong>Adding Semantics:</strong> Tags provide standardized meaning to underlying data. Tag 1 indicates that an integer or float represents epoch-based time; Tag 32 indicates a text string is a URI. This allows applications to interpret data correctly without relying solely on field names or out-of-band agreements.</li>
+<li><strong>Extensibility:</strong> Tags are CBOR's primary mechanism for defining new data types beyond the basic set, without requiring version negotiation. New standards or applications can define tags for specialized data structures (like cryptographic keys, geographic coordinates, or domain-specific objects) and register them, allowing the CBOR ecosystem to grow organically.</li>
+<li><strong>Interoperability Hints:</strong> Some tags provide guidance for converting CBOR data to other formats, particularly JSON which lacks native support for types like byte strings or dates. Tags 21-23, for example, suggest how binary data might be represented using base64 or hex encoding if conversion is necessary.</li>
+<li><strong>Type System Augmentation:</strong> Tags allow CBOR to represent data types common in programming languages but not directly present in the basic JSON model, such as unsigned 64-bit integers, arbitrarily large integers (bignums), specific date/time formats, UUIDs, and more.</li>
+</ul>
+<p>This mechanism of using an inline prefix tag number followed by the content provides a compact, binary-native way to convey type and semantic information. This contrasts with more verbose text-based approaches like XML namespaces or JSON-LD contexts, aligning with CBOR's goal of message size efficiency.</p>
+<h3 id="decoder-behavior"><a class="header" href="#decoder-behavior">Decoder Behavior</a></h3>
+<p>Crucially, CBOR decoders are <strong>not required</strong> to understand the semantics of every tag they encounter. This is a key aspect of CBOR's extensibility and forward compatibility. A generic decoder encountering an unknown tag <code>N</code> followed by content <code>C</code> can simply:</p>
+<ol>
+<li>Decode the tag number <code>N</code>.</li>
+<li>Decode the tag content <code>C</code>.</li>
+<li>Pass both <code>N</code> and <code>C</code> to the application.</li>
+</ol>
+<p>The application can then decide whether it understands tag <code>N</code> and how to interpret <code>C</code> based on it. If the application doesn't recognize tag <code>N</code>, it might treat <code>C</code> as opaque data, ignore it, or raise an error, depending on the application's logic. This allows systems to process messages containing newer, unknown tags without failing, provided the application logic can handle the tagged data appropriately (perhaps by ignoring it).</p>
+<h3 id="tag-nesting"><a class="header" href="#tag-nesting">Tag Nesting</a></h3>
+<p>Tags can be nested. A tag can enclose another tag, which in turn encloses a data item. For example, consider <code>TagA(TagB(ItemC))</code>. The interpretation applies from the inside out: <code>TagB</code> modifies or adds semantics to <code>ItemC</code>, and then <code>TagA</code> applies to the result of <code>TagB(ItemC)</code>.</p>
+<p>Later in the book we'll discuss Gordian Envelope. The CBOR diagnostic notation for a very simple envelope containing just a text string might look like this:</p>
+<pre><code>200(201("Hello, envelope!"))
+</code></pre>
+<p>Tag 200 is registered with IANA as "Gordian Envelope". So anytime you encounter tag 200, you know you're looking at a Gordian Envelope. The tag 201 represents dCBOR (deterministic CBOR), which we'll also cover in this book. In the Gordian Envelope specification, an Envelope containing just dCBOR is a <code>LEAF</code> node, which can be any valid dCBOR-- in this case, a text string.</p>
+<h2 id="finding-your-tags-the-iana-registry"><a class="header" href="#finding-your-tags-the-iana-registry">Finding Your Tags: The IANA Registry</a></h2>
+<p>With potentially 2⁶⁴ tag numbers available, how do we ensure that different applications don't use the same number for conflicting purposes? With that many tags, you could just pick them at random and be pretty certain nobody else is using them, but there's a better way! The Internet Assigned Numbers Authority (IANA) maintains the official <a href="https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml">Concise Binary Object Representation (CBOR) Tags registry</a>.</p>
+<p>This registry serves as the central, authoritative source for standardized tag assignments. Its importance cannot be overstated:</p>
+<ul>
+<li><strong>Interoperability:</strong> The registry ensures that a specific tag number (especially in the lower, standardized ranges) consistently refers to the same semantic meaning and expected data item type across different implementations and protocols that adhere to the standards. This prevents conflicts where one application might use tag <code>X</code> for dates while another uses it for URIs.</li>
+<li><strong>Discovery:</strong> It provides a public catalog where developers can look up existing tags for common data types (like dates, bignums, UUIDs, MIME messages, etc.) before defining their own. This encourages reuse and avoids unnecessary proliferation of tags for the same concept.</li>
+</ul>
+<p>The registry is presented as a table with columns including:</p>
+<ul>
+<li><strong>Tag:</strong> The tag number.</li>
+<li><strong>Data Item:</strong> The expected CBOR type(s) of the tag content (e.g., text string, byte string, array, integer).</li>
+<li><strong>Semantics:</strong> A brief description of the tag's meaning.</li>
+<li><strong>Reference:</strong> A pointer to the document (an RFC or other stable specification) that defines the tag in detail.</li>
+</ul>
+<h2 id="tag-number-ranges-and-registration-procedures"><a class="header" href="#tag-number-ranges-and-registration-procedures">Tag Number Ranges and Registration Procedures</a></h2>
+<p>The IANA registry doesn't treat all tag numbers equally. The vast space from 0 to 264−1 is divided into distinct ranges, each with its own allocation policy. These policies reflect the intended use and required level of standardization for tags within that range. Understanding these ranges is crucial for choosing appropriate tags and understanding their interoperability implications.</p>
+<p>The primary ranges and their procedures are:</p>
+<ol>
+<li>
+<p><strong>Range 0-23 (Standards Action)</strong></p>
+<ul>
+<li><strong>Encoding:</strong> These are the most compact tags, encoded directly within the initial byte (<code>0xc0</code> to <code>0xd7</code>).</li>
+<li><strong>Procedure:</strong> Requires <strong>Standards Action</strong>. Assignment typically necessitates definition within an IETF Request for Comments (RFC) or a standard from another recognized body. This is the most rigorous process, requiring that the IETF adopt the tag as part of a formal standard.</li>
+<li><strong>Intended Use:</strong> Reserved for core, fundamental, and widely applicable data types expected to be broadly interoperable (e.g., standard date/time formats, bignums, basic content hints).</li>
+</ul>
+</li>
+<li>
+<p><strong>Range 24-32767 (Specification Required)</strong></p>
+<ul>
+<li><strong>Encoding:</strong> Covers tags requiring 1 additional byte (<code>0xd8 xx</code>, for tags 24-255) and the lower half of tags requiring 2 additional bytes (<code>0xd9 xxxx</code>, for tags 256-32767).</li>
+<li><strong>Procedure:</strong> Requires <strong>Specification Required</strong>. This means a stable, publicly accessible specification document defining the tag's semantics, expected data item format, and intended use must exist. IANA-appointed experts review the specification before registration. It's less formal than full Standards Action but still requires clear documentation and review.</li>
+<li><strong>Intended Use:</strong> Suitable for well-defined data types used within specific protocols, communities, or domains (e.g., COSE security tags, MIME messages, UUIDs, URIs, dCBOR, and Gordian Envelope). These tags are expected to be interoperable among parties using the defining specifications.</li>
+</ul>
+</li>
+<li>
+<p><strong>Range 32768 - 18446744073709551615 (First Come First Served - FCFS)</strong></p>
+<ul>
+<li><strong>Encoding:</strong> Covers the upper half of 2-byte tags, all 4-byte tags (<code>0xda xxxxxxxx</code>), and all 8-byte tags (<code>0xdb xxxxxxxxxxxxxxxx</code>). This is the vast majority of the tag number space.</li>
+<li><strong>Procedure:</strong> <strong>First Come First Served (FCFS)</strong>. Registration is granted to the first applicant who provides the required information (based on the RFC 8949 template), including contact details and preferably a URL pointing to a description of the semantics. The review is primarily for completeness, not semantic detail or overlap (beyond the number itself).</li>
+<li><strong>Intended Use:</strong> Designed for application-specific tags, experimental use, vendor-specific extensions, or types where broad standardization isn't necessary or desired. Useful for rapid development or closed ecosystems.</li>
+</ul>
+</li>
+</ol>
+<p>This tiered structure represents a deliberate design choice, reflecting a spectrum from highly standardized and stable core types to flexible application-specific extensions. It reserves the most efficiently encoded tag numbers (0-23) for the most common, universally understood types, while providing ample space for innovation and specific needs in the higher ranges. All registration requests, regardless of range, must follow the basic template defined in RFC 8949 to ensure a minimum level of documentation.</p>
+<h2 id="choosing-and-using-tags-wisely"><a class="header" href="#choosing-and-using-tags-wisely">Choosing and Using Tags Wisely</a></h2>
+<p>The existence of different registration ranges has direct practical consequences for developers choosing tags:</p>
+<ul>
+<li>
+<p><strong>Interoperability Guarantees:</strong></p>
+<ul>
+<li><strong>Standards Action (0-23):</strong> Offers the highest likelihood of interoperability. Implementations aiming for broad CBOR compliance should recognize and potentially handle these tags. Use them whenever your data semantically matches a tag in this range.</li>
+<li><strong>Specification Required (24-32767):</strong> Provides good interoperability <em>within the community that uses the defining specification</em>. Consumers outside this community may not recognize the tag without consulting the specification. Ideal for domain-specific standards (e.g., security tokens, IoT protocols).</li>
+<li><strong>FCFS (32768+):</strong> Offers the lowest <em>inherent</em> interoperability guarantee. Use primarily for private or application-specific data types where producers and consumers are tightly coupled or have explicitly agreed on the tag's meaning. Relying on FCFS tags for broad, unspecified interoperability is risky.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> <strong>The Danger of "Squatting"</strong> Never use an <em>unregistered</em> tag number from the Standards Action (0-23) or Specification Required (24-32767) ranges for your own private or experimental purposes. This practice, sometimes called "tag squatting," inevitably leads to collisions when IANA officially assigns that number for a different purpose. It breaks interoperability and creates significant problems down the line. Use the FCFS range for experimentation or application-specific needs.</p>
+</blockquote>
+<h2 id="how-to-register-your-own-fcfs-tags"><a class="header" href="#how-to-register-your-own-fcfs-tags">How to Register your own FCFS Tags</a></h2>
+<blockquote>
+<p><strong>✅ TIP:</strong> There is no charge to register a new tag.</p>
+</blockquote>
+<ol>
+<li>Check the <a href="https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml">IANA CBOR Tags Registry</a> to ensure that there isn't already an existing tag that does what you want. If you find one, use that instead of creating a new one.</li>
+<li>Write your specification. This should be a stable, publicly accessible document that defines the tag's semantics, expected data item format, and intended use. It can be as simple as a <a href="https://gist.github.com/">GitHub Gist</a>, but it should be clear, unambiguous, and have a stable URL.</li>
+<li>Check the <a href="https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml">IANA CBOR Tags Registry</a> to ensure the tag you want isn't already taken.</li>
+<li>Review <a href="https://www.rfc-editor.org/rfc/rfc8949.html#name-cbor-tags-registry">the section of RFC 8949</a> that describes the registry, the registration process for tags, and the template for submitting a registration request.</li>
+<li>Review the <a href="https://www.iana.org/protocols">IANA list of protocol registries</a>. You'll find the one called <code>CBOR Tags</code>, which also lists the IANA experts assigned to review tag registrations if they are in the <em>Specification Required</em> range.</li>
+<li>Fill out the <a href="https://www.iana.org/form/protocol-assignment">IANA "General Request for Assignments" form</a>.</li>
+</ol>
+<p>The form itself is very simple. You will need to provide:</p>
+<ul>
+<li>Your name and email address.</li>
+<li>The type of assignment you're requesting (CBOR Tags).</li>
+<li>The registry you're requesting the assignment from (the CBOR Tags registry).</li>
+<li>A reason for the assignment. This information is optional, but helpful and recommended.</li>
+<li>"Additional Information". For each tag, you're registering provide information corresponding to a column in the IANA registry. We recommend you review at the registry for examples:
+<ul>
+<li><strong>Tag:</strong> The tag number.</li>
+<li><strong>Data Item:</strong> The expected CBOR type(s) of the tag content (e.g., text string, byte string, array, integer).</li>
+<li><strong>Semantics:</strong> A brief description of the tag's meaning.</li>
+<li><strong>Reference:</strong> A pointer to the document (an RFC or other stable specification) that defines the tag in detail.</li>
+</ul>
+</li>
+</ul>
+<p>That's it! Submit the form, and IANA will respond to your request by email.</p>
+<h2 id="notable-tags"><a class="header" href="#notable-tags">Notable Tags</a></h2>
+<p>The IANA CBOR Tags registry is authoritative and growing, listing hundreds of registered tags. Navigating this full list can be daunting. Fortunately, the IETF community maintains a document, <a href="https://datatracker.ietf.org/doc/draft-bormann-cbor-notable-tags/">Notable CBOR Tags</a>, which serves as a curated guide or "roadmap" to a selection of the most commonly used, interesting, or otherwise "notable" tags, particularly those defined since the original CBOR specification.</p>
+<p>The <a href="https://datatracker.ietf.org/doc/draft-bormann-cbor-notable-tags/">Internet Draft on Notable Tags</a> provides a number of tags in other interesting categories, including:</p>
+<ul>
+<li>
+<p><strong>RFC 7049 (original CBOR specification)</strong>
+Tags defined in the original CBOR specification, including standard date/time strings, bignums, decimal fractions, and base64 encodings.</p>
+</li>
+<li>
+<p><strong>Security</strong>
+Tags used in security contexts, such as COSE (CBOR Object Signing and Encryption) and CBOR Web Tokens (CWT).</p>
+</li>
+<li>
+<p><strong>CBOR-based Representation Formats</strong>
+Tags used in CBOR-based representation formats like YANG-CBOR.</p>
+</li>
+<li>
+<p><strong>Protocols</strong>
+Tags utilized in specific protocols, including DOTS (DDoS Open Threat Signaling) and RAINS (Another Internet Naming Service).</p>
+</li>
+<li>
+<p><strong>Datatypes</strong>
+Tags representing advanced datatypes, such as advanced arithmetic types, variants of undefined, and typed/homogeneous arrays.</p>
+</li>
+<li>
+<p><strong>Domain-Specific</strong>
+Tags tailored for specific domains, including human-readable text and extended time formats.</p>
+</li>
+<li>
+<p><strong>Platform-Oriented</strong>
+Tags related to specific platforms or programming languages, such as Perl, JSON, and unusual text encodings.</p>
+</li>
+<li>
+<p><strong>Application-Specific</strong>
+Tags designed for particular applications, including enumerated alternative data items.</p>
+</li>
+<li>
+<p><strong>Implementation Aids</strong>
+Tags intended to assist with implementation, such as invalid tags and programming aids for simple values.</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>✅ TIP:</strong> While the IANA registry is the definitive source, the "Notable CBOR Tags" draft provides valuable context and summaries for many practical tags.</p>
+</blockquote>
+<h2 id="a-few-commonly-used-tags"><a class="header" href="#a-few-commonly-used-tags">A Few Commonly Used Tags</a></h2>
+<p>Let's explore a few of the most fundamental and useful tags, many defined in the original CBOR specification and detailed further in the notable tags draft:</p>
+<h3 id="tag-0-standard-datetime-string"><a class="header" href="#tag-0-standard-datetime-string">Tag 0: Standard Date/Time String</a></h3>
+<ul>
+<li><strong>Content:</strong> UTF-8 string</li>
+<li><strong>Semantics:</strong> Represents a date and time expressed as a string, following the standard format defined in <a href="https://datatracker.ietf.org/doc/html/rfc3339">RFC 3339</a> (a profile of ISO 8601). This is a human-readable format.</li>
+<li><strong>Diagnostic:</strong> <code>0("2013-03-21T20:04:00Z")</code></li>
+<li><strong>Hex Example:</strong></li>
+</ul>
+<pre><code>C0                                      # tag(0)
+   74                                   # text(20)
+      323031332D30332D32315432303A30343A30305A # "2013-03-21T20:04:00Z"
+</code></pre>
+<h3 id="tag-1-epoch-based-datetime"><a class="header" href="#tag-1-epoch-based-datetime">Tag 1: Epoch-Based Date/Time</a></h3>
+<ul>
+<li><strong>Content:</strong> Integer or Floating-point number</li>
+<li><strong>Semantics:</strong> Represents a point in time as a numeric offset (in seconds, with optional fractional part for floats) from the standard Unix epoch (1970-01-01T00:00:00Z UTC). More compact and suitable for computation than Tag 0.</li>
+<li><strong>Diagnostic (Integer):</strong> <code>1(1363896240)</code></li>
+<li><strong>Hex Example (Integer):</strong></li>
+</ul>
+<pre><code>C1             # tag(1)
+   1A 514B67B0 # unsigned(1363896240)
+</code></pre>
+<ul>
+<li><strong>Diagnostic (Float):</strong> <code>1(1698417015.123)</code></li>
+<li><strong>Hex Example (Float - double precision):</strong></li>
+</ul>
+<pre><code>C1                     # tag(1)
+   FB 41D94EF25DC7DF3B # 1698417015.123
+</code></pre>
+<blockquote>
+<p><strong>✅ TIP:</strong> The choice between integer and float depends on the need for sub-second precision. More advanced time tags exist (e.g., Tag 1001) offering higher precision and timescale information, but Tag 1 remains the basic epoch representation.</p>
+</blockquote>
+<h3 id="tag-2-and-3-bignums"><a class="header" href="#tag-2-and-3-bignums">Tag 2 and 3: Bignums</a></h3>
+<ul>
+<li><strong>Content:</strong> Byte string</li>
+<li><strong>Semantics:</strong> Represents an arbitrarily large non-negative integer (Tag 2) or negative integer (Tag 3) that does not have to fit into the 64-bit unsigned integer (Major Type 0). The byte string contains the magnitude of the integer in network byte order (big-endian), with no leading zero bytes permitted in preferred/deterministic encoding.</li>
+<li><strong>Diagnostic (representing 18446744073709551616):</strong> <code>2(h'010000000000000000')</code></li>
+<li><strong>Hex Example (representing 18446744073709551616):</strong></li>
+</ul>
+<pre><code>C2                         # Tag(2, non-negative bignum)
+    49 010000000000000000  # Byte String (length 9 bytes, 18446744073709551616)
+</code></pre>
+<h3 id="tag-32-uri"><a class="header" href="#tag-32-uri">Tag 32: URI</a></h3>
+<ul>
+<li><strong>Content:</strong> UTF-8 string</li>
+<li><strong>Semantics:</strong> Identifies the text string content as a Uniform Resource Identifier according to(<a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC-3986</a>).</li>
+<li><strong>Diagnostic:</strong> <code>32("http://cbor.io/")</code></li>
+<li><strong>Hex Example:</strong></li>
+</ul>
+<pre><code>D8 20                                # tag(32)
+   6F                                # text(15)
+      687474703A2F2F63626F722E696F2F # "http://cbor.io/"
+</code></pre>
+<p><strong>Tag 37: UUID</strong></p>
+<ul>
+<li><strong>Content:</strong> Byte string (must be 16 bytes long)</li>
+<li><strong>Semantics:</strong> Identifies the byte string content as a Universally Unique Identifier, as defined in(<a href="https://datatracker.ietf.org/doc/html/rfc9562">RFC-9562</a>).</li>
+<li><strong>Diagnostic:</strong> <code>37(h'f81d4fae7dec11d0a76500a0c91e6bf6')</code></li>
+<li><strong>Hex Example:</strong></li>
+</ul>
+<pre><code>D8 25                   # Tag(37) - uses 1+1 encoding (0xd8 0x25)
+    50                   # Byte String (length 16 bytes)
+        f81d4fae7dec11d0a76500a0c91e6bf6
+</code></pre>
+<h2 id="example-tags-in-action"><a class="header" href="#example-tags-in-action">Example: Tags in Action:</a></h2>
+<p>Let's see how these tags combine with basic CBOR types to represent a more complex data structure. Consider this JSON object representing a hypothetical sensor reading message:</p>
+<p><strong>JSON:</strong></p>
+<pre><code>{
+  "sensorID": "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+  "captureTime": "2023-10-27T14:30:15.123Z",
+  "reading": -12.345,
+  "readingScale": -3,
+  "rawValue": -12345,
+  "statusURL": "https://example.com/status/f81d4fae",
+  "alertPayload": "AQIDBA=="
+}
+</code></pre>
+<p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is base64-encoded binary data (<code>0x01020304</code>).</p>
+<p><strong>CBOR Diagnostic Notation (using tags):</strong></p>
+<pre><code>{
+  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    // Tag 37 for UUID
+  "captureTime": 0("2023-10-27T14:30:15.123Z"),           // Tag 0 for RFC3339 string
+  // Alternative: Represent reading as decimal fraction
+  // "reading": 4([-3, -12345]),                          // Tag 4 for decimal fraction
+  "reading": -12.345,                                     // Using standard float for simplicity here
+  "readingScale": -3,                                     // Simple integer
+  "rawValue": -12345,                                     // Simple integer
+  "statusURL": 32("https://example.com/status/f81d4fae"), // Tag 32 for URI
+  "alertPayload": h'01020304'                             // Direct byte string
+  // Alternative: Use Tag 22 hint if JSON interop requires base64
+  // "alertPayload": 22(h'01020304')
+}
+</code></pre>
+<p>This example illustrates how tags integrate seamlessly into the CBOR structure. Tag 37 clearly identifies the <code>sensorID</code> bytes as a UUID, Tag 0 provides a standard string representation for <code>captureTime</code>, and Tag 32 marks the <code>statusURL</code> string as a URI. We chose to represent <code>reading</code> as a standard float, but Tag 4 could have been used for exact decimal precision if required by the application. For <code>alertPayload</code>, we used a direct byte string, as CBOR handles binary natively; Tag 22 could be added as a hint if this data frequently needs conversion to base64 for JSON compatibility. The tags add semantic precision and clarity beyond what the JSON representation alone could offer directly.</p>
+<h2 id="conclusion-the-power-of-extensibility"><a class="header" href="#conclusion-the-power-of-extensibility">Conclusion: The Power of Extensibility</a></h2>
+<p>CBOR Tags (Major Type 6) are the primary mechanism for extending CBOR's data model beyond its fundamental types. They provide a standardized way to imbue data items with specific semantic meaning, enabling the representation of complex types like dates, times, large or high-precision numbers, URIs, UUIDs, and much more, all while maintaining CBOR's characteristic compactness.1 The IANA registry plays a vital role in ensuring interoperability by providing a central authority for tag definitions, while the tiered registration system balances the need for stable, standardized core tags with flexibility for application-specific extensions.1</p>
+<p>Understanding tags—how they work, where to find them, the implications of different ranges, and how to apply common ones—is key to leveraging the full power of CBOR. They allow engineers to model complex, meaningful data structures efficiently and in a way that promotes clarity and potential interoperability.</p>
+<p>Looking ahead, tags are not just an isolated feature; they interact significantly with other advanced CBOR concepts:</p>
+<ul>
+<li><strong>Deterministic Encoding (dCBOR):</strong> As we will explore later, achieving a canonical, byte-for-byte identical encoding for the same logical data requires strict rules. These rules apply to tags as well, mandating preferred serialization for tag numbers, and often requiring the consistent presence or absence of specific tags for certain semantic types. This is essential for applications like digital signatures or content-addressable storage where byte-level reproducibility is paramount.</li>
+<li><strong>Application Profiles (COSE, Gordian Envelope):</strong> Many higher-level protocols and data formats built upon CBOR rely heavily on specific tags to define their structures and semantics. CBOR Object Signing and Encryption (COSE) uses tags extensively to identify signed, MACed, and encrypted messages and related security parameters. Similarly, the Gordian Envelope specification, which we will cover in detail later in this book, defines its own set of tags to structure its secure, layered data format. A solid grasp of CBOR tags is fundamental to working with these important application profiles.</li>
+</ul>
+<p>Mastering CBOR tags moves us beyond simply encoding basic data structures towards building rich, extensible, and semantically precise data formats suitable for a wide range of applications, from constrained IoT devices to complex web protocols.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_1/practical_introduction_to_cbor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_1/indefinite_length_items.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_1/practical_introduction_to_cbor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_1/indefinite_length_items.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

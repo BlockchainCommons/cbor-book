@@ -1,0 +1,506 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A Practical Introduction to CBOR - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="a-practical-introduction-to-cbor"><a class="header" href="#a-practical-introduction-to-cbor">A Practical Introduction to CBOR</a></h1>
+<h2 id="from-comparison-to-construction"><a class="header" href="#from-comparison-to-construction">From Comparison to Construction</a></h2>
+<p>In the previous chapter, we explored the diverse landscape of binary serialization formats, comparing CBOR to its contemporaries like BSON, Protocol Buffers, MessagePack, and Avro. We saw how each format emerged from different needs and design philosophies, resulting in distinct trade-offs between schema requirements, performance, compactness, and features like schema evolution. CBOR, standardized by the IETF as <a href="https://datatracker.ietf.org/doc/html/rfc8949">RFC 8949</a>, carved out its niche by providing a binary encoding based on the familiar JSON data model, optimized for efficiency (especially in constrained environments like IoT), extensibility, and standardization within internet protocols.</p>
+<p>Having understood <em>why</em> CBOR exists and how it relates to other formats, we now shift our focus to <em>how</em> it works. This chapter provides a practical introduction to the core mechanics of CBOR encoding. The goal is not to replicate the exhaustive detail of RFC 8949, but rather to quickly equip engineers with a solid working understanding of how fundamental data types are represented in CBOR.</p>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> Wherever this book may conflict with RFC 8949, the RFC is authoritative. This book is intended to be a practical guide, not a definitive reference. We will also use the term "CBOR" interchangeably to refer to both the encoding and the data model, unless otherwise specified.</p>
+</blockquote>
+<p>We will progressively build up understanding by examining common data structures, comparing their representation in:</p>
+<ul>
+<li><strong>JSON:</strong> The familiar text-based format.</li>
+<li><a href="https://datatracker.ietf.org/doc/draft-ietf-cbor-edn-literals/"><strong>CBOR Diagnostic Notation:</strong></a> A human-readable text format, similar to JSON but extended for CBOR's features, used for documentation and debugging.</li>
+<li><strong>Hexadecimal CBOR:</strong> The actual binary representation shown as hexadecimal bytes, which is how CBOR data is transmitted or stored.</li>
+</ul>
+<p>We will focus on the most common, definite-length encodings and the concept of "preferred serialization" – using the shortest possible form where choices exist.2 Advanced topics such as semantic tags (Major Type 6), indefinite-length encoding, full deterministic encoding rules (beyond preferred serialization), schema definition with CDDL, and CBOR sequences will be introduced in later chapters. By the end of this chapter, you should be able to look at simple CBOR byte sequences and understand the data they represent.</p>
+<blockquote>
+<p><strong>✅ TIP:</strong> The <a href="https://cbor.me/">CBOR Playground</a> is an excellent tool if you would like to follow along with the examples, converting CBOR Diagnostic Notation to binary and back.</p>
+</blockquote>
+<h2 id="the-core-encoding-major-types-and-additional-information"><a class="header" href="#the-core-encoding-major-types-and-additional-information">The Core Encoding: Major Types and Additional Information</a></h2>
+<p>At the heart of CBOR's encoding lies a simple yet powerful structure contained within the first byte (and potentially subsequent bytes) of any data item. This initial byte conveys two crucial pieces of information:</p>
+<pre><code>┌────┬────┬────┬────┬────┬────┬────┬────┐
+│  7 │  6 │  5 │  4 │  3 │  2 │  1 │  0 │
+├────┴────┴────┼────┴────┴────┴────┴────┤
+│  MAJOR TYPE  │ ADDITIONAL INFORMATION │
+└──────────────┴────────────────────────┘
+</code></pre>
+<ol>
+<li><strong>Major Type (MT):</strong> The high-order 3 bits (bits 5, 6, and 7) define the general category of the data item. There are 8 major types (0 through 7).</li>
+<li><strong>Additional Information (AI):</strong> The low-order 5 bits (bits 0 through 4) provide specific details about the data item, whose meaning depends on the Major Type. This can range from encoding the entire value directly (for small integers or simple constants) to indicating the length of subsequent data or specifying the precision of a floating-point number.</li>
+</ol>
+<p>This initial byte structure allows a CBOR decoder to immediately understand the fundamental type and size characteristics of the data item it is encountering, enabling efficient parsing without requiring a predefined schema. All multi-byte numerical values in CBOR are encoded in network byte order (big-endian).</p>
+<p>Let's break down the Major Types and see how the Additional Information works for each:</p>
+<div class="table-wrapper"><table><thead><tr><th>Major Type</th><th>Bits (MT)</th><th>Meaning</th><th>Notes</th></tr></thead><tbody>
+<tr><td>0</td><td><code>000</code></td><td>Unsigned Integer</td><td>Values from <code>0</code> to <code>2⁶⁴−1</code></td></tr>
+<tr><td>1</td><td><code>001</code></td><td>Negative Integer</td><td>Encodes <code>-1 - n</code> where <code>n</code> is the encoded value</td></tr>
+<tr><td>2</td><td><code>010</code></td><td>Byte String</td><td>Sequence of raw bytes</td></tr>
+<tr><td>3</td><td><code>011</code></td><td>Text String</td><td>UTF-8 encoded string</td></tr>
+<tr><td>4</td><td><code>100</code></td><td>Array</td><td>Ordered list of data items</td></tr>
+<tr><td>5</td><td><code>101</code></td><td>Map</td><td>Pairs of keys and values</td></tr>
+<tr><td>6</td><td><code>110</code></td><td>Tag</td><td>Semantic qualifier for the following item</td></tr>
+<tr><td>7</td><td><code>111</code></td><td>Simple Values / Floating-Point</td><td>Booleans, null, undefined, floats, etc.</td></tr>
+</tbody></table>
+</div>
+<p>The Additional Information values (0-31) modify the meaning of the Major Type:</p>
+<div class="table-wrapper"><table><thead><tr><th>AI Value</th><th>Bits (AI)</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>0–23</td><td><code>00000</code>–<code>10111</code></td><td>Value or length is encoded directly (literal value)</td></tr>
+<tr><td>24</td><td><code>11000</code></td><td>Next 1 byte contains the value or length (uint8)</td></tr>
+<tr><td>25</td><td><code>11001</code></td><td>Next 2 bytes contain the value or length (uint16)</td></tr>
+<tr><td>26</td><td><code>11010</code></td><td>Next 4 bytes contain the value or length (uint32)</td></tr>
+<tr><td>27</td><td><code>11011</code></td><td>Next 8 bytes contain the value or length (uint64)</td></tr>
+<tr><td>28–30</td><td><code>11100</code>–<code>11110</code></td><td>Reserved for future use</td></tr>
+<tr><td>31</td><td><code>11111</code></td><td>Indefinite-length indicator or special “break”</td></tr>
+</tbody></table>
+</div>
+<p>AI values 0-27 are used for encoding the length of the data item or the value itself, with 24-27 called the <code>1+1</code>, <code>1+2</code>, <code>1+4</code>, and <code>1+8</code> encodings, respectively. The AI value 31 is used for indefinite-length items, which we will cover in a later chapter.</p>
+<pre><code>    ┌──────┐
+1   │ 0-23 │
+    └──────┘
+    ┌────┐┌────┐
+1+1 │ 24 ││    │
+    └────┘└────┘
+    ┌────┐┌────┬────┐
+1+2 │ 25 ││    │    │
+    └────┘└────┴────┘
+    ┌────┐┌────┬────┬────┬────┐
+1+4 │ 26 ││    │    │    │    │
+    └────┘└────┴────┴────┴────┘
+    ┌────┐┌────┬────┬────┬────┬────┬────┬────┬────┐
+1+8 │ 27 ││    │    │    │    │    │    │    │    │
+    └────┘└────┴────┴────┴────┴────┴────┴────┴────┘
+</code></pre>
+<p>Understanding this MT/AI structure is the key to decoding CBOR. We will now see it in action as we explore specific data types. <a href="../appendices/cbor_header_bytes.html">An appendix</a> contains a table of all 256 possible Major Type and Additional Information combinations.</p>
+<h2 id="simple-scalar-types-integers-booleans-and-null"><a class="header" href="#simple-scalar-types-integers-booleans-and-null">Simple Scalar Types: Integers, Booleans, and Null</a></h2>
+<p>Let's start with the simplest data types common to JSON and CBOR: integers, booleans, and null.</p>
+<h3 id="integers-major-types-0--1"><a class="header" href="#integers-major-types-0--1">Integers (Major Types 0 &amp; 1)</a></h3>
+<p>CBOR distinguishes between unsigned integers (Major Type 0) and negative integers (Major Type 1). The Additional Information determines how the integer's value (or <em>argument</em>) is encoded.2</p>
+<ul>
+<li><strong>Small Integers (0-23):</strong> If the unsigned integer is between 0 and 23 inclusive, it's encoded directly in the Additional Information bits of the initial byte (Major Type 0).</li>
+<li><strong>Larger Integers:</strong> For values 24 or greater, the Additional Information takes the value 24, 25, 26, or 27, indicating that the actual integer value follows in the next 1, 2, 4, or 8 bytes, respectively, in network byte order (big-endian).</li>
+<li><strong>Negative Integers:</strong> Encoded using Major Type 1. The value encoded is `−1 − argument. So, an argument of 0 represents the integer -1, an argument of 9 represents -10, and so on. The argument itself is encoded using the same rules as unsigned integers (AI 0-23 for arguments 0-23, AI 24-27 for larger arguments).</li>
+</ul>
+<p>Preferred Serialization: CBOR allows multiple ways to encode the same number (e.g., the number 10 could theoretically be encoded using 1, 2, 4, or 8 bytes following an initial byte with AI 24, 25, 26, or 27). However, the standard strongly recommends <em>preferred serialization</em>, which means always using the shortest possible form. This avoids ambiguity and unnecessary padding. For non-negative integers, this means:</p>
+<div class="table-wrapper"><table><thead><tr><th>Value Range</th><th>AI Value</th><th>Bytes Used After Initial Byte</th><th>Total Encoding Size</th></tr></thead><tbody>
+<tr><td>0–23</td><td>0–23</td><td>0</td><td>1 byte</td></tr>
+<tr><td>24–255</td><td>24</td><td>1</td><td>2 bytes</td></tr>
+<tr><td>256–65,535</td><td>25</td><td>2</td><td>3 bytes</td></tr>
+<tr><td>65,536–4,294,967,295</td><td>26</td><td>4</td><td>5 bytes</td></tr>
+<tr><td>4,294,967,296–2⁶⁴−1</td><td>27</td><td>8</td><td>9 bytes</td></tr>
+</tbody></table>
+</div>
+<p>The same principle applies to the argument for negative integers.</p>
+<p><strong>Examples (Preferred Serialization):</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>JSON</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>0</code></td><td><code>0</code></td><td><code>00</code></td><td>0</td><td>0</td><td>Value 0 directly encoded</td></tr>
+<tr><td><code>10</code></td><td><code>10</code></td><td><code>0a</code></td><td>0</td><td>10</td><td>Value 10 directly encoded</td></tr>
+<tr><td><code>23</code></td><td><code>23</code></td><td><code>17</code></td><td>0</td><td>23</td><td>Value 23 directly encoded</td></tr>
+<tr><td><code>24</code></td><td><code>24</code></td><td><code>18 18</code></td><td>0</td><td>24</td><td>Value in next byte; <code>0x18</code> = 24</td></tr>
+<tr><td><code>100</code></td><td><code>100</code></td><td><code>18 64</code></td><td>0</td><td>24</td><td>Value in next byte; <code>0x64</code> = 100</td></tr>
+<tr><td><code>1000</code></td><td><code>1000</code></td><td><code>19 03e8</code></td><td>0</td><td>25</td><td>Value in next 2 bytes; <code>0x03e8</code> = 1000</td></tr>
+<tr><td><code>1000000</code></td><td><code>1000000</code></td><td><code>1a 000f4240</code></td><td>0</td><td>26</td><td>Value in next 4 bytes; <code>0x000f4240</code> = 1,000,000</td></tr>
+<tr><td><code>-1</code></td><td><code>-1</code></td><td><code>20</code></td><td>1</td><td>0</td><td>-1 = -1 - 0</td></tr>
+<tr><td><code>-10</code></td><td><code>-10</code></td><td><code>29</code></td><td>1</td><td>9</td><td>-10 = -1 - 9</td></tr>
+<tr><td><code>-100</code></td><td><code>-100</code></td><td><code>38 63</code></td><td>1</td><td>24</td><td>Argument in next byte; <code>0x63</code> = 99 → -1 - 99 = -100</td></tr>
+<tr><td><code>-1000</code></td><td><code>-1000</code></td><td><code>39 03e7</code></td><td>1</td><td>25</td><td>Argument in next 2 bytes; <code>0x03e7</code> = 999 → -1000</td></tr>
+</tbody></table>
+</div>
+<h3 id="booleans-and-null-major-type-7"><a class="header" href="#booleans-and-null-major-type-7">Booleans and Null (Major Type 7)</a></h3>
+<p>CBOR uses Major Type 7 for various simple values and floating-point numbers. The boolean values <code>true</code> and <code>false</code>, and the <code>null</code> value, have specific, fixed Additional Information values.</p>
+<div class="table-wrapper"><table><thead><tr><th>JSON</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>false</code></td><td><code>false</code></td><td><code>f4</code></td><td>7</td><td>20</td><td>Simple value: <code>false</code></td></tr>
+<tr><td><code>true</code></td><td><code>true</code></td><td><code>f5</code></td><td>7</td><td>21</td><td>Simple value: <code>true</code></td></tr>
+<tr><td><code>null</code></td><td><code>null</code></td><td><code>f6</code></td><td>7</td><td>22</td><td>Simple value: <code>null</code></td></tr>
+</tbody></table>
+</div>
+<p>CBOR also defines an <code>undefined</code> simple value (<code>f7</code>, MT 7, AI 23), which doesn't have a direct equivalent in standard JSON but may be useful in certain protocols.</p>
+<h2 id="strings-bytes-and-text"><a class="header" href="#strings-bytes-and-text">Strings: Bytes and Text</a></h2>
+<p>CBOR has distinct types for byte strings (arbitrary sequences of bytes) and text strings (sequences of Unicode characters encoded as UTF-8). This is a key advantage over JSON, which lacks native binary support and typically requires base64 encoding for binary data.</p>
+<h3 id="byte-strings-major-type-2"><a class="header" href="#byte-strings-major-type-2">Byte Strings (Major Type 2)</a></h3>
+<p>Byte strings use Major Type 2. The Additional Information encodes the length of the string in bytes, following the same rules as unsigned integers (AI 0-23 for lengths 0-23, AI 24-27 + subsequent bytes for longer lengths). The raw bytes of the string immediately follow the initial byte(s).</p>
+<h3 id="examples-definite-length-byte-strings"><a class="header" href="#examples-definite-length-byte-strings">Examples: Definite Length Byte Strings</a></h3>
+<p>In CBOR diagnostic notation, byte strings are represented using hexadecimal encoding prefixed with <code>h</code> and enclosed in single quotes.</p>
+<div class="table-wrapper"><table><thead><tr><th>Description</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td>Empty byte string</td><td><code>h''</code></td><td><code>40</code></td><td>2</td><td>0</td><td>Length 0 bytes</td></tr>
+<tr><td>Bytes <code>0x01, 0x02, 0x03</code></td><td><code>h'010203'</code></td><td><code>43 010203</code></td><td>2</td><td>3</td><td>Length 3 bytes; followed by <code>01 02 03</code></td></tr>
+<tr><td>24 bytes (e.g., all <code>0x00</code>)</td><td><code>h'…'</code></td><td><code>58 18 …</code></td><td>2</td><td>24</td><td>Length in next byte; <code>0x18</code> = 24; followed by 24 bytes</td></tr>
+</tbody></table>
+</div>
+<h3 id="examples-definite-length-text-strings"><a class="header" href="#examples-definite-length-text-strings">Examples: Definite Length Text Strings</a></h3>
+<p>Text strings use Major Type 3 and are explicitly defined as UTF-8 encoded Unicode strings. The Additional Information (AI) specifies the length in <em>bytes</em> of the UTF-8 encoding, <em>not</em> the number of Unicode characters, which can (and often are) different. In diagnostic notation, text strings are enclosed in double quotes (like JSON).</p>
+<div class="table-wrapper"><table><thead><tr><th>JSON</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>""</code></td><td><code>""</code></td><td><code>60</code></td><td>3</td><td>0</td><td>Empty string; length 0</td></tr>
+<tr><td><code>"a"</code></td><td><code>"a"</code></td><td><code>61 61</code></td><td>3</td><td>1</td><td>Length 1 byte; <code>0x61</code> = <code>'a'</code></td></tr>
+<tr><td><code>"hello"</code></td><td><code>"hello"</code></td><td><code>65 68656c6c6f</code></td><td>3</td><td>5</td><td>Length 5 bytes; <code>68 65 6c 6c 6f</code> = <code>'hello'</code></td></tr>
+<tr><td><code>"IETF"</code></td><td><code>"IETF"</code></td><td><code>64 49455446</code></td><td>3</td><td>4</td><td>Length 4 bytes; <code>49 45 54 46</code> = <code>'IETF'</code></td></tr>
+<tr><td><code>"ü"</code></td><td><code>"ü"</code></td><td><code>62 c3bc</code></td><td>3</td><td>2</td><td>Length 2 bytes; <code>c3 bc</code> is UTF-8 for <code>'ü'</code></td></tr>
+<tr><td><code>"你好"</code></td><td><code>"你好"</code></td><td><code>66 e4bda0e5a5bd</code></td><td>3</td><td>6</td><td>Length 6 bytes; <code>e4 bd a0 e5 a5 bd</code> is UTF-8 for <code>'你好'</code></td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> that CBOR does not perform string escaping like JSON does (e.g., for quotes or backslashes). Since the length is provided upfront, the decoder knows exactly how many bytes constitute the string content. So the string <code>"Hello"</code>, <em>including</em> the quotes is seven bytes long, and the CBOR encoding would be eight bytes:</p>
+</blockquote>
+<pre><code>67               # Text(7 bytes)
+  2248656C6C6F22 # "Hello"
+</code></pre>
+<p>If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:</p>
+<pre><code>"\"Hello\""
+</code></pre>
+<p>So backslash escapes are part of CBOR Diagnostic Notation, but <em>not</em> part of the CBOR encoding itself.</p>
+<h2 id="collections-arrays-and-maps"><a class="header" href="#collections-arrays-and-maps">Collections: Arrays and Maps</a></h2>
+<p>CBOR supports ordered sequences of items (arrays) and unordered key-value pairs (maps), mirroring JSON's structures but with some key differences. This section focuses on definite-length collections, where the number of elements or pairs is known upfront.</p>
+<h3 id="arrays-major-type-4"><a class="header" href="#arrays-major-type-4">Arrays (Major Type 4)</a></h3>
+<p>Arrays use Major Type 4. The Additional Information encodes the number of data items (elements) contained within the array, using the same encoding rules as unsigned integers (AI 0-23 for counts 0-23, AI 24-27 + subsequent bytes for larger counts). The encoded data items follow the initial byte(s) in sequence.2</p>
+<p>Like JSON, CBOR Diagnostic Notation uses square brackets <code>[]</code> with comma-separated elements.</p>
+<h3 id="examples-definite-length-arrays"><a class="header" href="#examples-definite-length-arrays">Examples: Definite Length Arrays</a></h3>
+<p>Arrays in CBOR use Major Type 4. The Additional Information (AI) specifies the number of elements in the array. The elements are encoded sequentially after the initial byte.</p>
+<div class="table-wrapper"><table><thead><tr><th>JSON</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>[]</code></td><td><code>[]</code></td><td><code>80</code></td><td>4</td><td>0</td><td>Array with 0 elements</td></tr>
+<tr><td><code>[1, 2, 3]</code></td><td><code>[1, 2, 3]</code></td><td><code>83 01 02 03</code></td><td>4</td><td>3</td><td>Array with 3 elements; <code>01</code>, <code>02</code>, <code>03</code> encode integers 1, 2, and 3</td></tr>
+<tr><td><code>[true, null]</code></td><td><code>[true, null]</code></td><td><code>82 f5 f6</code></td><td>4</td><td>2</td><td>Array with 2 elements; <code>f5</code> = true, <code>f6</code> = null</td></tr>
+<tr><td><em>no equivalent</em></td><td><code>["a", h'01']</code></td><td><code>82 61 61 41 01</code></td><td>4</td><td>2</td><td>Array with 2 elements; <code>61 61</code> = "a", <code>41 01</code> = byte string <code>h'01'</code></td></tr>
+</tbody></table>
+</div>
+<h3 id="maps-major-type-5"><a class="header" href="#maps-major-type-5">Maps (Major Type 5)</a></h3>
+<p>Maps (also known variously as <em>dictionaries</em> or <em>associative arrays</em>) use Major Type 5. The Additional Information encodes the number of <em>pairs</em> in the map (not the total number of keys and values). Again, the encoding follows the rules for unsigned integers. The key-value pairs follow the initial byte(s), with each key immediately followed by its corresponding value (key1, value1, key2, value2,...).2</p>
+<p>A significant difference from JSON is that CBOR map keys can be <em>any</em> CBOR data type (integers, strings, arrays, etc.), not just text strings.</p>
+<h3 id="examples-definite-length-maps"><a class="header" href="#examples-definite-length-maps">Examples: Definite Length Maps</a></h3>
+<p>CBOR maps use Major Type 5. The Additional Information (AI) specifies the number of key-value pairs. Keys and values follow in alternating sequence. Diagnostic notation uses curly braces <code>{}</code> with comma-separated <code>key: value</code> pairs.</p>
+<div class="table-wrapper"><table><thead><tr><th>JSON</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>{}</code></td><td><code>{}</code></td><td><code>a0</code></td><td>5</td><td>0</td><td>Map with 0 key-value pairs</td></tr>
+<tr><td><code>{"a": 1}</code></td><td><code>{"a": 1}</code></td><td><code>a1 61 61 01</code></td><td>5</td><td>1</td><td>1 pair: key <code>"a"</code> (<code>61 61</code>), value <code>1</code> (<code>01</code>)</td></tr>
+<tr><td><code>{"a": 1, "b": 2}</code></td><td><code>{"a": 1, "b": 2}</code></td><td><code>a2 61 61 01 61 62 02</code></td><td>5</td><td>2</td><td>2 pairs: <code>"a"</code>→<code>1</code>, <code>"b"</code>→<code>2</code>; encoded in sequence</td></tr>
+<tr><td><em>no equivalent</em></td><td><code>{1: "one", 2: "two"}</code></td><td><code>a2 01 63 6f6e65 02 63 74776f</code></td><td>5</td><td>2</td><td>2 pairs: <code>1</code>→<code>"one"</code>, <code>2</code>→<code>"two"</code>; strings encoded as <code>63</code> (length 3)</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>⚠️ NOTE:</strong> Although map keys have to be serialized in <em>some</em> order, CBOR maps are considered <em>orderless</em>. This means that CBOR encoders will typically not treat the order of pairs as significant, and neither should you. Similarly, nothing in the CBOR specification requires that map keys be <em>unique</em>. Theoretically you could have multiple pairs with the same key, but many implementations will simply choose to keep one of the pairs and throw away the other. You should therefore never rely on the behavior of particular implementations regarding the order of keys or duplicate keys. Determinisic encoding profiles we'll discuss later in this book will address these ambiguities.</p>
+</blockquote>
+<h2 id="floating-point-and-other-simple-values-major-type-7"><a class="header" href="#floating-point-and-other-simple-values-major-type-7">Floating-Point and Other Simple Values (Major Type 7)</a></h2>
+<p>Major Type 7 serves as a catch-all for simple values (like <code>true</code>, <code>false</code>, and <code>null</code>, covered earlier) and floating-point numbers.</p>
+<h3 id="floating-point-numbers-major-type-7"><a class="header" href="#floating-point-numbers-major-type-7">Floating-Point Numbers (Major Type 7)</a></h3>
+<p>CBOR supports <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE-754</a> binary floating-point numbers in half, single, and double precision. The Additional Information (AI) field specifies the precision, and the bytes that follow are in network byte order (big-endian).</p>
+<div class="table-wrapper"><table><thead><tr><th>Precision</th><th>AI Value</th><th>Bytes After Initial Byte</th><th>Total Size</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Half-precision</td><td>25</td><td>2 bytes</td><td>3 bytes</td><td>16-bit float (<code>float16</code>)</td></tr>
+<tr><td>Single-precision</td><td>26</td><td>4 bytes</td><td>5 bytes</td><td>32-bit float (<code>float32</code>)</td></tr>
+<tr><td>Double-precision</td><td>27</td><td>8 bytes</td><td>9 bytes</td><td>64-bit float (<code>float64</code>)</td></tr>
+</tbody></table>
+</div>
+<h4 id="preferred-serialization-for-floating-point-numbers"><a class="header" href="#preferred-serialization-for-floating-point-numbers">Preferred Serialization for Floating-Point Numbers</a></h4>
+<p>Similar to integers, preferred serialization for floating point values dictates using the shortest floating-point representation that can exactly encode a given value. If a number can be precisely represented in <code>float16</code>, it is encoded that way instead of using <code>float32</code> or <code>float64</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>CBOR Diagnostic</th><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>0.0</code></td><td><code>0.0</code></td><td><code>f9 00 00</code></td><td>7</td><td>25</td><td>Half-precision (<code>float16</code>); zero</td></tr>
+<tr><td><code>1.0</code></td><td><code>1.0</code></td><td><code>f9 3c 00</code></td><td>7</td><td>25</td><td>Half-precision; <code>0x3c00</code> encodes <code>1.0</code></td></tr>
+<tr><td><code>-1.5</code></td><td><code>-1.5</code></td><td><code>f9 be 00</code></td><td>7</td><td>25</td><td>Half-precision; <code>0xbe00</code> encodes <code>-1.5</code></td></tr>
+<tr><td><code>10000.0</code></td><td><code>10000.0</code></td><td><code>fa 47 c3 50 00</code></td><td>7</td><td>26</td><td>Single-precision; <code>0x47c35000</code> encodes <code>10000.0</code></td></tr>
+<tr><td><code>1.1</code></td><td><code>1.1</code></td><td><code>fb 3f f1 99 99 99 99 99 9a</code></td><td>7</td><td>27</td><td>Double-precision; only this width exactly encodes <code>1.1</code></td></tr>
+<tr><td><code>3.14159</code></td><td><code>3.14159</code></td><td><code>fb 40 09 21 f9 f0 1b 86 6e</code></td><td>7</td><td>27</td><td>Double-precision; needed to preserve exact π approximation</td></tr>
+<tr><td><code>1.0e+300</code></td><td><code>1.0e+300</code></td><td><code>fb 7e 37 e4 3c 88 00 75 9c</code></td><td>7</td><td>27</td><td>Double-precision; high magnitude</td></tr>
+<tr><td><code>Infinity</code></td><td><code>Infinity</code></td><td><code>f9 7c 00</code></td><td>7</td><td>25</td><td>Half-precision encoding for positive infinity</td></tr>
+<tr><td><code>NaN</code></td><td><code>NaN</code></td><td><code>f9 7e 00</code></td><td>7</td><td>25</td><td>Half-precision encoding for NaN (payload may vary)</td></tr>
+</tbody></table>
+</div>
+<h3 id="other-simple-values"><a class="header" href="#other-simple-values">Other Simple Values</a></h3>
+<p>Besides <code>false</code>, <code>true</code>, <code>null</code>, and <code>undefined</code> (AI 20-23), Major Type 7 allows for simple values 0 through 19 (encoded directly with AI 0-19) and 32 through 255 (encoded using AI 24 followed by one byte). The specific meanings of these simple values are generally undefined by the core CBOR specification and are reserved for specific profiles or applications.</p>
+<div class="table-wrapper"><table><thead><tr><th>Value Range</th><th>Encoding Method</th><th>Semantics</th></tr></thead><tbody>
+<tr><td>0–19</td><td>MT 7, AI = value (1-byte)</td><td>Reserved</td></tr>
+<tr><td>20</td><td>MT 7, AI = 20 (0xf4)</td><td><code>false</code></td></tr>
+<tr><td>21</td><td>MT 7, AI = 21 (0xf5)</td><td><code>true</code></td></tr>
+<tr><td>22</td><td>MT 7, AI = 22 (0xf6)</td><td><code>null</code></td></tr>
+<tr><td>23</td><td>MT 7, AI = 23 (0xf7)</td><td><code>undefined</code></td></tr>
+<tr><td>24</td><td>MT 7, AI = 24, followed by 1 byte</td><td>Reserved</td></tr>
+<tr><td>25–27</td><td>MT 7, AI = 25–27, followed by 2–8 bytes</td><td>Floating-point numbers</td></tr>
+<tr><td>28–30</td><td>MT 7, AI = 28–30</td><td>Reserved</td></tr>
+<tr><td>31</td><td>MT 7, AI = 31 (0xff)</td><td>"break" stop code</td></tr>
+<tr><td>32–255</td><td>MT 7, AI = 24, followed by 1 byte (value)</td><td>Reserved</td></tr>
+</tbody></table>
+</div>
+<p><strong>Notes:</strong></p>
+<ul>
+<li><strong>Values 0–19</strong> are currently unassigned and reserved for future use.</li>
+<li><strong>Values 20–23</strong> represent the simple values <code>false</code>, <code>true</code>, <code>null</code>, and <code>undefined</code>, respectively.</li>
+<li><strong>Value 24</strong> is reserved and not used for encoding simple values.</li>
+<li><strong>Values 25–27</strong> are used to encode floating-point numbers of different precisions:
+<ul>
+<li>25: Half-precision (16-bit)</li>
+<li>26: Single-precision (32-bit)</li>
+<li>27: Double-precision (64-bit)</li>
+</ul>
+</li>
+<li><strong>Values 28–30</strong> are reserved for future extensions.</li>
+<li><strong>Value 31</strong> is used as a "break" stop code to indicate the end of an indefinite-length item.</li>
+<li><strong>Values 32–255</strong> are unassigned and available for application-specific use.</li>
+</ul>
+<p>For the most up-to-date information, refer to the <a href="https://www.iana.org/assignments/cbor-simple-values/cbor-simple-values.xhtml">IANA CBOR Simple Values registry</a>.</p>
+<h2 id="putting-it-together-a-nested-example"><a class="header" href="#putting-it-together-a-nested-example">Putting It Together: A Nested Example</a></h2>
+<p>Now let's combine these elements into a more complex, nested structure. Consider the following JSON object:</p>
+<p>JSON</p>
+<pre><code>{
+  "name": "Gadget",
+  "id": 12345,
+  "enabled": true,
+  "parts": [
+    "bolt",
+    "nut"
+  ],
+  "spec": {
+    "size": 10.5,
+    "data": "AQAA/w=="
+  }
+}
+</code></pre>
+<p>Note that the <code>"data"</code> value in JSON is base64 encoded, representing the bytes <code>0x01, 0x00, 0x00, 0xff</code>. In CBOR, we can represent this directly as a byte string.</p>
+<p><strong>CBOR Diagnostic Notation:</strong></p>
+<pre><code>{
+  "name": "Gadget",
+  "id": 12345,
+  "enabled": true,
+  "parts": [
+    "bolt",
+    "nut"
+  ],
+  "spec": {
+    "size": 10.5,
+    "data": h'010000ff'
+  }
+}
+</code></pre>
+<p><strong>CBOR Hexadecimal Encoding with Commentary:</strong></p>
+<pre><code>a5                     # map(5 pairs follow)
+   64 6e616d65         # key 0: text (4 bytes, "name")
+   66 476164676574     # value 0: text (6 bytes, "Gadget")
+   62 6964             # key 1: text (2 bytes, "id")
+   19 3039             # value 1: unsigned(12345)
+   67 656e61626c6564   # key 2: text (7 bytes, "enabled")
+   f5                  # value 2: primitive(21) (true)
+   65 7061727473       # key 3: text(5 bytes, "parts")
+   82                  # value 3: array(2 elements follow)
+      64 626f6c74         # element 0: text(4 bytes, "bolt")
+      63 6e7574           # element 1: text(3 bytes, "nut")
+   64 73706563         # key 4: text(4 bytes, "spec")
+   A2                  # value 4: map(2 pairs follow)
+      64 73697A65         # key 0: text(4 bytes, "size")
+      F9 4940             # value 0: float(10.5) (half-precision)
+      64 64617461         # key 1: text(4 bytes, "data")
+      44 010000FF         # value 1: bytes(4 bytes, h'010000FF')
+</code></pre>
+<p>This example demonstrates how the basic building blocks combine to represent complex, nested data structures efficiently.</p>
+<h2 id="conclusion-foundations-laid"><a class="header" href="#conclusion-foundations-laid">Conclusion: Foundations Laid</a></h2>
+<p>This chapter has laid the groundwork for understanding CBOR by dissecting its core encoding mechanism. We've seen how the header byte, through its Major Type and Additional Information fields, defines the structure and type of every data item. We explored the preferred binary representations for fundamental types inherited from the JSON data model – integers (positive and negative), booleans, null, text strings, arrays, and maps – along with CBOR's native byte strings and standard floating-point numbers. By consistently comparing JSON, CBOR Diagnostic Notation, and the raw hexadecimal CBOR, we've illuminated the direct mapping between the familiar data model and its concise binary encoding.</p>
+<p>With this foundation, you should now be able to interpret the structure of basic CBOR data items encoded using definite lengths and preferred serialization. You understand how CBOR achieves compactness while remaining self-describing at a fundamental level, allowing decoders to process data without prior schema knowledge.</p>
+<p>However, this is just the beginning of the CBOR story. We intentionally deferred several important features to establish this core understanding:</p>
+<ul>
+<li><strong>Semantic Tags (Major Type 6):</strong> CBOR's powerful extensibility mechanism for adding meaning beyond the basic types.</li>
+<li><strong>Indefinite-Length Items:</strong> Encoding strings, arrays, and maps when their final size isn't known upfront, crucial for streaming applications.</li>
+<li><strong>CBOR Sequences:</strong> Transmitting multiple independent CBOR data items back-to-back in a stream.</li>
+<li><strong>Schema Definition (CDDL):</strong> Formal languages like CDDL used to define and validate the structure of CBOR data.</li>
+<li><strong>Deterministic Encoding:</strong> The stricter rules beyond preferred serialization needed to guarantee identical byte sequences for identical data, essential for cryptographic applications.</li>
+</ul>
+<p>These advanced topics build upon the fundamentals covered here. In the upcoming chapters, we will explore CBOR's extensibility through tags, dive deep into the requirements and techniques for achieving deterministic encoding (dCBOR), and see how these elements combine to create robust, verifiable data structures like Gordian Envelope.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../introduction/cbor_vs_the_other_guys.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_1/cbor_tags.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../introduction/cbor_vs_the_other_guys.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_1/cbor_tags.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

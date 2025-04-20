@@ -1,0 +1,329 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>From CBOR, to CDE, to dCBOR - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="from-cbor-to-cde-to-dcbor"><a class="header" href="#from-cbor-to-cde-to-dcbor">From CBOR, to CDE, to dCBOR</a></h1>
+<h2 id="21-introduction-the-need-for-stronger-guarantees"><a class="header" href="#21-introduction-the-need-for-stronger-guarantees">2.1 Introduction: The Need for Stronger Guarantees</a></h2>
+<p>The previous chapter established a fundamental challenge in modern software engineering: the attainment of "sameness" at the byte level. Logically identical data structures, when serialized, often yield different byte sequences due to flexibilities inherent in many common encoding formats. This variability, while sometimes semantically irrelevant at the data model level, introduces a pernicious form of non-determinism into systems. Processes relying on byte-wise comparison, cryptographic hashing, digital signature verification, or distributed consensus can fail unpredictably, leading to hard-to-diagnose bugs and undermining security guarantees.</p>
+<p>The Concise Binary Object Representation (CBOR), standardized as <a href="https://www.rfc-editor.org/rfc/rfc8949.html">RFC 8949 (STD 94)</a>, was designed with goals including efficiency, small code size, and extensibility. Recognizing the importance of consistency, the base CBOR specification itself incorporates mechanisms aimed at reducing encoding variability. Section 4.1 of RFC 8949 introduces <strong>Preferred Serialization</strong>, which provides recommendations for choosing the most efficient encoding, particularly the shortest form for the initial bytes (head) indicating an item's type and length/value, and specific representations for floating-point numbers. Building upon this, Section 4.2.2 defines <strong>Basic Serialization</strong>, which mandates the use of preferred serialization and adds the strict requirement that indefinite-length encodings (where the total length is not known upfront) must not be used for strings, arrays, or maps.</p>
+<p>These built-in features represent valuable steps toward consistency. However, they deliberately stop short of guaranteeing strict, cross-implementation deterministic encoding. Preferred Serialization, for instance, is largely a set of <em>recommendations</em>, not absolute requirements for a CBOR document to be considered valid. Even Basic Serialization, while stricter by disallowing indefinite lengths, leaves significant sources of variability unaddressed. Key limitations remain:</p>
+<ul>
+<li><strong>Map Key Order:</strong> The order of key-value pairs in CBOR maps (major type 5) is explicitly considered semantically insignificant in the data model, similar to JSON objects. RFC 8949, therefore, does not mandate any specific order for serialization. Consequently, different CBOR libraries, or even different executions of the same library (depending on internal hash table implementations), might output the keys of a logically identical map in different orders, resulting in different byte sequences.</li>
+<li><strong>Number Representation Choices:</strong> While Preferred Serialization aims for the shortest forms, potential ambiguities can persist without stricter enforcement, particularly around floating-point edge cases (like NaN or signed zeros) or how integers near the boundaries of different encoding lengths are handled.</li>
+<li><strong>Implementation Variance:</strong> Most critically, the section in RFC 8949 titled "Deterministically Encoded CBOR" (Section 4.2) explicitly acknowledges that achieving deterministic encoding may involve application-specific decisions, providing flexibility rather than a single, universal set of rules. This inherent flexibility means that different CBOR encoders, even when attempting to produce "deterministic" output according to the base standard's guidelines, might make slightly different choices, leading to byte-level inconsistencies across platforms, languages, or library versions.</li>
+</ul>
+<p>This deliberate balance in RFC 8949 reflects a common approach in standards development: providing flexibility for broad applicability while offering guidance for common needs. Mandating full canonicalization, including potentially costly operations like map key sorting, for all CBOR use cases might impose unnecessary overhead. Preferred and Basic Serialization offer levels of consistency suitable for many applications. However, the remaining ambiguities highlighted the need for more rigorous, standardized rules for applications where absolute, interoperable byte consistency is not just desirable but essential – use cases like cryptographic verification, consensus protocols, and content-addressable storage. This gap set the stage for the development of CBOR Common Deterministic Encoding (CDE) and, subsequently, dCBOR.</p>
+<h2 id="22-stepping-up-cbor-common-deterministic-encoding-cde"><a class="header" href="#22-stepping-up-cbor-common-deterministic-encoding-cde">2.2 Stepping Up: CBOR Common Deterministic Encoding (CDE)</a></h2>
+<p>Recognizing the limitations of base CBOR's determinism guidelines for critical applications, the IETF CBOR Working Group initiated work on the CBOR Common Deterministic Encoding (CDE) specification (draft-ietf-cbor-cde). CDE represents a community effort to define a standardized, stricter set of encoding rules built upon CBOR, aiming to provide a reliable baseline for deterministic output that can be shared across diverse applications and implemented as a selectable feature in generic CBOR encoders. Its purpose is to systematically eliminate the ambiguities left open by RFC 8949's Section 4.2, thereby facilitating interoperable deterministic encoding.</p>
+<p>CDE achieves this by mandating specific choices where base CBOR (even with Basic Serialization) offered flexibility. Conceptually, the key rules introduced by CDE include:</p>
+<ul>
+<li><strong>Mandatory Map Key Sorting:</strong> CDE decisively addresses the map key ordering problem. It <em>requires</em> that the key-value pairs in a CBOR map (major type 5) be sorted based on the byte-wise lexicographical order of the <em>encoded representation</em> of each key. This means the raw bytes of the encoded key determine the sort order, not the semantic value of the key itself. This choice represents a pragmatic approach, favoring implementation simplicity and unambiguousness over potentially more complex semantic sorting (e.g., Unicode collation for text keys). While perhaps counter-intuitive in edge cases (like numerically equivalent keys encoded differently), sorting by encoded bytes provides a clear, efficient, and universally applicable rule, eliminating a major source of non-determinism.</li>
+<li><strong>Strict Number Representations:</strong> CDE tightens the rules for number encoding beyond Preferred Serialization:
+<ul>
+<li><strong>Integers:</strong> Positive integers from <code>0</code> up to <code>2⁶⁴−1</code> MUST be encoded using unsigned integer types (major type 0). Negative integers from <code>−1</code> down to <code>−(2⁶⁴)</code> MUST be encoded using negative integer types (major type 1). For integers outside this 64-bit range, CBOR tags 2 (positive bignum) and 3 (negative bignum) MUST be used, following preferred serialization rules, and crucially, the byte string content of these tags MUST NOT contain leading zero bytes.</li>
+<li><strong>Floating-Point Numbers:</strong> All floating-point values MUST use their preferred serialization (typically the shortest IEEE 754 representation that accurately represents the value). CDE clarifies specific handling:
+<ul>
+<li>Positive zero (<code>+0</code>) and negative zero (<code>-0</code>) are encoded using their distinct IEEE 754 representations (e.g., negative zero as <code>0xf98000</code> for half-precision) without further special action.</li>
+<li><code>NaN</code> (Not a Number) values follow preferred serialization, using the canonical NaN encoding from IEEE 754. This often involves using the shortest form by removing trailing zeros in the payload and ensuring quiet NaNs have the leading significand bit set to 1.</li>
+<li>Importantly, CDE explicitly <em>prohibits</em> mixing integer and floating-point types based on mathematical value. A value represented as a float in the data model MUST be encoded as a float, even if it is mathematically equivalent to an integer (e.g., 10.0 is encoded as a float, not the integer 10). This maintains a clear separation between types at the encoding level.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Disallowing Indefinite Lengths:</strong> CDE fully incorporates the rule from Basic Serialization, prohibiting the use of indefinite-length encodings for text strings (major type 3), byte strings (major type 2), arrays (major type 4), and maps (major type 5). Length must always be specified definitively.</li>
+<li><strong>Requiring Basic Validity:</strong> CDE mandates that encoders MUST produce CBOR that meets the "Basic Validity" requirements of RFC 8949 (Section 5.3.1). This includes ensuring that map keys are unique and that text strings contain valid UTF-8 sequences. Furthermore, CDE decoders MUST check for these validity conditions.</li>
+</ul>
+<p>CDE, therefore, establishes a significantly more constrained profile of CBOR compared to Basic Serialization. It provides a robust foundation for achieving interoperable deterministic encoding suitable for many applications. However, the CDE specification also acknowledges that some applications might have even more specific requirements regarding the deterministic representation of application-level data. It introduces the concept of <strong>Application-Level Deterministic Representation (ALDR)</strong> rules, which operate on top of CDE to handle application-specific semantics, such as defining equivalence between different numeric types (e.g., integer 10 vs float 10.0) if needed by the application. By focusing on canonicalization <em>within</em> CBOR's type system and leaving cross-type semantics to the application layer, CDE maintains a manageable scope and broad applicability, serving as a common denominator for deterministic needs.</p>
+<h2 id="23-the-vision-and-the-need-enter-dcbor"><a class="header" href="#23-the-vision-and-the-need-enter-dcbor">2.3 The Vision and the Need: Enter dCBOR</a></h2>
+<p>While CDE represented a significant advancement towards standardized deterministic encoding, the impetus for an even stricter set of rules emerged from a specific vision and a pressing practical need. This vision was largely articulated by Christopher Allen and pursued through the work of Blockchain Commons, focusing on enabling a new generation of secure, private, and user-controlled digital interactions. Central to this vision is the concept of the <strong>Gordian Envelope</strong>, designed as a format for "smart documents" capable of handling complex, hierarchical data while prioritizing user privacy and control.</p>
+<p>The Gordian vision emphasizes several key principles, including independence, privacy, resilience, and openness. Gordian Envelope aims to embody these principles by being:</p>
+<ul>
+<li><strong>Structure-Ready:</strong> Capable of reliably encoding and storing diverse information structures, ranging from simple data items to semantic triples and property graphs, allowing for the creation of rich, interoperable "smart documents".</li>
+<li><strong>Privacy-Ready:</strong> Designed to protect user privacy through mechanisms supporting progressive trust and minimal disclosure. A core feature is <strong>elision</strong>, which allows the holder of an Envelope (not just the original issuer) to selectively redact or hide specific parts of the data before sharing it, revealing only what is necessary for a given interaction.</li>
+<li><strong>Verifiable:</strong> Built upon a foundation of cryptographic integrity. Envelopes incorporate a built-in, Merkle-like digest tree, where components of the Envelope are cryptographically hashed. This structure allows for verification of data integrity and authenticity, even after parts have been elided, through Merkle proofs.</li>
+</ul>
+<p>Part III of this book will explore the Gordian Envelope in detail, including its structure, use cases, and the cryptographic mechanisms that underpin its functionality.</p>
+<p>Translating this vision into a working system created a concrete technical requirement for Blockchain Commons. The functionality of Gordian Envelope, particularly its reliance on cryptographic hashing for the Merkle structure and elision mechanisms, demanded a serialization format with <em>absolute</em>, unambiguous byte-level consistency. CBOR was selected as the underlying format due to its inherent advantages: conciseness, binary efficiency, extensibility, and its status as an IETF standard.</p>
+<p>However, any variability in the serialization of Envelope components would lead to different cryptographic hashes. This would break the integrity of the Merkle tree, render elision proofs invalid, and undermine the entire system's security and verifiability guarantees. The features enabling privacy and verification in Gordian Envelope are thus directly dependent on the deterministic nature of the underlying data representation. While base CBOR offered some guidance, and CDE was emerging as a stronger baseline, neither provided the specific, rigorous, and unwavering guarantees required for the core mechanics of Gordian Envelope. Blockchain Commons identified this gap and recognized the need to define and implement a stricter profile of CBOR deterministic encoding – the profile that became known as dCBOR.</p>
+<h2 id="24-a-tale-of-two-standards-the-emergence-of-cde-and-dcbor"><a class="header" href="#24-a-tale-of-two-standards-the-emergence-of-cde-and-dcbor">2.4 A Tale of Two Standards: The Emergence of CDE and dCBOR</a></h2>
+<p>The path to standardized, highly deterministic CBOR involved parallel development and subsequent harmonization between the specific needs driving dCBOR and the broader goals of the IETF CBOR Working Group. The initial impetus and definition for the stricter rules required by Gordian Envelope originated within Blockchain Commons, spearheaded by Lead Researcher Wolf McNally. This internal effort focused on creating a CBOR encoding profile that eliminated ambiguities left unaddressed even by CBOR's preferred and basic serialization modes, ensuring the absolute byte consistency needed for Envelope's hash-based structures. Early implementations and specifications for this stricter profile were developed to meet these internal requirements.</p>
+<p>Recognizing the potential value of this work for the wider community and the importance of standardization, Blockchain Commons brought their findings and proposals to the IETF CBOR Working Group. This engagement included presentations, active participation in mailing list discussions (starting around February 2023), and the submission of individual Internet-Drafts detailing their proposed deterministic CBOR profile, <a href="https://datatracker.ietf.org/doc/draft-mcnally-deterministic-cbor/">draft-mcnally-deterministic-cbor</a>.</p>
+<p>This input, alongside other potential use cases for deterministic encoding, influenced the direction of the CBOR Working Group. The WG recognized the need for a standardized <em>common</em> baseline for deterministic encoding that could serve a wide range of applications. This led to the development of the CBOR Common Deterministic Encoding (CDE) specification (<a href="https://datatracker.ietf.org/doc/draft-ietf-cbor-cde/">draft-ietf-cbor-cde</a>), primarily edited by Carsten Bormann, a key figure in the CBOR community. CDE was designed to capture the essential requirements for achieving interoperable determinism, such as map key sorting and canonical number representations, establishing an intermediate layer between base CBOR and more specialized needs.</p>
+<p>Through discussion and collaboration within the working group, a clear relationship between CDE and the Blockchain Commons proposal emerged. CDE solidified its position as the official IETF WG effort defining the <em>common</em> deterministic encoding profile. The stricter set of rules developed by Blockchain Commons, initially conceived to meet Gordian Envelope's needs, was then positioned as <strong>dCBOR</strong>: a specific <em>application profile</em> built <em>on top of</em> CDE. This layering allows applications requiring the baseline determinism of CDE to use it directly, while applications with more stringent requirements, like Gordian Envelope, can adopt the dCBOR profile, which incorporates all CDE rules plus additional constraints.</p>
+<p>This collaborative process is reflected in the co-authorship of later versions of the dCBOR Internet-Draft, which includes Wolf McNally, Christopher Allen, Carsten Bormann, and Laurence Lundblade, representing both the originators of the dCBOR requirements and key contributors to the broader CBOR and CDE standardization efforts. This convergence signifies a successful harmonization, ensuring that dCBOR exists as a well-defined extension within the CDE framework, rather than a divergent standard. The development also highlights the iterative nature of IETF work, with ongoing discussions and potential refinements, and illustrates a common pattern in standards development: a specific, implementation-driven need catalyzes a broader standardization effort, often resulting in layered specifications that cater to both general and specialized requirements.</p>
+<h2 id="25-understanding-profiles-layering-constraints"><a class="header" href="#25-understanding-profiles-layering-constraints">2.5 Understanding Profiles: Layering Constraints</a></h2>
+<p>The relationship between CBOR, CDE, and dCBOR is best understood through the concept of a "profile," a common mechanism used within the IETF and other standards bodies to manage the evolution and specialization of technical specifications. <a href="https://datatracker.ietf.org/doc/html/rfc6906">RFC 6906</a>, which defines the 'profile' link relation type, provides a useful definition: a profile allows resource representations (or, by extension, data formats) to indicate that they follow additional semantics – such as constraints, conventions, or extensions – beyond those defined by the base specification (like a media type or, in this case, the base CBOR standard).</p>
+<p>Crucially, a profile is defined <em>not</em> to alter the fundamental semantics of the base specification for consumers unaware of the profile. This means a generic CBOR parser should still be able to process data encoded according to a CBOR profile like CDE or dCBOR, even if it cannot validate the profile-specific constraints. Profiles allow different communities or applications to tailor a base standard for their specific needs, promoting interoperability within that community without requiring changes to the underlying, more general standard.</p>
+<p>Applying this concept:</p>
+<ul>
+<li><strong>CDE is a Profile of CBOR:</strong> The CDE specification explicitly defines itself as a profile that builds upon the Core Deterministic Encoding Requirements of RFC 8949. It selects specific encoding options permitted by base CBOR (like preferred number representations) and mandates them. It also adds new constraints not present in the base standard, most notably the requirement to sort map keys lexicographically based on their encoded bytes. These rules constrain the flexibility of base CBOR to achieve a common level of determinism.</li>
+<li><strong>dCBOR is a Profile of CDE:</strong> The dCBOR specification, in turn, explicitly defines itself as an <em>application profile</em> that conforms to, and further constrains, CDE. It inherits all the rules mandated by CDE (including map key sorting, canonical number forms, no indefinite lengths) and then adds its own, stricter requirements. These additional dCBOR-specific constraints include numeric reduction (treating certain floats and integers as equivalent), mandatory Unicode NFC normalization for strings, and limitations on allowed simple values.</li>
+</ul>
+<p>This layered profiling approach offers significant advantages. It allows standardization to occur at different levels of granularity, catering to both general needs (CDE) and highly specific application requirements (dCBOR). It promotes interoperability because the profiles build upon each other hierarchically, ensuring that dCBOR data is also valid CDE data, which is also valid CBOR data. This avoids "forking" the standard, where incompatible versions might arise, and instead anchors specialized requirements within the established ecosystem. The use of profiles is thus a key tool enabling standards like CBOR to remain stable at their core while adapting to new and demanding use cases through well-defined, constrained profiles.</p>
+<h2 id="26-the-hierarchy-cbor-cde-and-dcbor"><a class="header" href="#26-the-hierarchy-cbor-cde-and-dcbor">2.6 The Hierarchy: CBOR, CDE, and dCBOR</a></h2>
+<p>The relationship established through profiling creates a clear hierarchy: dCBOR is a specialized subset of CDE, which is itself a specialized subset of the possible encodings allowed by the base CBOR specification. This can be represented as:</p>
+<p><code>dCBOR ⊆ CDE ⊆ CBOR</code></p>
+<p>This subset relationship has a crucial practical implication known as the <strong>validity chain</strong>:</p>
+<ul>
+<li>Any sequence of bytes that constitutes a valid dCBOR encoding is, by definition, also a valid CDE encoding.</li>
+<li>Any sequence of bytes that constitutes a valid CDE encoding is, by definition, also a valid CBOR encoding (specifically, one that conforms to Basic Serialization plus map sorting and other CDE rules).</li>
+</ul>
+<p>The reverse, however, is not true. A generic CBOR document may violate CDE rules (e.g., use indefinite lengths or unsorted map keys), and a CDE document may violate dCBOR rules (e.g., contain a float like 10.0 instead of the integer 10, or use non-NFC strings).</p>
+<p>This hierarchy means that basic parsing compatibility is maintained. A generic CBOR decoder can parse the structure of CDE or dCBOR data. A CDE-aware decoder can parse dCBOR data and validate its conformance to CDE rules. However, only a dCBOR-aware decoder can fully validate all the specific constraints imposed by the dCBOR profile, such as numeric reduction or NFC string normalization. This ensures that dCBOR can be integrated into existing CBOR/CDE workflows without breaking basic interoperability, while still allowing for stricter validation where required.</p>
+<p>The key differences introduced at each level, representing progressively tighter constraints on the encoding process, can be summarized as follows:</p>
+<ul>
+<li><strong>CBOR (Basic Serialization) → CDE:</strong>
+<ul>
+<li><strong>Map Key Order:</strong> Becomes mandatory; keys MUST be sorted lexicographically based on their encoded byte representation.</li>
+<li><strong>Number Encoding:</strong> Preferred/shortest forms become mandatory, with specific canonical rules for floats (including NaN) and large integers (tags 2/3 without leading zeros). Mixing integer/float types for mathematically equivalent values is prohibited.</li>
+<li><strong>Basic Validity:</strong> Explicitly required (no duplicate map keys, valid UTF-8).</li>
+</ul>
+</li>
+<li><strong>CDE → dCBOR:</strong>
+<ul>
+<li><strong>Numeric Reduction:</strong> Mandatory; floating-point numbers that are numerically equal to integers within the range [−2⁶³,2⁶⁴−1] MUST be encoded as integers. All <code>NaN</code> values MUST be reduced to a single canonical half-precision quiet NaN (<code>0xf97e00</code>).</li>
+<li><strong>Simple Values:</strong> Restricted; only <code>false</code>, <code>true</code>, <code>null</code>, and floating-point values (major type 7, subtypes 20-27) are permitted. Other simple values (subtypes 0-19, 28-255) are disallowed.</li>
+<li><strong>String Normalization:</strong> Mandatory; all text strings MUST be encoded in <a href="https://unicode.org/reports/tr15/">Unicode Normalization Form C (NFC)</a>.</li>
+<li><strong>Duplicate Map Keys:</strong> Explicitly rejected by decoders (building on CDE's requirement for encoders not to emit them).</li>
+<li><strong>Validity Checking by Decoders:</strong> Decoders MUST reject any data that does not conform to dCBOR rules, including CDE rules.</li>
+</ul>
+</li>
+</ul>
+<p>The following table provides a comparative overview of how key sources of non-determinism are handled at each level:</p>
+<div class="table-wrapper"><table><thead><tr><th>Feature</th><th>CBOR (Basic Serialization)</th><th>CDE (CBOR Common Deterministic Encoding)</th><th>dCBOR (Application Profile)</th></tr></thead><tbody>
+<tr><td><strong>Map Key Order</strong></td><td>Not specified (any order allowed)</td><td>Mandatory: Lexicographical sort of <em>encoded</em> key bytes</td><td>Mandatory: Lexicographical sort of <em>encoded</em> key bytes</td></tr>
+<tr><td><strong>Integer Encoding</strong></td><td>Preferred (shortest head) mandatory; No indefinite length</td><td>Preferred mandatory; Strict rules for 64-bit range &amp; tags 2/3 (no leading zeros)</td><td>Inherits CDE rules</td></tr>
+<tr><td><strong>Float Encoding</strong></td><td>Preferred (shortest IEEE 754) mandatory; No indefinite length</td><td>Preferred mandatory; Canonical NaN; No int/float mixing</td><td>Inherits CDE rules; Canonical NaN reduced to <code>0xf97e00</code></td></tr>
+<tr><td><strong>Numeric Reduction</strong></td><td>Not applicable</td><td>Not specified (handled by ALDR if needed)</td><td>Mandatory: Float-to-int reduction; Canonical NaN reduction</td></tr>
+<tr><td><strong>Indefinite Lengths</strong></td><td>Disallowed (for strings, arrays, maps)</td><td>Disallowed</td><td>Disallowed</td></tr>
+<tr><td><strong>Allowed Simple Values</strong></td><td>All simple values (0-255) potentially allowed</td><td>All simple values potentially allowed</td><td>Restricted: Only <code>false</code>, <code>true</code>, <code>null</code>, floats allowed</td></tr>
+<tr><td><strong>String Normalization</strong></td><td>Not specified</td><td>Not specified</td><td>Mandatory: Unicode NFC</td></tr>
+<tr><td><strong>Duplicate Map Keys</strong></td><td>Invalid CBOR (handling not mandated)</td><td>Encoder MUST NOT emit; Decoder MUST check basic validity</td><td>Encoder MUST NOT emit; Decoder MUST reject</td></tr>
+<tr><td><strong>Validity Checking by Decoders</strong></td><td>Not specified</td><td>Decoder MUST check basic validity</td><td>Decoder MUST reject any data that does not conform to dCBOR rules</td></tr>
+</tbody></table>
+</div>
+<p>These differences highlight how dCBOR makes specific, opinionated choices about semantic equivalence that go beyond the more generic baseline of CDE. For example, the numeric reduction rule embeds the semantic decision that, within the dCBOR profile, the integer <code>2</code> and the float <code>2.0</code> should produce identical byte sequences. Similarly, mandating NFC strings embeds the decision that different Unicode representations of the same visual character should yield the same bytes. While these choices might not be suitable for all applications, they are crucial for use cases like Gordian Envelope where achieving unambiguous byte-level representation for semantically equivalent data is paramount for hash-based verification.</p>
+<h2 id="27-laying-the-foundation-why-dcbor-for-gordian-envelope"><a class="header" href="#27-laying-the-foundation-why-dcbor-for-gordian-envelope">2.7 Laying the Foundation: Why dCBOR for Gordian Envelope</a></h2>
+<p>The rigorous constraints imposed by the dCBOR profile are not arbitrary; they directly enable the core functionality and security goals of the Gordian Envelope system. Revisiting the requirements outlined in Section 2.3, the necessity of dCBOR becomes clear:</p>
+<ul>
+<li><strong>Merkle Tree Integrity:</strong> Gordian Envelope's structure relies on a Merkle-like tree where the digest (cryptographic hash) of each component contributes to the digests of its parent components, culminating in a single root hash for the entire Envelope. This structure allows for efficient verification of the Envelope's integrity. This mechanism is critically dependent on the absolute byte consistency provided by dCBOR. Any variation in the serialization of a sub-envelope – whether due to map key order, number representation choices, or string normalization differences – would result in a different hash. This differing hash would propagate up the tree, changing the root hash and invalidating any integrity proofs. dCBOR's strict rules ensure that the same logical Envelope content <em>always</em> produces the exact same byte sequence, guaranteeing stable and reproducible hashes across different systems, libraries, and time.</li>
+<li><strong>Elision Reliability:</strong> The privacy-enhancing feature of elision allows a holder to redact parts of an Envelope while proving that the redacted parts were originally present. This is achieved by replacing the elided sub-envelope with its pre-computed digest. For a recipient to verify the integrity of the partially elided Envelope, they must be able to trust that the provided digests accurately represent the original, now-hidden content. This trust relies entirely on the guarantee that the hash of any given sub-envelope is unique and unchanging. dCBOR provides this guarantee. If the serialization were non-deterministic, the hash computed by the issuer might differ from a hash computed later (e.g., by the holder before elision or by the verifier on a similar structure), rendering the elision mechanism unreliable.</li>
+<li><strong>Content Addressing:</strong> Envelopes, identified by their root hash, can be used in content-addressable systems. dCBOR ensures that two Envelopes containing the exact same logical information will always produce the identical root hash, enabling reliable storage, retrieval, and deduplication based on content.</li>
+</ul>
+<p>While CDE provides a strong baseline for determinism, its rules alone might not suffice for the specific semantic requirements of Gordian Envelope. Consider these examples:</p>
+<ul>
+<li><strong>Numeric Equivalence:</strong> An application using Gordian Envelope might consider the integer <code>2</code> and the floating-point number <code>2.0</code> to be semantically identical within its data model. In fact, this is common in extremely popular environments like JavaScript, which do not distinguish between integer and floating point types. CDE, however, explicitly encodes these differently, and requires that users select whether they are encoding an integer or floating point type. If both representations were allowed in an Envelope, they would produce different hashes, breaking comparisons and potentially invalidating Merkle proofs if one form were substituted for the other. dCBOR's mandatory numeric reduction rule addresses this directly by forcing <code>2.0</code> to be encoded as the integer <code>2</code>, ensuring a single, canonical byte representation for these semantically equivalent values.</li>
+<li><strong>String Equivalence:</strong> Similarly, if an application treats precomposed <code>é</code> (U+00E9) and decomposed <code>e</code> + combining accent <code>´</code> (U+0065 U+0301) as identical, CDE's lack of mandatory normalization could lead to different byte sequences and different hashes for otherwise identical data. dCBOR's requirement for NFC normalization ensures that such visually identical strings produce the same canonical byte sequence, preserving hash consistency.</li>
+</ul>
+<p>Therefore, dCBOR is more than just a stricter version of CDE; it is the specifically tailored, rigorously deterministic foundation upon which the advanced security, privacy, and verifiability features of Gordian Envelope are constructed. The decision to use dCBOR reflects a design philosophy where the demanding requirements of the application layer directly informed the choice and definition of the underlying serialization layer, ensuring the necessary properties were available rather than compromising the application's goals.</p>
+<p>Another less obvious, but no less important goal of dCBOR is to minimize the semantic burden placed on users and application developers. Determinism at the highest application level is not easy to achieve, with applications needing to define their own Application Level Deterministic Rules (ALDRs). Having to also think about low-level encoding issues is a challenge, especially when it's mostly re-inventing the wheel. By enforcing strict, unambiguous encoding rules at the serialization layer, dCBOR ensures that all data conforming to its profile is represented in a single, canonical byte form. This means that higher-level abstractions—such as application logic, cryptographic protocols, or data modeling frameworks—can operate with the assurance that the underlying data representation is always consistent and deterministic. Developers do not need to implement their own normalization, canonicalization, or equivalence checks for common sources of ambiguity like numeric types or Unicode strings. Instead, they can rely on dCBOR's guarantees, simplifying application code and reducing the risk of subtle bugs or security vulnerabilities arising from inconsistent data encoding. This separation of concerns enables robust, verifiable systems to be built atop dCBOR, confident that the foundational layer will always provide the determinism required for reliable operation.</p>
+<h2 id="28-conclusion-a-path-to-verifiable-data"><a class="header" href="#28-conclusion-a-path-to-verifiable-data">2.8 Conclusion: A Path to Verifiable Data</a></h2>
+<p>The journey from base CBOR's initial determinism guidelines to the rigorous specification of dCBOR illustrates a common pattern in the evolution of technical standards: as applications become more sophisticated, the need for stronger guarantees from underlying protocols increases. Base CBOR (RFC 8949), with its Preferred and Basic Serialization options, provided foundational steps towards encoding consistency, balancing flexibility with efficiency. However, for applications demanding absolute, interoperable byte-level agreement, these steps proved insufficient.</p>
+<p>The IETF CBOR Working Group addressed this gap by developing the CBOR Common Deterministic Encoding (CDE) profile, establishing a standardized baseline that mandates key rules like map key sorting and canonical number representations. CDE offers a significant improvement for many use cases requiring reliable data comparison or hashing.</p>
+<p>Yet, driven by the specific, demanding requirements of systems like Gordian Envelope – systems built on verifiable data structures, cryptographic hashing, and privacy-preserving techniques like elision – an even stricter level of determinism was necessary. This led to the definition of dCBOR, an application profile layered on top of CDE, which introduces additional constraints such as numeric reduction and mandatory string normalization.</p>
+<p>This progression – CBOR → CDE → dCBOR – is a response to the growing need for trustworthy digital systems. The subtle issues arising from serialization non-determinism can have profound impacts on the reliability and security of applications involving digital signatures, distributed consensus, content-addressable storage, and verifiable credentials. dCBOR, by providing an unambiguous, canonical byte representation for logical data according to its specific rules, serves as a critical enabling technology. It lays the necessary foundation for building robust, secure, and interoperable systems like Gordian Envelope, paving the way for a future where digital data can be more reliably verified, shared, and controlled by its users.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_2/determinism.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_2/using_dcbor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_2/determinism.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_2/using_dcbor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

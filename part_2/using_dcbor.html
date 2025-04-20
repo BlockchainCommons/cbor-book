@@ -1,0 +1,2191 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Using dCBOR - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="using-dcbor"><a class="header" href="#using-dcbor">Using dCBOR</a></h1>
+<p>So after all that discussion of the motivation for dCBOR, let's just recap its rules all in one place, and specifically how they differ from basic CBOR:</p>
+<ul>
+<li><strong>Map Keys</strong>: No duplicates. Must be serialized sorted lexicographically by the serialized key.</li>
+<li><strong>Numeric Values</strong>: "Preferred Serialization" isn't just preferred, it's required.</li>
+<li><strong>Numeric Reducation</strong>: Floating point values that can accurately be represented as integers must be serialized as integers.</li>
+<li><strong>Indefinite Length</strong>: Indefinite length values are not allowed.</li>
+<li><strong>Simple Values</strong>: Only <code>false</code>, <code>true</code>, and <code>null</code> are allowed.</li>
+<li><strong>Strings</strong>: Must be encoded in Unicode Normalization Form C (NFC).</li>
+<li><strong>Decoders</strong>: Must check all the rules above and reject any serialization that doesn't conform to them.</li>
+</ul>
+<p>Pretty simple, right?</p>
+<p>It gets even simpler when you use a CBOR library that supports dCBOR, as the implemenation should take care of all the details for you. In fact, a good API will even make it <em>impossible</em> to create invalid dCBOR serializations.</p>
+<p>The <a href="https://crates.io/crates/dcbor"><code>dcbor</code></a> crate is the Rust reference implementation of dCBOR from Blockchain Commons, and in this chapter we'll show you how easy it is to use.</p>
+<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<p>This will add the latest version of the <code>dcbor</code> crate to your <code>Cargo.toml</code> file:</p>
+<pre><code class="language-bash">cargo add dcbor
+</code></pre>
+<h2 id="basic-usage"><a class="header" href="#basic-usage">Basic Usage</a></h2>
+<p><code>dcbor</code> includes a <code>prelude</code> module that re-exports all the types and traits you need to use dCBOR:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span>// This is all you need to import to use the library.
+use dcbor::prelude::*;
+
+#[rustfmt::skip]
+pub fn main() {
+    // Encode the integer 42
+    let i = 42;
+    let cbor = i.to_cbor();
+
+    // Check the diagnostic representation
+    assert_eq!(cbor.diagnostic(), "42");
+
+    // Check the hex representation
+    assert_eq!(cbor.hex(), "1a002a");
+
+    // Check the raw CBOR data
+    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+}
+<span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>Many common types are directly convertable into dCBOR. Thanks to dCBOR's numeric reduction, you don't even need to specify whether common numeric types should be serialized as integers or floating point: the <code>dcbor</code> library will automatically choose the best representation for you.</p>
+<p>Note that when you use <code>value.to_cbor()</code> or <code>CBOR::from(value)</code>, you're not <em>actually</em> encoding the CBOR serialization in that moment. You're actually creating an intermediate representation of the data (an instance of <code>CBOR</code>) that can be serialized later, when you call a method like <code>to_cbor_data</code>.</p>
+<p>Converting back from CBOR is also easy: you simply specify the type you want to convert to, and the <code>dcbor</code> library will do the rest. You use the <code>try_from</code> method to convert from CBOR to a Rust type, which will succeed if the CBOR can be accurately converted to that type. If the conversion fails, it will return an error:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span>let a = 42;
+let cbor = a.to_cbor();
+let b = i32::try_from(cbor)?;
+assert_eq!(a, b);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>In the following example we use <code>try_from</code> to convert from CBOR to both a <code>u8</code> type and an <code>f64</code> type. Both succeed, because the value <code>42</code> can be represented as both an 8-bit unsigned integer and a 64-bit floating point number:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span>let a = 42;
+let cbor = a.to_cbor();
+
+// Decode as a u8
+let b = u8::try_from(cbor.clone())?;
+assert_eq!(a as u8, b);
+
+// Decode as an f64
+let c = f64::try_from(cbor)?;
+assert_eq!(a as f64, c);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<blockquote>
+<p><strong>✅ NOTE:</strong> Observe the call to <code>clone()</code> above, which we need because the <code>try_from</code> method consumes the <code>CBOR</code> value, and we still need an instance for the second <code>try_from</code> call. Instances of <code>CBOR</code> are immutable, and the <code>dcbor</code> library implments structure sharing, so cloning is always cheap.</p>
+</blockquote>
+<p>Below we encode a floating point value with a non-zero fractional part, which succeeds in being decoded back to floating point, but fails to decode back to an integer, because precision would be lost:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span>let a = 1.23456;
+let cbor = a.to_cbor();
+
+// Decode as an f64
+let b = f64::try_from(cbor.clone())?;
+assert_eq!(a, b);
+
+// Cannot decode as a i32
+assert!(u8::try_from(cbor).is_err());
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>The nice thing about this idiom is it's not just for numeric types. You can use it for any type that implements the <code>TryFrom&lt;CBOR&gt;</code>, like <code>String</code>:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span>let a = "Hello, dCBOR!";
+let cbor = a.to_cbor();
+
+// Decode as an f64 fails
+assert!(f64::try_from(cbor.clone()).is_err());
+
+// Decode as a String succeeds
+let b = String::try_from(cbor)?;
+assert_eq!(a, b);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>It even works for vectors:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span>// Encode a vector of 8-bit unsigned integers
+let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+let cbor = a.to_cbor();
+
+// Decode as Vec of a compatible type: 32-bit signed integers
+let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+assert_eq!(b, vec![1, 2, 3, 4, 5]);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<h2 id="byte-strings"><a class="header" href="#byte-strings">Byte Strings</a></h2>
+<p>But the last example raises an interesting question: is our <code>Vec&lt;u8&gt;</code> being serialized as a CBOR <em>array</em> or a CBOR <em>byte string</em>? Let's check:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span>// Encode a vector of 8-bit unsigned integers
+let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+let cbor = a.to_cbor();
+
+let expected = r#"
+
+85      # array(5)
+    01  # unsigned(1)
+    02  # unsigned(2)
+    03  # unsigned(3)
+    04  # unsigned(4)
+    05  # unsigned(5)
+
+"#.trim();
+
+assert_eq!(cbor.hex_annotated(), expected);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>As you can see, the header byte specifies an array of five elements, followed by five CBOR data items for the integers <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, and <code>5</code>. So the <code>Vec&lt;u8&gt;</code> is being serialized as a CBOR array, not a byte string.</p>
+<p>In Rust, <code>Vec&lt;u8&gt;</code> is often used to represent a string or buffer of bytes, but in CBOR, a byte string is a different type distinct from a vector or an array. The <code>CBOR</code> type provides a static method <code>CBOR::to_byte_string</code> that will convert a <code>Vec&lt;u8&gt;</code> into a CBOR byte string:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span>// Encode a vector of 8-bit unsigned integers
+let a = vec![1, 2, 3, 4, 5];
+let byte_string = CBOR::to_byte_string(a);
+let cbor = byte_string.to_cbor();
+
+let expected = r#"
+
+45              # bytes(5)
+    0102030405
+
+"#.trim();
+
+assert_eq!(cbor.hex_annotated(), expected);
+
+let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+assert_eq!(b, vec![1, 2, 3, 4, 5]);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>Everything in the serialization in this example is the same as the last, <em>except</em> the header byte, which was <code>0x85</code> for a 5-element array, and <code>0x45</code> for a byte string of length 5.</p>
+<p>Notice that recovering the byte string is also different. Since a byte string is not an array, we can't extract it as a <code>Vec&lt;u8&gt;</code>. Instead, we extract it as the type <code>ByteString</code>, and then convert <em>that</em> to a <code>Vec&lt;u8&gt;</code> using <code>.into()</code>.</p>
+<p><code>ByteString</code> is just a wrapper around <code>Vec&lt;u8&gt;</code>, and it has most of the same capabilities, but the <code>dcbor</code> library treats it as a CBOR byte string, not a CBOR array.</p>
+<h2 id="simple-values-false-true-and-null"><a class="header" href="#simple-values-false-true-and-null">Simple Values: <code>false</code>, <code>true</code>, and <code>null</code></a></h2>
+<p>dCBOR only allows three simple values: <code>false</code>, <code>true</code>, and <code>null</code>, and the <code>dcbor</code> library provides a set of conveniences for working with them. In the example below we create a CBOR array containing <code>[true, false, null]</code>, and then test its CBOR diagnostic notation and annotated hex serialization:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span>let v: Vec&lt;CBOR&gt; = vec![
+    true.into(),
+    false.into(),
+    CBOR::null(),
+];
+let cbor = v.to_cbor();
+
+let expected_diagnostic = "[true, false, null]";
+
+assert_eq!(cbor.diagnostic(), expected_diagnostic);
+
+let expected_hex = r#"
+
+83      # array(3)
+    f5  # true
+    f4  # false
+    f6  # null
+
+"#.trim();
+
+assert_eq!(cbor.hex_annotated(), expected_hex);
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to raw CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<p>Something interesting is going on here: our array has three values, two of which are booleans and the third is its own type: <code>null</code>. CBOR is designed to handle such <em>heterogenous arrays</em> with no problem. But Rust (unlike some languages like JavaScript) doesn't have a <code>null</code> value (preferring <code>Option&lt;T&gt;</code> for values which may not be present). Rust also doesn't natively support <code>Vec</code>s containing mixed types. So how does the <code>dcbor</code> library handle this?</p>
+<p>First, note that our array is not declared as a <code>Vec&lt;bool&gt;</code> but as a <code>Vec&lt;CBOR&gt;</code>. The CBOR type can hold <em>any</em> cbor value, including complex values like nested arrays and maps. In the context of the <code>vec!</code> macro composing a <code>Vec&lt;CBOR&gt;</code>, the Rust boolean values <code>true</code> and <code>false</code> can just be converted directly using <code>.into()</code>, and that's what we're doing here.</p>
+<p>Rust has no <code>null</code> value, so the <code>dcbor</code> library provides a <code>CBOR::null()</code> method that returns a <code>CBOR</code> instance representing the <code>null</code> value.</p>
+<p>And since all three elements of the array are being converted directly into CBOR, there is no problem constructing the heterogenous array.</p>
+<blockquote>
+<p><strong>✅ NOTE:</strong> Of course, dCBOR doesn't support CBOR <code>undefined</code> or any of the other simple values, so the <code>dcbor</code> API doesn't have ways to let you construct them!</p>
+</blockquote>
+<h2 id="extracting-from-a-heterogenous-array"><a class="header" href="#extracting-from-a-heterogenous-array">Extracting from a Heterogenous Array</a></h2>
+<p>So now that we've gotten ourselves into this situation, how do we get the values back out? The <code>dcbor</code> library provides a set of methods for testing and extracting the CBOR major types, as well as unique values like <code>true</code>, <code>false</code>, and <code>null</code>.</p>
+<p>In the example below we first begin by extracting our CBOR array from the composed <code>CBOR</code> instance. We then demonstrate several methods to either extract values or test them against expected values.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::vec;
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the raw CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span>// Compose an array of CBOR values
+let v: Vec&lt;CBOR&gt; = vec![
+    true.into(),
+    false.into(),
+    CBOR::null(),
+];
+// Convert the array to a single CBOR object, which would
+// be serialized to raw CBOR data or recovered from it.
+let cbor: CBOR = v.to_cbor();
+
+// Recover the array from the CBOR object
+let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+
+// Check the length of the array
+assert_eq!(v2.len(), 3);
+
+// For the first value (`true`), extract it so it could be saved for later.
+let t = v2[0].clone().try_into_bool()?;
+assert!(t);
+
+// For the second value (`false`), just assert that it is false.
+assert!(v2[1].is_false());
+
+// For the third value (`null`), assert that it is null.
+assert!(v2[2].is_null());
+
+<span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre></pre>
+<blockquote>
+<p>🚧 <strong>Work in Progress:</strong> <em>More in this chapter and more chapters forthcoming!</em></p>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_2/cbor_cde_dcbor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_2/cbor_cde_dcbor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

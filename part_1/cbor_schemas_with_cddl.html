@@ -1,0 +1,700 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>CBOR Schemas with CDDL - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="cbor-schemas-with-cddl"><a class="header" href="#cbor-schemas-with-cddl">CBOR Schemas with CDDL</a></h1>
+<h2 id="defining-structure-amidst-flexibility"><a class="header" href="#defining-structure-amidst-flexibility">Defining Structure Amidst Flexibility</a></h2>
+<p>In previous chapters, we explored the fundamental mechanics of CBOR encoding, learning how basic data types like integers, strings, arrays, and maps are represented in binary. We saw how CBOR's structure, based on Major Types and Additional Information, allows for a self-describing format that is efficient, especially in constrained environments. However, while CBOR itself defines <em>how</em> individual data items are encoded, it doesn't inherently restrict the <em>overall structure</em> of the data exchanged between systems. An application might expect a map with specific keys and value types, or an array containing a precise sequence of elements. Without a way to formally define these expectations, interoperability relies solely on human-readable documentation and the diligence of implementers – a scenario prone to errors and ambiguity.</p>
+<p>While CBOR itself is a schemaless and self-describing format, there are many times a formal schema can be helpful to define the structure of the data being exchanged. This is especially true in cases where the data is complex, or when multiple systems need to interoperate. A schema can help ensure that all parties agree on the expected structure and types of data, reducing the risk of errors and misunderstandings.</p>
+<p>This is where the Concise Data Definition Language (CDDL) comes in. Standardized by the IETF in <a href="https://datatracker.ietf.org/doc/html/rfc8610">RFC-8610</a> (and updated by <a href="https://datatracker.ietf.org/doc/html/rfc9682">RFC-9682</a>), CDDL provides a formal, unambiguous, and human-readable notation specifically designed to express the structure of data formats that use CBOR (and, conveniently, JSON, due to its data model being a subset of CBOR's). Its primary goal is to make defining protocol messages and data formats easy and clear.  </p>
+<p>Having understood <em>how</em> individual CBOR items are built, we now turn to specifying <em>what</em> structure those items should collectively form. This chapter introduces the essentials of CDDL, focusing on equipping engineers with the practical knowledge needed to define and understand CBOR schemas. We will cover:</p>
+<ul>
+<li>The core concepts and syntax of CDDL.</li>
+<li>How to represent standard CBOR types and literal values.</li>
+<li>Defining arrays, maps, and the crucial concept of CDDL <em>groups</em> for sequences.</li>
+<li>Using operators to control occurrences, choices, and value constraints.</li>
+<li>Building complex schemas by composing simpler, reusable rules.</li>
+<li>The role of CDDL in data validation and the tooling ecosystem.</li>
+</ul>
+<p>A key focus will be understanding how CDDL models sequences of CBOR items using <em>groups</em>, a concept distinct from CBOR arrays or maps, and how this directly relates to the sequential nature of CBOR encoding. By the end of this chapter, you should be able to read and write basic CDDL schemas to define the structure of your CBOR data, laying the foundation for more robust and interoperable systems. We will prioritize practical application over exhaustive coverage of every CDDL feature, aiming for a solid working understanding rather than covering every detail of the full specification.</p>
+<h2 id="validating-cddl-interactively"><a class="header" href="#validating-cddl-interactively">Validating CDDL Interactively</a></h2>
+<p>Before diving into the details of CDDL, it's helpful to have a way to validate and experiment with CDDL schemas interactively. <a href="https://cddl.anweiss.tech/">cddl.anweiss.tech</a> provides a convenient online tool for this purpose.</p>
+<h2 id="core-concepts-rules-assignments-and-types"><a class="header" href="#core-concepts-rules-assignments-and-types">Core Concepts: Rules, Assignments, and Types</a></h2>
+<p>CDDL achieves its goal of unambiguous structure definition through a relatively simple grammar, inspired by Augmented Backus-Naur Form (ABNF) but tailored for CBOR/JSON data models. At its heart, a CDDL specification consists of one or more <em>rules</em>.  </p>
+<h3 id="rules-and-assignments"><a class="header" href="#rules-and-assignments">Rules and Assignments</a></h3>
+<p>A rule defines a name for a specific data structure or type constraint. The most basic assignment operator is <code>=</code>, which assigns a name (the <em>rule name</em>) on the left to a <em>type definition</em> on the right. Rule names are typically lowercase identifiers, potentially containing hyphens or underscores.</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; This is a comment. Comments start with a semicolon and run to end-of-line.
+
+my-first-rule = int  ; Assigns the name "my-first-rule" to the CBOR integer type.
+
+device_id = uint     ; Assigns the name "device_id" to the CBOR unsigned integer type.
+</code></pre>
+<p>CDDL is whitespace-insensitive, except within literal strings. Comments are essential for documenting the schema and explaining the intent behind rules.</p>
+<p>Besides the basic assignment <code>=</code>, CDDL provides two other assignment operators for extending existing rules:</p>
+<ul>
+<li><code>/=</code> Appends alternative choices to an existing rule. So a specification for an integer <em>or</em> a text string can be defined as:</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">my-rule = int / tstr
+</code></pre>
+<p>or alternatively:</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">my-rule = int
+my-rule /= tstr
+</code></pre>
+<ul>
+<li><code>//=</code> Appends alternative group choices to an existing rule. This is used for adding choices between sequences, which we'll explore when discussing groups.</li>
+</ul>
+<h3 id="the-prelude-standard-definitions"><a class="header" href="#the-prelude-standard-definitions">The Prelude: Standard Definitions</a></h3>
+<p>Every CDDL specification implicitly includes a set of predefined rules known as the <em>prelude</em>. This prelude defines convenient names for common CBOR types and some basic constraints. You don't need to define these yourself; they are always available:  </p>
+<div class="table-wrapper"><table><thead><tr><th>Category</th><th>Name</th><th>Description</th></tr></thead><tbody>
+<tr><td>Basic Types</td><td><code>bool</code></td><td>Boolean value</td></tr>
+<tr><td></td><td><code>uint</code></td><td>Unsigned integer (technically, a non-negative integer)</td></tr>
+<tr><td></td><td><code>nint</code></td><td>Negative integer</td></tr>
+<tr><td></td><td><code>int</code></td><td>Unsigned or negative integer</td></tr>
+<tr><td></td><td><code>float16</code></td><td>16-bit floating point</td></tr>
+<tr><td></td><td><code>float32</code></td><td>32-bit floating point</td></tr>
+<tr><td></td><td><code>float64</code></td><td>64-bit floating point</td></tr>
+<tr><td></td><td><code>float</code></td><td>Any floating point</td></tr>
+<tr><td></td><td><code>bstr</code></td><td>Byte string</td></tr>
+<tr><td></td><td><code>tstr</code></td><td>Text string</td></tr>
+<tr><td></td><td><code>any</code></td><td>Any single CBOR data item</td></tr>
+<tr><td>Constants</td><td><code>null</code></td><td>Null value</td></tr>
+<tr><td></td><td><code>true</code></td><td>Boolean true</td></tr>
+<tr><td></td><td><code>false</code></td><td>Boolean false</td></tr>
+<tr><td></td><td><code>undefined</code></td><td>Undefined value</td></tr>
+<tr><td>Aliases</td><td><code>nil</code></td><td>Alias for <code>null</code></td></tr>
+<tr><td></td><td><code>bytes</code></td><td>Alias for <code>bstr</code></td></tr>
+<tr><td></td><td><code>text</code></td><td>Alias for <code>tstr</code></td></tr>
+</tbody></table>
+</div>
+<p>These prelude types form the building blocks for more complex definitions. For instance, instead of just saying <code>int</code>, you can often be more specific using <code>uint</code> or <code>nint</code> if the sign is known. Alternatively, a way to think about the definition of <code>int</code> is that it is a union of <code>uint</code> and <code>nint</code>, but the prelude provides a more convenient shorthand:</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">int = uint / nint
+float = float16 / float32 / float64
+</code></pre>
+<h2 id="representing-basic-cbor-types-and-literals"><a class="header" href="#representing-basic-cbor-types-and-literals">Representing Basic CBOR Types and Literals</a></h2>
+<p>CDDL provides direct ways to refer to the fundamental CBOR data types, largely leveraging the names defined in the prelude. It also allows specifying literal values that must appear exactly as written.</p>
+<h3 id="standard-types"><a class="header" href="#standard-types">Standard Types</a></h3>
+<p>As seen above, the prelude provides names for most standard CBOR types:</p>
+<ul>
+<li><strong>Integers</strong>: <code>uint</code>, <code>nint</code>, <code>int</code>.</li>
+<li><strong>Floating-Point</strong>: <code>float16</code>, <code>float32</code>, <code>float64</code>, <code>float</code>. These correspond to the IEEE 754 half-, single-, and double-precision formats supported by CBOR's Major Type 7.</li>
+<li><strong>Simple Values</strong>: <code>bool</code>, <code>true</code>, <code>false</code>, <code>null</code>, <code>undefined</code>. These map directly to the specific simple values in Major Type 7.</li>
+<li><strong>Strings</strong>: <code>tstr</code> (UTF-8 text string, Major Type 3), <code>bstr</code> (byte string, Major Type 2).</li>
+<li><strong>Catch-all</strong>: <code>any</code> represents any single, well-formed CBOR data item.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; Examples using standard types
+message-counter = uint
+temperature = float
+is-active = bool
+user-name = tstr
+raw-payload = bstr
+any-value = any ; Allows any CBOR item including `null`.
+</code></pre>
+<h3 id="literal-values"><a class="header" href="#literal-values">Literal Values</a></h3>
+<p>CDDL allows you to specify that a data item must be a specific literal value:</p>
+<ul>
+<li><strong>Integers</strong>: <code>10</code>, <code>0</code>, <code>-1</code>, <code>42</code>.</li>
+<li><strong>Floats</strong>: <code>1.5</code>, <code>-0.0</code>, <code>3.14159</code>.</li>
+<li><strong>Text Strings</strong>: <code>"hello"</code>, <code>""</code>, <code>"a specific key"</code>. Text strings are enclosed in double quotes. Escaping rules similar to JSON apply within the CDDL source (e.g., <code>"\"quoted\""</code>) but the resulting CBOR string itself contains the literal characters without CDDL escapes.</li>
+<li><strong>Byte Strings</strong>: <code>h'010203'</code>, <code>h''</code>. Byte strings are represented using hexadecimal notation prefixed with <code>h</code> and enclosed in single quotes.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; Examples using literal values
+message-type = 1                 ; The value must be the integer 1
+protocol-version = "1.0"         ; The value must be the text string "1.0"
+fixed-header = h'cafef00d'       ; The value must be these specific four bytes
+status-code = 200 / 404 / 500    ; The value must be one of these integers
+</code></pre>
+<p>Literal values are often used as discriminators in choices or as fixed keys in maps.</p>
+<h2 id="defining-collections-arrays-maps-and-groups"><a class="header" href="#defining-collections-arrays-maps-and-groups">Defining Collections: Arrays, Maps, and Groups</a></h2>
+<p>Beyond simple scalar types, CDDL provides syntax for defining the structure of CBOR arrays (Major Type 4) and maps (Major Type 5). Crucially, it also introduces the concept of <em>groups</em> delimited by parentheses (<code>()</code>) to define sequences of items that are <em>not</em> enclosed within a CBOR array or map structure. Understanding the distinction between these is vital for correctly modeling CBOR data.</p>
+<h3 id="arrays-"><a class="header" href="#arrays-">Arrays (<code>[]</code>)</a></h3>
+<p>CDDL uses square brackets <code>[]</code> to define CBOR arrays. Inside the brackets, you specify the type(s) of the elements that the array should contain.</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; An array containing exactly three unsigned integers
+triplet = [uint, uint, uint]
+
+; An array containing a text string followed by any CBOR item
+labelled-item = [tstr, any]
+
+; An empty array
+empty-array = []
+
+; An array where the first element is a boolean, and the second is either an int or null
+mixed-array = [bool, int / null]
+</code></pre>
+<p>Occurrence indicators (covered later) can be used to specify variable numbers of elements. The definition within the brackets describes the sequence of CBOR items expected <em>within</em> the CBOR array structure itself.</p>
+<h3 id="maps-"><a class="header" href="#maps-">Maps (<code>{}</code>)</a></h3>
+<p>CDDL uses curly braces <code>{}</code> to define CBOR maps. Inside the braces, you define the expected key-value pairs. A key difference from JSON is that CBOR map keys can be <em>any</em> CBOR data type, not just strings. CDDL reflects this flexibility.  </p>
+<p>There are two primary ways to specify map members:</p>
+<ol>
+<li><strong><code>key: type</code></strong>: This form requires the key to be a literal <code>tstr</code> or <code>int</code>, or a <code>tstr</code> or <code>int</code> type that has a single literal value constraint. It's a shorthand commonly used when keys are simple strings or integers.</li>
+<li><strong><code>keytype =&gt; valuetype</code></strong>: This is the more general form. <code>keytype</code> can be any CDDL type definition (e.g., <code>tstr</code>, <code>uint</code>, <code>my-custom-rule</code>, a literal value), and <code>valuetype</code> defines the type of the corresponding value.</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; A map with specific string keys
+simple-object = {
+  "name": tstr,
+  "age": uint,
+  is-verified: bool  ; Bare words are shorthand for "is-verified": bool
+}
+
+; A map using integer keys and the =&gt; syntax
+indexed-data = {
+  1 =&gt; tstr,         ; Key is integer 1, value is text string
+  2 =&gt; bstr,         ; Key is integer 2, value is byte string
+ ? 3 =&gt; float       ; Key 3 is optional (using '?')
+}
+
+; A map where keys must be unsigned integers and values are text strings
+; The '*' indicates zero or more occurrences of this key/value pattern
+lookup-table = {
+  * uint =&gt; tstr
+}
+
+; An empty map
+empty-map = {}
+</code></pre>
+<p><strong>Important Considerations for Maps:</strong></p>
+<ul>
+<li>
+<p><strong>Key Types</strong>: Remember that CBOR allows non-string keys. CDDL fully supports defining maps with integer, byte string, or even complex keys.</p>
+</li>
+<li>
+<p><strong>Order</strong>: Although key-value pairs must be serialized in <em>some</em> order in the CBOR encoding, CDDL map definitions, like CBOR maps themselves, are generally considered <em>orderless</em>. Validation typically checks for the presence of required keys and type correctness, not the specific order in the encoded bytes. Deterministic encoding profiles, discussed later in this book, impose strict ordering rules.  </p>
+</li>
+<li>
+<p><strong>Uniqueness</strong>: The core CBOR specification doesn't strictly require map keys to be unique. However, most applications assume unique keys, and CDDL validation tools often enforce uniqueness by default or provide options to control this behavior. Relying on duplicate keys is generally discouraged.</p>
+</li>
+</ul>
+<h3 id="groups----defining-sequences"><a class="header" href="#groups----defining-sequences">Groups (<code>()</code>) - Defining Sequences</a></h3>
+<p>Perhaps the most distinctive structural element in CDDL compared to JSON-centric schema languages is the <em>group</em>, denoted by parentheses <code>()</code>. A group defines an ordered sequence of one or more CBOR data items <em>without</em> implying an enclosing CBOR array or map structure.</p>
+<p>This concept directly mirrors how CBOR works: data items are encoded sequentially one after another. A group in CDDL allows you to name and constrain such a sequence.</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; A group containing an unsigned integer followed by a text string
+record-header = (uint, tstr)
+
+; A group containing two floats
+point-2d = (float, float)
+</code></pre>
+<p>At first glance, <code>point-2d = (float, float)</code> might look similar to <code>point-array = [float, float]</code>. However, they define fundamentally different structures:</p>
+<ul>
+<li><code>point-array</code> defines a CBOR <strong>array</strong> (e.g., <code>[1.0, 2.5]</code>, encoded starting with <code>0x82</code>) containing two floats.</li>
+<li><code>point-2d</code> defines a <strong>sequence</strong> of two CBOR floats (e.g., <code>1.0</code> followed by <code>2.5</code>, encoded as <code>0xf93c00</code> followed by <code>0xfa40200000</code>, assuming preferred serialization).</li>
+</ul>
+<p><strong>Why are groups useful?</strong></p>
+<ol>
+<li><strong>Partial Arrays</strong>: Groups can be used to define partial arrays or sequences of items without needing to wrap them in a sub-array structure. For example, a <code>key</code> type that is an array of three items, where the first is a text string and the second and third are byte strings, could be defined as:</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">key = [key-info, bstr, bstr]
+key-info = tstr
+</code></pre>
+<p>But if the two byte strings are the key's conceptual "body", how would we use CDDL to make that clear? Using groups! The following definition is equivalent to the above, but it makes the relationship between the key and its body clear:</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">key = [key-info, key-body]
+key-info = tstr
+key-body = (bstr, bstr)
+</code></pre>
+<ol start="2">
+<li><strong>Structuring Map Members</strong>: Groups can structure related members within a map without requiring a nested map.</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">person = {
+    name: tstr,
+    address
+}
+
+; Group defines the address structure
+address = (
+    street: tstr,
+    city: tstr,
+    zip: uint
+)
+</code></pre>
+<p>This defines that the <code>street</code>, <code>city</code>, and <code>zip</code> keys are logically related and should appear (conceptually) together, but they remain direct members of the <code>person</code> map, the above definition being equivalent to:</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">person = {
+    name: tstr,
+    street: tstr,
+    city: tstr,
+    zip: uint
+}
+</code></pre>
+<p>This makes <code>address</code> a reusable group that can be referenced in multiple places, enhancing modularity and readability.</p>
+<ol start="3">
+<li><strong>Defining Choices Between Sequences (Group Choice <code>//</code>)</strong>: Allows choosing between different sequences of items.</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">message = {
+    header,
+    payload // error-report
+}
+header = (version: uint, msg_id: uint)
+payload = (data: bstr)
+error-report = (code: int, reason: tstr)
+</code></pre>
+<p>Groups are powerful because they leverage the fundamental sequential nature of CBOR encoding. While JSON schema languages might struggle to represent bare sequences outside of arrays, CDDL embraces them, providing a precise way to model structures common in binary protocols where items follow each other without explicit delimiters.</p>
+<h3 id="defining-cardinality"><a class="header" href="#defining-cardinality">Defining Cardinality</a></h3>
+<p>CDDL provides several operators to control the cardinality of elements within arrays, maps, and groups. These operators specify how many times a given type or group can occur in a sequence.</p>
+<ul>
+<li><code>?</code>: <strong>Optional</strong> (zero or one time).</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">optional-id = [ ?uint ]      ; Array with 0 or 1 uint
+config = ( tstr, ?bool )     ; Group: tstr, optionally followed by bool
+</code></pre>
+<ul>
+<li><code>*</code>: <strong>Zero or more</strong> times.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">int-list = [ *int ]          ; Array with any number of ints (including zero)
+byte-chunks = ( *bstr )      ; Group: sequence of zero or more byte strings
+</code></pre>
+<ul>
+<li><code>+</code>: <strong>One or more</strong> times.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">non-empty-list = [ +tstr ]   ; Array with at least one text string
+data-record = ( uint, +float ) ; Group: uint followed by one or more floats
+</code></pre>
+<ul>
+<li><code>n*m</code>: <strong>Specific range</strong> (<code>n</code> to <code>m</code> times, inclusive). If <code>n</code> is omitted, it defaults to 0. If <code>m</code> is omitted, it defaults to infinity.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">rgb-color = [ 3*3 uint ]      ; Array with exactly 3 uints
+short-ids = [ 1*5 int ]       ; Array with 1 to 5 ints
+max-10-items = [ *10 any ]    ; Array with 0 to 10 items of any type
+at-least-2 = [ 2* bstr ]      ; Array with 2 or more byte strings
+</code></pre>
+<p>These indicators provide fine-grained control over the cardinality of elements within sequences and arrays.</p>
+<h3 id="choices"><a class="header" href="#choices">Choices</a></h3>
+<p>CDDL offers two ways to define alternatives:</p>
+<ol>
+<li><strong>Type Choice (<code>/</code>)</strong>: Allows choosing between different <em>types</em> for a single data item slot.</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">identifier = tstr / uint       ; An identifier is either a text string or a uint
+config-value = bool / int / tstr / null
+measurement = [ tstr, int / float ] ; Array: string followed by an int OR a float
+</code></pre>
+<ol start="2">
+<li><strong>Group Choice (<code>//</code>)</strong>: Allows choosing between different <em>groups</em> (sequences) of items. This is used when the choice affects multiple items or map members.</li>
+</ol>
+<p>CDDL:</p>
+<pre><code class="language-cddl">contact-method = {
+    (email: tstr) //
+    (phone: tstr) //
+    postal-address
+}
+postal-address = (street: tstr, city: tstr)
+
+response = {
+    (status: 200, body: bstr) // (status: 500, error: tstr)
+}
+</code></pre>
+<p>In the <code>response</code> example, the choice affects both the <code>status</code> value and the subsequent item (<code>body</code> or <code>error</code>).</p>
+<h3 id="value-constraints-and-control-operators"><a class="header" href="#value-constraints-and-control-operators">Value Constraints and Control Operators</a></h3>
+<p>Beyond type and occurrence, CDDL allows constraints on the actual values or properties of data items using literal value ranges and <em>control operators</em> (often called "dot operators"). Control operators act as extensions to the core grammar, providing hooks for more sophisticated validation. The prelude defines several useful ones, and others can be defined by specific CDDL profiles or applications.  </p>
+<ul>
+<li><strong>Ranges (<code>..</code>)</strong>: Defines an inclusive range for numerical types or literal values.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">age = uint .le 120             ; Using prelude.le (less than or equal)
+percentage = 0..100            ; Value must be int between 0 and 100 inclusive
+temperature = -40..50          ; Value must be int between -40 and 50
+http-status-ok = 200..299      ; Integer range for successful HTTP status
+first-byte = 0x00..0xFF        ; Integer range using hex literals
+</code></pre>
+<p>Range checks can also be combined with prelude operators like <code>.lt</code> (less than), <code>.le</code> (less than or equal), <code>.gt</code> (greater than), <code>.ge</code> (greater than or equal), <code>.eq</code> (equal), <code>.ne</code> (not equal).</p>
+<ul>
+<li>
+<p><strong>Common Control Operators</strong>:</p>
+</li>
+<li>
+<p><code>.size uint</code> / <code>.size (min..max)</code>: Constrains the size (length). For <code>bstr</code> and <code>tstr</code>, it's the number of bytes. For arrays, it's the number of elements. For maps, it's the number of key-value pairs.</p>
+</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">short-string = tstr .size (1..64)
+sha256-hash = bstr .size 32
+coordinate = [ float ] .size 2  ; Array must have exactly 2 floats
+simple-map = { * tstr =&gt; any } .size (1..5) ; Map with 1 to 5 pairs
+</code></pre>
+<blockquote>
+<p><strong>⚠️ NOTE</strong>: The whitespace before "dot operator" is significant. If you get errors, check for missing whitespace.</p>
+</blockquote>
+<ul>
+<li><code>.regexp tstr</code>: Validates that a <code>tstr</code> matches a given regular expression pattern (syntax follows XML Schema Definition Language (XSD) style regular expressions, as per <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#regexs">XSD Appendix F</a>).</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">email = tstr .regexp "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+iso-date = tstr .regexp "\d{4}-\d{2}-\d{2}"
+</code></pre>
+<ul>
+<li><code>.cbor type</code> / <code>.cborseq type</code>: Validates that a <code>bstr</code> contains bytes that are a valid CBOR encoding of the specified <code>type</code> or a sequence (<code>.cborseq</code>) of items matching <code>type</code>. This is useful for embedding CBOR within CBOR.</li>
+</ul>
+<p>CDDL:</p>
+<pre><code class="language-cddl">signed-data = {
+    payload: bstr .cbor any, ; Payload is bytes that decode to some CBOR item
+    signature: bstr
+}
+message-stream = bstr .cborseq log-entry ; Bytes contain a sequence of log entries
+log-entry = [timestamp, tstr] ; Assuming log-entry is defined elsewhere
+timestamp = uint
+</code></pre>
+<p>These operators allow schema authors to declaratively state constraints without needing to specify the validation logic itself. CDDL tools interpret these declarations to perform the checks.  </p>
+<blockquote>
+<p><strong>✅ TIP:</strong> dCBOR, which we will discuss later in this book, also defines two additional operators, <code>.dcbor</code> and <code>.dcborseq</code>, which are exactly like <code>.cbor</code> and <code>.cborseq</code> except that they also require the encoded data item(s) be valid dCBOR.</p>
+</blockquote>
+<p>The following table summarizes the most frequently used operators for controlling structure and content:</p>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Name</th><th>Meaning</th><th>Example Usage</th></tr></thead><tbody>
+<tr><td><code>?</code></td><td>Optional</td><td>Zero or one occurrence</td><td><code>? int</code></td></tr>
+<tr><td><code>*</code></td><td>Zero or More</td><td>Zero or more occurrences</td><td><code>* tstr</code></td></tr>
+<tr><td><code>+</code></td><td>One or More</td><td>One or more occurrences</td><td><code>+ bool</code></td></tr>
+<tr><td><code>n*m</code></td><td>Range Occurrence</td><td>n to m occurrences</td><td><code>2*4 float</code></td></tr>
+<tr><td><code>/</code></td><td>Type Choice</td><td>Choose between listed types</td><td><code>int / tstr</code></td></tr>
+<tr><td><code>//</code></td><td>Group Choice</td><td>Choose between listed groups</td><td><code>(int) // (tstr, bool)</code></td></tr>
+<tr><td><code>..</code></td><td>Value Range</td><td>Value within numerical range</td><td><code>0..100</code></td></tr>
+<tr><td><code>.size</code></td><td>Size Control</td><td>Constrain byte/element/pair count</td><td><code>tstr.size (1..10)</code></td></tr>
+<tr><td><code>.regexp</code></td><td>Regex Control</td><td>Match text string pattern</td><td><code>tstr.regexp "..."</code></td></tr>
+<tr><td><code>.cbor</code></td><td>Embedded CBOR</td><td>Byte string is valid CBOR of type</td><td><code>bstr.cbor my_type</code></td></tr>
+<tr><td><code>.cborseq</code></td><td>Embedded CBOR Sequence</td><td>Byte string is valid CBOR sequence</td><td><code>bstr.cborseq my_type</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="building-and-reusing-definitions"><a class="header" href="#building-and-reusing-definitions">Building and Reusing Definitions</a></h2>
+<p>While the basic types and operators are powerful, the real strength of CDDL for defining complex data structures lies in its ability to build definitions compositionally by referencing other rules.</p>
+<h3 id="rule-referencing"><a class="header" href="#rule-referencing">Rule Referencing</a></h3>
+<p>Once a rule is defined with a name, that name can be used anywhere a type definition is expected in another rule. This allows breaking down complex structures into smaller, manageable, named components.</p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; Define a structure for a person's name
+name-structure = {
+  first: tstr .size (1..50),
+  last: tstr .size (1..50),
+  ? middle: tstr .size (1..50) ; Optional middle name
+}
+
+; Define contact information choices
+contact-info = email-address / phone-number
+
+email-address = tstr .regexp "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+phone-number = tstr .regexp "\+?[1-9]\d{1,14}" ; Simple E.164 regex example
+
+; Define the main person structure, referencing other rules
+person = {
+  name: name-structure,       ; Use the name-structure rule here
+  age: uint .le 120,          ; Updated to include whitespace before .le
+  ? contact: contact-info     ; Optional contact info, using the choice rule
+}
+</code></pre>
+<p>In this example, the <code>person</code> rule is defined using references to <code>name-structure</code> and <code>contact-info</code>. This makes the <code>person</code> definition concise and readable. If the structure of a name or contact information needs to change, the modification only needs to happen in one place (the <code>name-structure</code> or <code>contact-info</code> rules), improving maintainability.</p>
+<h3 id="modularity-and-readability"><a class="header" href="#modularity-and-readability">Modularity and Readability</a></h3>
+<p>This compositional approach is key to managing complexity in large data format specifications. By breaking down the overall structure into logical, named sub-components (rules and groups), CDDL schemas become:</p>
+<ul>
+<li><strong>More Readable</strong>: Each rule focuses on a specific part of the data structure.</li>
+<li><strong>More Maintainable</strong>: Changes to a shared structure are localized.</li>
+<li><strong>More Reusable</strong>: Common structures (like timestamps, identifiers, addresses) can be defined once and referenced wherever needed.</li>
+</ul>
+<p>This mirrors good software engineering practices, applying principles of modularity and abstraction to data definition. This compositional design aids in creating the unambiguous descriptions that are a primary goal of CDDL.  </p>
+<h3 id="practical-example-the-gadget-revisited"><a class="header" href="#practical-example-the-gadget-revisited">Practical Example: The "Gadget" Revisited</a></h3>
+<p>Let's revisit the nested JSON/CBOR example from a previous chapter and define its structure using CDDL:</p>
+<p><strong>JSON/CBOR Diagnostic:</strong></p>
+<pre><code>{
+  "name": "Gadget",
+  "id": 12345,
+  "enabled": true,
+  "parts": [ "bolt", "nut" ],
+  "spec": { "size": 10.5, "data": h'010000ff' }
+}
+</code></pre>
+<p><strong>CDDL Definition:</strong></p>
+<p>CDDL:</p>
+<pre><code class="language-cddl">; Define the top-level type for validation (often the first rule)
+top-level = gadget
+
+; Define the main gadget structure
+gadget = {
+  "name": tstr .size 1.., ; Name must be at least 1 byte
+  "id": uint,
+  "enabled": bool,
+  "parts": [ + tstr ],      ; Array of one or more text strings
+  "spec": gadget-spec       ; Reference the gadget-spec rule
+}
+
+; Define the structure for the specification sub-object
+gadget-spec = {
+  "size": float,       ; Allows float16, float32, or float64
+  "data": bstr         ; The raw binary data
+}
+</code></pre>
+<p>This CDDL schema precisely defines the expected structure:</p>
+<ul>
+<li>A map (<code>gadget</code>) with five required keys: <code>"name"</code>, <code>"id"</code>, <code>"enabled"</code>, <code>"parts"</code>, and <code>"spec"</code>.</li>
+<li><code>"name"</code> must be a non-empty text string.</li>
+<li><code>"id"</code> must be an unsigned integer.</li>
+<li><code>"enabled"</code> must be a boolean.</li>
+<li><code>"parts"</code> must be an array containing one or more text strings.</li>
+<li><code>"spec"</code> must be a map conforming to the <code>gadget-spec</code> rule.</li>
+<li>The <code>gadget-spec</code> map requires keys <code>"size"</code> (a float) and <code>"data"</code> (a byte string).</li>
+</ul>
+<p>Notice how the CDDL directly defines the <code>data</code> field as <code>bstr</code>, reflecting CBOR's native handling of binary data, unlike the base64 encoding necessary in the JSON representation. This schema clearly communicates the expected format for any system processing "gadget" data.</p>
+<h2 id="validation-and-the-tooling-ecosystem"><a class="header" href="#validation-and-the-tooling-ecosystem">Validation and the Tooling Ecosystem</a></h2>
+<p>Defining a schema is only part of the story. A major practical benefit of using CDDL is the ability to automatically validate CBOR data against a schema.  </p>
+<h3 id="the-concept-of-validation"><a class="header" href="#the-concept-of-validation">The Concept of Validation</a></h3>
+<p>Validation is the process of checking whether a given CBOR data instance conforms to the rules specified in a CDDL schema. Conceptually, a CDDL validator tool takes two inputs:</p>
+<ol>
+<li>The CDDL schema definition (e.g., a <code>.cddl</code> file).</li>
+<li>The CBOR data instance (usually as raw bytes).</li>
+</ol>
+<p>The validator then processes the CBOR data according to the rules defined in the schema, starting from a designated root rule (often the first rule in the file, or explicitly specified). It outputs whether the data is valid according to the schema, often providing details about any discrepancies if validation fails.  </p>
+<h3 id="benefits-of-validation"><a class="header" href="#benefits-of-validation">Benefits of Validation</a></h3>
+<p>Automated validation provides significant benefits:</p>
+<ul>
+<li><strong>Error Detection</strong>: Catch malformed data early, whether from external sources or internal bugs.</li>
+<li><strong>Interoperability</strong>: Ensure that systems exchanging CBOR data adhere to the agreed-upon structure.</li>
+<li><strong>API Contract Enforcement</strong>: Use CDDL schemas as machine-readable contracts for APIs that consume or produce CBOR.</li>
+<li><strong>Security</strong>: Validate that incoming data conforms to expected structural constraints, preventing certain classes of injection or processing errors. While not a substitute for comprehensive security analysis, structural validation is a valuable defense layer.  </li>
+</ul>
+<h3 id="tooling-ecosystem"><a class="header" href="#tooling-ecosystem">Tooling Ecosystem</a></h3>
+<p>A growing ecosystem of tools and libraries supports working with CDDL. While this book won't provide tutorials for specific tools, it's important to be aware of their existence:  </p>
+<ul>
+<li>
+<p><strong>Implementations</strong>: Libraries for parsing CDDL and validating CBOR/JSON data are available in various languages, including Rust (<code>cddl-rs</code> ), Node.js (<code>cddl</code>), and potentially others like Python, Go, or Java (e.g., via wrappers like <code>cddl2java</code> mentioned in ).  </p>
+</li>
+<li>
+<p><strong>Functionality</strong>: Common features include:</p>
+<ul>
+<li>Parsing CDDL schemas into an Abstract Syntax Tree (AST).  </li>
+<li>Validating CBOR data against a CDDL schema.  </li>
+<li>Validating JSON data against a CDDL schema.  </li>
+<li>Checking CDDL syntax conformance.  </li>
+<li>Some tools might offer experimental features like generating documentation or code stubs, though code generation is not a primary design goal of CDDL itself.  </li>
+</ul>
+</li>
+<li>
+<p><strong>Online Tools</strong>: Resources like <a href="https://cddl.anweiss.tech/">cddl.anweiss.tech</a> offer CDDL validation, allowing interactive experimentation.</p>
+</li>
+</ul>
+<p>The availability of these tools enables a <em>schema-driven development</em> workflow. The CDDL schema can serve as a central artifact for documentation, automated testing (validation), runtime checks, and ensuring consistency across different parts of a system or between collaborating teams. This elevates CDDL from merely a descriptive language to an active component in building robust CBOR-based applications.  </p>
+<h2 id="conclusion-laying-the-schema-foundation"><a class="header" href="#conclusion-laying-the-schema-foundation">Conclusion: Laying the Schema Foundation</a></h2>
+<p>This chapter has introduced the Concise Data Definition Language (CDDL) as the standard way to define the structure of CBOR data. We've moved from understanding <em>how</em> individual CBOR items are encoded to specifying <em>what</em> overall structure those items should form in a given application or protocol.</p>
+<p>We covered the core concepts: rules defined using assignments (<code>=</code>, <code>/=</code>, <code>//=</code>), the use of standard types from the prelude (<code>uint</code>, <code>tstr</code>, <code>bool</code>, etc.), and the specification of literal values. We explored how CDDL defines CBOR arrays (<code>[]</code>) and maps (<code>{}</code>), noting the flexibility of map keys in CBOR. Crucially, we delved into CDDL groups (<code>()</code>) and their role in defining sequences of items without explicit CBOR delimiters, highlighting how this feature directly maps to CBOR's sequential encoding and distinguishes CDDL from JSON-centric schema languages. We also learned how to control structure using occurrence indicators (<code>?</code>, <code>*</code>, <code>+</code>, <code>n*m</code>), define choices (<code>/</code>, <code>//</code>), and apply constraints using value ranges (<code>..</code>) and practical control operators like <code>.size</code>, <code>.regexp</code>, and <code>.cbor</code>. Finally, we saw how rule referencing enables modular, readable, and reusable schema design, and how the existence of validation tools makes CDDL a practical asset for development.</p>
+<p><strong>Best Practices for Writing CDDL:</strong></p>
+<p>As you start defining your own CBOR structures with CDDL, keep these practices in mind:</p>
+<ul>
+<li><strong>Clarity over Brevity</strong>: Prioritize making the schema easy to understand. Use comments (<code>;</code>) liberally to explain intent and choices.</li>
+<li><strong>Meaningful Names</strong>: Choose descriptive names for rules that reflect their purpose.</li>
+<li><strong>Modularity</strong>: Break down complex structures into smaller, well-named rules. This improves readability, maintainability, and reuse.</li>
+<li><strong>Start Specific, Generalize Carefully</strong>: Define the expected structure as precisely as possible initially. Use broad types like <code>any</code> or wide occurrence ranges (<code>*</code>) only when truly necessary, as overly permissive schemas offer less validation value.</li>
+<li><strong>Consider the CBOR Data Model</strong>: Think about how your CDDL definition maps to the underlying CBOR types and encoding, especially regarding the distinction between groups (<code>()</code>) and container types like arrays (<code>[]</code>) and maps (<code>{}</code>).</li>
+</ul>
+<p>With the fundamentals covered here, you are equipped to use CDDL to bring clarity and rigor to your CBOR-based data formats. This foundation is essential as we move forward to explore more advanced CBOR topics. CDDL schemas are instrumental in understanding and validating the structures used within CBOR Tags, ensuring the correctness of data before applying deterministic encoding rules (dCBOR), and understanding the precise layout of nested structures like Gordian Envelope.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_1/cbor_sequences.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_2/determinism.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_1/cbor_sequences.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_2/determinism.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

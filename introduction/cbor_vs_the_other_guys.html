@@ -1,0 +1,401 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>CBOR vs. the Other Guys - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="cbor-vs-the-other-guys"><a class="header" href="#cbor-vs-the-other-guys">CBOR vs. The Other Guys</a></h1>
+<h2 id="the-binary-serialization-landscape"><a class="header" href="#the-binary-serialization-landscape">The Binary Serialization Landscape</a></h2>
+<p>In the previous chapter, we traced data interchange formats from verbose XML to simpler JSON, highlighting the quest for better ways to represent and exchange data. JSON's simplicity and performance advantages over XML made it dominant for web APIs. However, its text-based nature limits efficiency in size and processing speed. This led to CBOR (Concise Binary Object Representation), which retains JSON's familiar data model while leveraging binary encoding for compactness and performance—crucial for constrained environments like the Internet of Things (IoT).</p>
+<p>CBOR exists within a broader landscape of binary serialization formats, each with specific goals and trade-offs. Understanding how CBOR compares to alternatives helps appreciate its strengths and make informed format decisions. This chapter surveys several prominent binary formats:</p>
+<ul>
+<li>
+<p><a href="https://bsonspec.org/">BSON (Binary JSON)</a>: Developed by MongoDB for internal storage and wire format, extending JSON with database-centric types and optimizing for traversability.</p>
+</li>
+<li>
+<p><a href="https://protobuf.dev/">Protocol Buffers (Protobuf)</a>: Google's high-performance, schema-driven format designed for efficient Remote Procedure Calls and data archival.</p>
+</li>
+<li>
+<p><a href="https://msgpack.org/">MessagePack</a>: A fast, compact binary alternative to JSON, used for network communication and caching.</p>
+</li>
+<li>
+<p><a href="https://avro.apache.org/">Avro</a>: An Apache project emphasizing robust schema evolution, common in big data ecosystems like Hadoop and Kafka.</p>
+</li>
+</ul>
+<p>We'll compare these formats based on origins, data models, encoding strategies, schema approaches, performance characteristics, extensibility mechanisms, and typical use cases.</p>
+<p>A fundamental distinction exists between <strong>schema-optional</strong> formats (CBOR, BSON, MessagePack) and <strong>schema-driven</strong> formats (Protocol Buffers, Avro). Schema-optional formats embed type information with the data, allowing parsing without prior structural knowledge—like JSON. This offers flexibility but introduces overhead and may require runtime validation. Schema-driven formats rely on external schemas known by both sender and receiver, potentially enabling more compact encodings (omitting field names/types) and compile-time validation, but requiring schema management and reducing data self-description. This core difference often reflects each format's origin—whether designed for flexible document storage like BSON or for high-performance, predefined message structures like Protobuf.</p>
+<h2 id="bson-binary-json-tailored-for-databases"><a class="header" href="#bson-binary-json-tailored-for-databases">BSON: Binary JSON Tailored for Databases</a></h2>
+<p>BSON emerged directly from MongoDB's needs. While MongoDB embraced JSON's flexible document model, raw JSON proved suboptimal for database operations due to its limited type system (lacking dates and binary data) and inefficiencies when parsing text for queries and indexing.</p>
+<p>MongoDB created BSON to address these limitations—providing a binary JSON representation optimized for storage efficiency, rapid traversal, and enhanced type support while preserving schema flexibility. BSON serves as MongoDB's native format for both storage and network transfer.</p>
+<h3 id="design-and-encoding"><a class="header" href="#design-and-encoding">Design and Encoding</a></h3>
+<p>BSON documents serialize as binary data with explicit type and length information. Each document begins with a 4-byte total size, followed by a sequence of elements, ending with a null byte. Each element contains a one-byte type code, null-terminated field name, and type-specific value encoding. The inclusion of length prefixes enables MongoDB to quickly traverse documents and access specific fields without parsing entire structures.</p>
+<p>BSON extends JSON's data model with several database-essential types:</p>
+<ul>
+<li>
+<p><strong>ObjectId:</strong> A 12-byte unique identifier (timestamp + machine ID + process ID + counter), commonly used as primary key.</p>
+</li>
+<li>
+<p><strong>Date:</strong> 64-bit integer representing milliseconds since Unix epoch.</p>
+</li>
+<li>
+<p><strong>Binary Data (BinData):</strong> Direct embedding of byte arrays with subtype indicators, avoiding Base64 encoding.</p>
+</li>
+<li>
+<p><strong>Timestamp:</strong> Special 64-bit type (seconds since epoch + ordinal) for MongoDB replication logs.</p>
+</li>
+<li>
+<p><strong>Additional Numeric Types:</strong> 32-bit integers (<code>int32</code>), 64-bit integers (<code>int64</code>), 64-bit floats (<code>double</code>), and 128-bit high-precision decimals (<code>Decimal128</code>) for financial applications.</p>
+</li>
+<li>
+<p><strong>Deprecated Types:</strong> Including <code>Undefined</code> (generally discouraged).</p>
+</li>
+</ul>
+<p>A notable design choice is BSON's array encoding—represented as standard BSON documents with string keys matching array indices ("0", "1", "2"). While simplifying internal representation (everything is a document), this adds overhead compared to more efficient array encodings.</p>
+<p>BSON prioritizes traversability and in-place updates. Length prefixes enable field skipping during reads, while fixed-size numeric encodings simplify value modification without rewriting entire documents.</p>
+<h3 id="pros-and-cons"><a class="header" href="#pros-and-cons">Pros and Cons</a></h3>
+<p>BSON's primary strengths derive from its MongoDB integration. It enables faster document traversal than parsing JSON text, with richer data types (dates, binary data, ObjectIds, high-precision decimals) essential for database operations. It maintains JSON's schema flexibility while allowing MongoDB to build indexes on document fields for efficient querying.</p>
+<p>However, BSON has notable limitations. Type and length prefixes, along with verbose array encoding, often make BSON documents larger than equivalent JSON, particularly for small documents. It's generally less space-efficient than MessagePack or Protobuf. Like most binary formats, it lacks human readability. Its extended types prevent lossless conversion to standard JSON, limiting interoperability. BSON remains largely confined to the MongoDB ecosystem and lacks built-in RPC mechanisms.</p>
+<h3 id="comparison-vs-cbor"><a class="header" href="#comparison-vs-cbor">Comparison vs. CBOR</a></h3>
+<p>Both CBOR and BSON are schema-optional binary formats extending the JSON data model, but with different design priorities. BSON optimizes for database storage and traversal, using length prefixes and specialized types like <code>ObjectId</code> and <code>Decimal128</code>, sometimes sacrificing compactness. CBOR prioritizes conciseness and implementation simplicity for network transmission in constrained environments, typically achieving smaller message sizes. While BSON offers database-centric types, CBOR employs a more general type system extended through standardized tags (for dates, bignums, etc.). BSON remains closely tied to MongoDB, whereas CBOR exists as an IETF standard (RFC 8949) used across various internet protocols.</p>
+<p>BSON's design clearly reflects its purpose as MongoDB's internal format. The need for rapid field access drove the inclusion of length prefixes, while database requirements dictated specialized types like <code>Date</code>, <code>BinData</code>, and <code>ObjectId</code>. These adaptations make BSON more than just binary JSON—it's an extended format tailored for database operations. This specialization benefits MongoDB but creates trade-offs in size and general interoperability compared to formats designed for broader use cases. The term "Binary JSON" can therefore be somewhat misleading, as its extended types prevent guaranteed lossless round-tripping with standard JSON.</p>
+<h2 id="protocol-buffers-schema-driven-performance"><a class="header" href="#protocol-buffers-schema-driven-performance">Protocol Buffers: Schema-Driven Performance</a></h2>
+<p>Protocol Buffers (Protobuf) originated at Google as a mechanism for serializing structured data, designed to be smaller, faster, and simpler than XML. Initially created for internal RPC and data storage, Google open-sourced it in 2008.</p>
+<h3 id="design-and-encoding-1"><a class="header" href="#design-and-encoding-1">Design and Encoding</a></h3>
+<p>Protobuf takes a fundamentally <strong>schema-driven</strong> approach. Data structures ("messages") must be defined in <code>.proto</code> files using Protobuf's Interface Definition Language (IDL).</p>
+<p>The workflow centers on the <code>protoc</code> compiler, which processes <code>.proto</code> files to generate source code in various languages (C++, Java, Python, Go, C#, etc.). This generated code provides message classes with methods for field access, serialization, and parsing.</p>
+<p>The binary format prioritizes compactness and speed. Instead of field names, each field uses a unique <strong>field number</strong> (tag) paired with a <strong>wire type</strong> indicating the encoding method. Wire types specify how much data to read (e.g., <code>VARINT</code> for variable-length integers, <code>LEN</code> for length-delimited data like strings).</p>
+<p>Encoding techniques include <strong>Varints</strong> (using fewer bytes for smaller numbers) and <strong>ZigZag encoding</strong> (for efficient negative number representation). The data model supports numerous scalar types (<code>int32</code>, <code>uint64</code>, <code>bool</code>, <code>string</code>, etc.), nested messages, <code>repeated</code> fields (arrays), <code>map</code> fields (key-value pairs), and <code>oneof</code> (mutually exclusive fields).</p>
+<p>Protobuf handles <strong>schema evolution</strong> well. As long as field numbers remain stable, developers can typically add or remove optional/repeated fields without breaking compatibility. Parsers skip unknown fields, enabling forward compatibility. However, changing field types is generally unsafe, and using <code>required</code> fields (discouraged in newer versions) limits evolution flexibility.</p>
+<h3 id="pros-and-cons-1"><a class="header" href="#pros-and-cons-1">Pros and Cons</a></h3>
+<p>Protobuf's advantages derive from its schema-driven approach, delivering high performance with compact message sizes by replacing field names with numeric tags. The schema and generated code provide compile-time type safety and simplified data access. Its evolution capabilities allow systems to change without breaking compatibility. Language-neutral code generation suits polyglot environments.</p>
+<p>However, these schema requirements create notable limitations. Protobuf data isn't self-describing—the <code>.proto</code> definition is essential for interpreting the binary data. The format isn't human-readable. The workflow requires compiling <code>.proto</code> files and managing generated code, reducing flexibility for dynamic data structures. It can be suboptimal for very large messages (over a few megabytes) or multi-dimensional numeric arrays common in scientific computing. While widely adopted, Protobuf lacks formal standardization by bodies like IETF or W3C.</p>
+<h3 id="comparison-vs-cbor-1"><a class="header" href="#comparison-vs-cbor-1">Comparison vs. CBOR</a></h3>
+<p>The fundamental difference is their schema approach. Protobuf mandates schemas (<code>.proto</code> files) and compilation. CBOR is <strong>schema-optional</strong> with self-describing data containing embedded type indicators. While CBOR supports validation with schema languages like <a href="https://datatracker.ietf.org/doc/html/rfc8610">CDDL</a>, schemas aren't required for basic parsing.</p>
+<p>This creates distinctions in self-description (CBOR yes, Protobuf no), encoding strategy (CBOR uses type indicators with string map keys; Protobuf uses numeric field tags and wire types), flexibility (CBOR higher, Protobuf more rigid but safer), and extensibility (CBOR uses IANA-registered tags, Protobuf uses <code>.proto</code>-defined options/extensions).</p>
+<p>Performance comparisons are nuanced. Protobuf excels in speed and size, particularly for RPC with pre-shared schemas. CBOR also prioritizes efficiency, especially minimizing codec size for constrained devices. Results depend heavily on data, implementation quality, and use case. For standardization, CBOR is an IETF standard (RFC 8949), while Protobuf remains a Google-driven de facto standard.</p>
+<p>Protobuf's philosophy achieves performance, compactness, and type safety through mandatory schemas and code generation—highly effective in controlled environments where schema management is feasible. This tight coupling yields efficiency gains but sacrifices the flexibility and self-description offered by formats like JSON or CBOR. The trade-off is clear: Protobuf prioritizes performance and structural rigidity, whereas CBOR favors flexibility and self-description while maintaining binary efficiency.</p>
+<h2 id="messagepack-the-compact-json-alternative"><a class="header" href="#messagepack-the-compact-json-alternative">MessagePack: The Compact JSON Alternative</a></h2>
+<p>MessagePack emerged around 2008-2009, created by Sadayuki Furuhashi. Its goal was to provide a more efficient binary serialization format than JSON – "like JSON, but fast and small." It addresses scenarios where JSON's verbosity creates bottlenecks, such as network communication (RPC, message queues) and data caching (e.g., in Memcached).</p>
+<h3 id="design-and-encoding-2"><a class="header" href="#design-and-encoding-2">Design and Encoding</a></h3>
+<p>MessagePack defines a binary format mirroring JSON's fundamental data types (null, boolean, integer, floating-point, string, array, map) while enabling transparent conversion between formats.</p>
+<p>Beyond JSON types, MessagePack adds:</p>
+<ul>
+<li>
+<p><strong><code>bin</code> (Binary Data):</strong> Efficient storage for raw byte sequences.</p>
+</li>
+<li>
+<p><strong><code>ext</code> (Extension Type):</strong> Mechanism for application-specific types, consisting of an integer type code (tag) and a byte string payload.</p>
+</li>
+</ul>
+<p>The encoding prioritizes compactness. Small integers can be encoded in a single byte. Short strings need only a length prefix followed by UTF-8 bytes. Arrays and maps include their element count as a prefix. Unlike JSON, MessagePack allows any data type as map keys, not just strings. Data types and lengths are indicated by initial encoded bytes.</p>
+<h3 id="pros-and-cons-2"><a class="header" href="#pros-and-cons-2">Pros and Cons</a></h3>
+<p>MessagePack delivers greater efficiency than JSON through smaller serialized output, optimized type encodings, potentially faster network transmission, and reduced storage requirements. Serialization and deserialization can outperform standard JSON libraries, though actual performance depends on implementations and data characteristics. It supports native binary data with an extension mechanism for custom types and offers implementations across numerous programming languages.</p>
+<p>However, MessagePack sacrifices human-readability, complicating debugging. A significant limitation affects streaming: since arrays and maps require upfront element counts, streaming serialization becomes difficult when total counts aren't known in advance, potentially requiring complete in-memory buffering. While often faster than JSON, the margin varies with implementation quality and optimization. Compared to CBOR, MessagePack lacks formal standardization through bodies like IETF (its specification resides on GitHub), and its <code>ext</code> mechanism provides less structure than CBOR's IANA-registered tags.</p>
+<h3 id="comparison-vs-cbor-2"><a class="header" href="#comparison-vs-cbor-2">Comparison vs. CBOR</a></h3>
+<p>CBOR and MessagePack both aim to be efficient, schema-less binary alternatives to JSON with native binary data support, but differ in key aspects:</p>
+<ul>
+<li>
+<p><strong>Encoding Details:</strong> CBOR supports indefinite-length arrays and maps (beneficial for streaming when total size is unknown), while MessagePack typically requires fixed collection counts.</p>
+</li>
+<li>
+<p><strong>Standardization:</strong> CBOR is a formal IETF standard (RFC 8949) developed through consensus, whereas MessagePack uses a community-maintained specification. Many view CBOR as a more rigorous standard inspired by MessagePack.</p>
+</li>
+<li>
+<p><strong>Extensibility:</strong> CBOR employs a standardized semantic tag system with an IANA registry for extended types (dates, URIs, bignums). MessagePack uses a simpler but less structured <code>ext</code> type where applications define tag meanings.</p>
+</li>
+<li>
+<p><strong>Performance and Size:</strong> Comparisons vary by implementation and data. CBOR prioritizes small codec size (for constrained devices) alongside message compactness, while MessagePack focuses primarily on message size and speed.</p>
+</li>
+<li>
+<p><strong>Conceptual Simplicity:</strong> MessagePack's shorter specification appears simpler, but CBOR's unification of types under its major type/additional info system and tag mechanism offers conceptual clarity.</p>
+</li>
+</ul>
+<p>MessagePack pioneered the "binary JSON" concept to improve network performance, optimizing for complete, known data structures rather than streaming scenarios. Its widespread adoption demonstrates market demand. However, CBOR's formal standardization, streaming support through indefinite-length items, and standardized tag registry target broader applications, particularly for constrained devices and internet protocols.</p>
+<h2 id="avro-mastering-schema-evolution"><a class="header" href="#avro-mastering-schema-evolution">Avro: Mastering Schema Evolution</a></h2>
+<p>Apache Avro emerged from Apache Hadoop around 2009, designed specifically to address schema evolution challenges in large-scale data processing systems. In environments like Hadoop or Kafka data pipelines, where producers and consumers evolve independently, Avro enables seamless schema changes without breaking compatibility. It offers rich data structures and integrates easily with dynamic languages, without requiring code generation.</p>
+<h3 id="design-and-encoding-3"><a class="header" href="#design-and-encoding-3">Design and Encoding</a></h3>
+<p>Avro is <strong>schema-based</strong>, with schemas typically defined in JSON (though an alternative C-like IDL is available). A fundamental aspect of Avro is that the schema used to <em>write</em> data is always required to <em>read</em> that data. The binary encoding contains no field names or type identifiers—just concatenated field values in schema-defined order. This creates compact data that depends entirely on the schema for interpretation. Writer schemas typically accompany the data in file headers or through schema registry services. Avro also supports JSON encoding for debugging purposes.</p>
+<p>Avro includes primitive types (<code>null</code>, <code>boolean</code>, <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>bytes</code>, <code>string</code>) and complex types (<code>record</code>, <code>enum</code>, <code>array</code>, <code>map</code>, <code>union</code>, <code>fixed</code>). Records contain named fields, arrays hold sequences, maps store key-value pairs (string keys only), and unions allow values of several specified types—commonly used for optional fields by including <code>null</code> (e.g., <code>["null", "string"]</code>).</p>
+<p>Avro's strength lies in its well-defined <strong>schema evolution rules</strong>:</p>
+<ul>
+<li>Fields can be added or removed only if they have a default value, which readers use when the field is missing.</li>
+<li>Field renaming uses <code>aliases</code> in the reader's schema to recognize data written with old names.</li>
+<li>Type changes are generally forbidden, with limited exceptions (e.g., <code>int</code> to <code>long</code>).</li>
+<li>For enums, adding symbols is backward compatible; removing or renaming breaks compatibility.</li>
+</ul>
+<p>When reading data with a different but compatible schema, Avro uses <strong>schema resolution</strong>—comparing field names (and aliases) and applying defaults to present data according to the reader's schema.</p>
+<h3 id="pros-and-cons-3"><a class="header" href="#pros-and-cons-3">Pros and Cons</a></h3>
+<p>Avro's main advantage is sophisticated schema evolution handling, making it ideal for systems with frequent or independent schema changes. JSON-defined schemas are relatively easy to manage. The binary encoding is compact since it omits field names and tags. Avro integrates well with dynamic languages when schemas are available at runtime. It has strong adoption within the Apache ecosystem, particularly Hadoop, Spark, and Kafka.</p>
+<p>The primary disadvantage is requiring the writer's schema during deserialization, introducing schema management complexity and often necessitating a schema registry. While compact, some benchmarks suggest Avro may be slower than Protobuf in certain scenarios. The binary format is not human-readable, and developers must carefully follow schema evolution rules to maintain compatibility.</p>
+<h3 id="comparison-vs-cbor-3"><a class="header" href="#comparison-vs-cbor-3">Comparison vs. CBOR</a></h3>
+<p>Avro and CBOR represent fundamentally different schema philosophies. Avro <em>requires</em> schemas for reading and writing, with design centered on schema resolution. CBOR is <strong>schema-optional</strong> and self-describing; schemas (like CDDL) can validate but aren't needed for parsing.</p>
+<p>This affects encoding: Avro omits field identifiers, relying on schema field order. CBOR includes type information and map keys, making it interpretable without external schemas.</p>
+<p>Avro handles schema evolution explicitly through resolution rules, defaults, and aliases. CBOR's self-describing nature allows parsers to skip unknown data, but complex changes may require application-level logic or tag conventions. CBOR offers greater ad-hoc flexibility, while Avro enforces structure through schemas. Their ecosystems also differ—Avro dominates Big Data/Apache contexts, while CBOR prevails in IoT and IETF protocols.</p>
+<p>Avro's design clearly optimizes for schema evolution in large-scale, long-lived data systems. By requiring the writer's schema at read time, it enables powerful resolution capabilities, allowing independent producer and consumer evolution. This contrasts with Protobuf's reliance on stable tag numbers and CBOR's schema-optional flexibility. The trade-off is explicit: Avro gains robust evolution and dynamic language integration, but requires schema management and produces data that's not self-contained.</p>
+<h2 id="comparative-analysis-choosing-the-right-tool"><a class="header" href="#comparative-analysis-choosing-the-right-tool">Comparative Analysis: Choosing the Right Tool</a></h2>
+<p>Having examined several binary serialization formats, it's clear that each addresses specific needs in the data interchange landscape. BSON optimizes for MongoDB's database operations. Protocol Buffers achieves high performance and type safety for RPC through mandatory schemas. MessagePack provides a compact binary alternative to JSON for network communication. Avro specializes in managing schema evolution for data pipelines. CBOR offers a standardized, binary-efficient encoding of the JSON data model with emphasis on constrained environments and extensibility.</p>
+<p>No single format suits all use cases. The optimal choice depends on specific application requirements. Key decision factors include schema requirements (mandatory vs. optional), performance needs vs. flexibility, schema evolution complexity, ecosystem compatibility, and specialized features like native data types or standardized extensibility mechanisms.</p>
+<p>The following table summarizes the key distinctions between these formats:</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Feature</th><th style="text-align: left">CBOR</th><th style="text-align: left">BSON</th><th style="text-align: left">Protocol Buffers</th><th style="text-align: left">MessagePack</th><th style="text-align: left">Avro</th></tr></thead><tbody>
+<tr><td style="text-align: left"><strong>Origin/Primary Goal</strong></td><td style="text-align: left">IETF / Constrained Env Efficiency</td><td style="text-align: left">MongoDB / DB Storage &amp; Traversal</td><td style="text-align: left">Google / RPC Performance &amp; Size</td><td style="text-align: left">Furuhashi / JSON Alternative (Speed/Size)</td><td style="text-align: left">Apache / Schema Evolution</td></tr>
+<tr><td style="text-align: left"><strong>Schema Handling</strong></td><td style="text-align: left">Optional</td><td style="text-align: left">Optional</td><td style="text-align: left">Required (<code>.proto</code> IDL)</td><td style="text-align: left">Optional</td><td style="text-align: left">Required (JSON or IDL)</td></tr>
+<tr><td style="text-align: left"><strong>Schema Location</strong></td><td style="text-align: left">N/A or Separate (e.g., CDDL)</td><td style="text-align: left">N/A</td><td style="text-align: left">Separate (<code>.proto</code> file)</td><td style="text-align: left">N/A</td><td style="text-align: left">With Data (Files) or Registry</td></tr>
+<tr><td style="text-align: left"><strong>Self-Describing?</strong></td><td style="text-align: left">Yes</td><td style="text-align: left">Yes</td><td style="text-align: left">No</td><td style="text-align: left">Yes</td><td style="text-align: left">No (Binary requires schema)</td></tr>
+<tr><td style="text-align: left"><strong>Encoding Basis</strong></td><td style="text-align: left">JSON Model + Tags</td><td style="text-align: left">Extended JSON Model</td><td style="text-align: left">Schema Tags/Numbers</td><td style="text-align: left">JSON Model + <code>ext</code> type</td><td style="text-align: left">Schema Field Order</td></tr>
+<tr><td style="text-align: left"><strong>Extensibility</strong></td><td style="text-align: left">IANA Tags</td><td style="text-align: left">Custom Types (DB-centric)</td><td style="text-align: left">Proto Extensions/Options</td><td style="text-align: left"><code>ext</code> type</td><td style="text-align: left">Schema Evolution Rules</td></tr>
+<tr><td style="text-align: left"><strong>Schema Evolution</strong></td><td style="text-align: left">Implicit (Tags/Skipping)</td><td style="text-align: left">Implicit</td><td style="text-align: left">Explicit (Tag Stability)</td><td style="text-align: left">Implicit (<code>ext</code>/Skipping)</td><td style="text-align: left">Explicit (Resolution, Defaults, Aliases)</td></tr>
+<tr><td style="text-align: left"><strong>Typical Size</strong></td><td style="text-align: left">Compact</td><td style="text-align: left">Variable (can be large)</td><td style="text-align: left">Very Compact</td><td style="text-align: left">Compact</td><td style="text-align: left">Compact (Binary)</td></tr>
+<tr><td style="text-align: left"><strong>Typical Speed</strong></td><td style="text-align: left">Fast (esp. constrained codec)</td><td style="text-align: left">Fast Traversal (DB context)</td><td style="text-align: left">Very Fast (RPC context)</td><td style="text-align: left">Fast</td><td style="text-align: left">Fast</td></tr>
+<tr><td style="text-align: left"><strong>Standardization</strong></td><td style="text-align: left">IETF RFC 8949</td><td style="text-align: left">De facto (MongoDB)</td><td style="text-align: left">De facto (Google)</td><td style="text-align: left">Community Spec</td><td style="text-align: left">Apache Project</td></tr>
+<tr><td style="text-align: left"><strong>Primary Use Cases</strong></td><td style="text-align: left">IoT, CoAP, COSE, Security, Deterministic Needs</td><td style="text-align: left">MongoDB</td><td style="text-align: left">RPC, Microservices, Internal Comms</td><td style="text-align: left">Network Comms, Caching, RPC</td><td style="text-align: left">Big Data (Hadoop, Kafka), Data Pipelines</td></tr>
+</tbody></table>
+</div>
+<p><em>Note: Size and speed comparisons are general tendencies; actual performance depends heavily on data structure, implementation quality, and specific workload.</em></p>
+<p>This comparison highlights the complex trade-offs between formats. Protocol Buffers excels when validation, compactness, and RPC performance are critical in environments where schema management is feasible. Avro offers superior schema evolution capabilities for large-scale data pipelines, despite requiring schema distribution mechanisms. BSON serves specialized needs within the MongoDB ecosystem. MessagePack provides an efficient binary alternative to JSON for network communication, though with potential streaming limitations. CBOR stands out when IETF standardization, constrained device support, binary-efficient JSON encoding, standardized extensibility, or deterministic encoding are priorities.</p>
+<h2 id="why-choose-cbor"><a class="header" href="#why-choose-cbor">Why Choose CBOR?</a></h2>
+<p>Based on the preceding comparisons, CBOR presents a unique combination of features that make it the preferred choice in several specific contexts:</p>
+<ul>
+<li>
+<p><strong>JSON Data Model Fidelity in Binary:</strong> CBOR provides a direct binary encoding for the familiar JSON data model. This lowers the adoption barrier for developers already comfortable with JSON, unlike formats requiring different structural concepts or mandatory schemas.</p>
+</li>
+<li>
+<p><strong>Efficiency for Constrained Environments:</strong> CBOR was explicitly designed for the Internet of Things and constrained environments. This yields encoders and decoders with small code footprints, efficient processing, and significantly reduced message sizes compared to JSON—all critical for resource-limited devices.</p>
+</li>
+<li>
+<p><strong>IETF Standardization and Integration:</strong> As an IETF standard (RFC 8949), CBOR benefits from rigorous review and a stable specification. It integrates within the broader internet protocol ecosystem, serving as a payload format in CoAP and forming the basis of COSE (CBOR Object Signing and Encryption), crucial for security in constrained environments.</p>
+</li>
+<li>
+<p><strong>Standardized Extensibility via Tags:</strong> CBOR includes a well-defined mechanism for extending the basic data model using semantic tags. These IANA-registered tags provide standardized ways to represent richer semantics while allowing basic decoders to skip tags they don't understand. This offers a more structured approach than MessagePack's <code>ext</code> type.</p>
+</li>
+<li>
+<p><strong>Schema-Optional Flexibility:</strong> CBOR remains schema-optional like JSON. Data is self-describing, allowing for parsing without predefined schemas—advantageous for evolving systems or ad-hoc data exchange. When validation is needed, external schema languages like CDDL (RFC 8610) can be employed.</p>
+</li>
+<li>
+<p><strong>Native Binary Data Support:</strong> CBOR includes a native byte string type, allowing efficient representation of binary data without inefficient text encodings like Base64 required by JSON.</p>
+</li>
+<li>
+<p><strong>Deterministic Encoding Potential:</strong> RFC 8949 Section 4.2 explicitly defines rules for deterministic encoding, ensuring the same data structure always serializes to identical byte sequences—critical for cryptographic applications where reproducibility is essential.</p>
+</li>
+</ul>
+<p>While CBOR offers these advantages, it's not human-readable like JSON. In high-performance RPC scenarios with fixed schemas, optimized Protobuf implementations might offer better raw performance. Though its ecosystem is growing, particularly in IoT and security domains, it might not have the breadth of tooling found for JSON or Protobuf in every application area.</p>
+<p>CBOR occupies a compelling position in the serialization landscape—a standardized, extensible, and efficient binary format built on the widely understood JSON data model. Its design for constrained environments, IETF protocol integration, and support for deterministic encoding make it well-suited for IoT, secure communication, and verifiable data structures, all without imposing the mandatory schemas found in Protocol Buffers or Avro.</p>
+<h2 id="cbor-as-a-foundation-for-blockchain-commons"><a class="header" href="#cbor-as-a-foundation-for-blockchain-commons">CBOR as a Foundation for Blockchain Commons</a></h2>
+<p>Blockchain Commons' specifications, including dCBOR (Deterministic CBOR) and Gordian Envelope, build directly on CBOR primarily due to its deterministic encoding capabilities.</p>
+<p>Gordian Envelope, a "smart documents" format containing cryptographic material like keys and verifiable credentials, relies on cryptographic hashing for data integrity and selective disclosure. These functions require deterministic serialization—identical semantic data must produce identical byte sequences when encoded.</p>
+<p>CBOR's RFC 8949 explicitly defines a "Deterministically Encoded CBOR" profile that mandates preferred integer encodings and lexicographically ordered map keys. This standardized approach to determinism gives CBOR a significant advantage over JSON (which lacks universal canonicalization) and other binary formats where determinism isn't prioritized.</p>
+<p>While RFC 8949 established deterministic guidelines, Blockchain Commons identified remaining ambiguities that could lead to inconsistent implementations. Their dCBOR application profile, documented as an IETF Internet-Draft, further refines these rules by rejecting duplicate map keys and establishing precise numeric reduction rules to ensure values like 10, 10.0, and 10.00 encode identically.</p>
+<p>Beyond determinism, CBOR offered additional advantages: structured binary representation suitable for cryptographic data, conciseness, standardized tag-based extensibility, IETF standardization, compatibility with constrained environments (important for hardware wallets), and platform independence.</p>
+<p>CBOR thus provided the standardized deterministic foundation that Blockchain Commons refined through dCBOR to build secure, interoperable systems like Gordian Envelope—topics covered in later chapters.</p>
+<h2 id="conclusion-a-diverse-binary-ecosystem"><a class="header" href="#conclusion-a-diverse-binary-ecosystem">Conclusion: A Diverse Binary Ecosystem</a></h2>
+<p>The evolution from XML to binary formats like BSON, Protocol Buffers, MessagePack, Avro, and CBOR reflects a landscape where no single "best" serialization format exists. Each represents specific design choices optimized for particular contexts.</p>
+<ul>
+<li><strong>BSON</strong> prioritizes efficient storage and traversal in MongoDB, extending JSON with specialized types at the cost of compactness and broader interoperability.</li>
+<li><strong>Protocol Buffers</strong> achieves performance and compactness for RPC through mandatory schemas and code generation, trading flexibility and self-description.</li>
+<li><strong>MessagePack</strong> offers a compact binary JSON alternative for network communication, despite potential streaming limitations.</li>
+<li><strong>Avro</strong> excels at schema evolution in data pipelines, requiring schema availability but providing robust compatibility features.</li>
+<li><strong>CBOR</strong> delivers an IETF-standardized, binary-efficient JSON encoding that balances flexibility with performance, offering standardized extensibility and serving constrained environments and deterministic encoding needs.</li>
+</ul>
+<p>These diverse formats will continue to coexist, with developers selecting tools that match their project requirements. CBOR's position as a standardized, efficient format based on the JSON model ensures its relevance, particularly for IoT, secure systems, and verifiable data structures.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../introduction/from_xml_to_json_to_cbor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_1/practical_introduction_to_cbor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../introduction/from_xml_to_json_to_cbor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_1/practical_introduction_to_cbor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
