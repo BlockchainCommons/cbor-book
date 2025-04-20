@@ -11,6 +11,10 @@ default:
 deploy:
     ./deploy
 
+# Open the GitHub Pages URL
+read:
+    open https://blockchaincommons.github.io/cbor-book/
+
 # 🔧 Build book locally
 build:
     mdbook build
