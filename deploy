@@ -5,7 +5,7 @@ set -euo pipefail
 BOOK_DIR="$(basename "$PWD")"
 DEPLOY_DIR="/tmp/book-deploy"
 
-# Ensure we are in a git repo
+# Ensure we are in a Git repo
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "❌ Not inside a Git repository."
   exit 1
@@ -43,9 +43,9 @@ fi
 echo "🌿 Creating worktree for gh-pages..."
 git worktree add -B gh-pages "$DEPLOY_DIR" origin/gh-pages
 
-# Compare book/ to worktree contents
+# Compare book/ to worktree contents using rsync dry-run
 echo "🔍 Checking for changes..."
-if diff -qr book "$DEPLOY_DIR" --exclude=.git --exclude=.nojekyll >/dev/null; then
+if ! rsync -a --delete --dry-run --exclude='.git' --exclude='.gitignore' book/ "$DEPLOY_DIR/" | grep -q .; then
   echo "🟡 No changes to publish. Skipping deployment."
   git worktree remove "$DEPLOY_DIR"
   exit 0
