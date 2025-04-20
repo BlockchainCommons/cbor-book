@@ -25,9 +25,9 @@ clean:
     rm -rf /tmp/book-deploy
     rm -rf book
 
-# 🧪 Run embedded Rust code tests
+# 🧪 Run Rust code tests
 test:
-    mdbook test
+    cargo test
 
 # 📂 Open built book in browser (after build)
 open:
