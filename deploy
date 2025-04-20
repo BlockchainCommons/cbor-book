@@ -51,9 +51,9 @@ if diff -qr book "$DEPLOY_DIR" --exclude=.git --exclude=.nojekyll >/dev/null; th
   exit 0
 fi
 
-# Sync contents
+# Sync contents safely (preserving .git metadata)
 echo "📦 Syncing new content..."
-rsync -a --delete book/ "$DEPLOY_DIR/"
+rsync -a --delete --exclude='.git' --exclude='.gitignore' book/ "$DEPLOY_DIR/"
 touch "$DEPLOY_DIR/.nojekyll"
 
 # Commit and push
