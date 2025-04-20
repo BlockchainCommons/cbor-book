@@ -23,7 +23,7 @@ if ! git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
   exit 1
 fi
 
-# Make sure we have a local ref to origin/gh-pages
+# Fetch gh-pages if not locally known
 if ! git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
   echo "🔄 Fetching 'gh-pages' from origin..."
   git fetch origin gh-pages
@@ -33,14 +33,17 @@ fi
 echo "📖 Building mdBook..."
 mdbook build
 
-# Remove any old worktree (if forcibly left)
-rm -rf "$DEPLOY_DIR"
+# If worktree already exists, remove it safely
+if git worktree list | grep -q "$DEPLOY_DIR"; then
+  echo "🧹 Cleaning up existing worktree..."
+  git worktree remove --force "$DEPLOY_DIR"
+fi
 
-# Add worktree cleanly
+# Add fresh worktree
 echo "🌿 Creating worktree for gh-pages..."
 git worktree add -B gh-pages "$DEPLOY_DIR" origin/gh-pages
 
-# Compare built book to current deploy target
+# Compare book/ to worktree contents
 echo "🔍 Checking for changes..."
 if diff -qr book "$DEPLOY_DIR" --exclude=.git --exclude=.nojekyll >/dev/null; then
   echo "🟡 No changes to publish. Skipping deployment."
@@ -48,7 +51,7 @@ if diff -qr book "$DEPLOY_DIR" --exclude=.git --exclude=.nojekyll >/dev/null; th
   exit 0
 fi
 
-# Copy over book output
+# Sync contents
 echo "📦 Syncing new content..."
 rsync -a --delete book/ "$DEPLOY_DIR/"
 touch "$DEPLOY_DIR/.nojekyll"
@@ -61,8 +64,8 @@ git commit -m "Deploy $BOOK_DIR: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 git push origin gh-pages
 popd >/dev/null
 
-# Clean up worktree
-echo "🧹 Cleaning up worktree..."
+# Cleanup
+echo "🧹 Final cleanup..."
 git worktree remove "$DEPLOY_DIR"
 
 echo "✅ Successfully deployed $BOOK_DIR to GitHub Pages."
