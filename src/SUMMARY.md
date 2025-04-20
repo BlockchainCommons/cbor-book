@@ -18,7 +18,7 @@
 
 # Part II: dCBOR
 
-- [Determinism and Canonicalization in CBOR](./part_2/determinism_and_canonicalization.md)
+- [Determinism: Why Consistent Encodings Matter](./part_2/determinism.md)
 - [Introducing dCBOR](./part_2/introducing_dcbor.md)
 - [Motivation for dCBOR](./part_2/motivation_for_dcbor.md)
 - [The dCBOR Specification](./part_2/dcbor_specification.md)
