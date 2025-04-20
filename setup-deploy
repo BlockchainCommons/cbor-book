@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# This only needs to be run once to set up GitHub Pages for the book.
+
+set -euo pipefail
+
+# Get the slug from the current directory name
+BOOK_DIR="$(basename "$PWD")"
+
+# Ensure we're in a Git repo
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Error: not inside a Git repository."
+  exit 1
+fi
+
+# Ensure build is up to date
+mdbook build
+
+# Create orphan gh-pages branch
+git worktree add /tmp/book-deploy gh-pages || {
+  echo "Error: gh-pages branch may already exist. You can delete it with:"
+  echo "  git branch -D gh-pages"
+  echo "  git push origin --delete gh-pages"
+  exit 1
+}
+
+# Copy book output into branch
+rm -rf /tmp/book-deploy/*
+cp -r book/* /tmp/book-deploy/
+
+pushd /tmp/book-deploy >/dev/null
+git init
+git checkout -b gh-pages
+git add .
+git commit -m "Initial deploy of $BOOK_DIR to GitHub Pages"
+git remote add origin "$(git -C "$OLDPWD" remote get-url origin)"
+git push -u origin gh-pages
+popd >/dev/null
+
+# Cleanup
+rm -rf /tmp/book-deploy
+
+echo "✅ GitHub Pages setup complete. Now go to your repo settings and enable Pages for the gh-pages branch."

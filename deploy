@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+BOOK_DIR="$(basename "$PWD")"
+
+# Ensure clean working tree
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "❌ Working directory is not clean. Commit or stash changes before deploying."
+  exit 1
+fi
+
+# Build the book
+mdbook build
+
+# Use a temp deploy directory
+DEPLOY_DIR="/tmp/book-deploy"
+
+# Remove any prior temp deploy dir
+rm -rf "$DEPLOY_DIR"
+git worktree add "$DEPLOY_DIR" gh-pages
+
+# Copy built book into deploy dir
+rm -rf "$DEPLOY_DIR"/*
+cp -r book/* "$DEPLOY_DIR/"
+
+# Commit and push
+pushd "$DEPLOY_DIR" >/dev/null
+git add .
+git commit -m "Deploy $BOOK_DIR: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+git push origin gh-pages
+popd >/dev/null
+
+# Clean up worktree
+git worktree remove "$DEPLOY_DIR"
+
+echo "✅ Deployed $BOOK_DIR to GitHub Pages on branch gh-pages."
