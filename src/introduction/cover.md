@@ -1,4 +1,4 @@
-![Cover Art](./images/cover.jpg)
+![Cover Art](images/cover.jpg)
 
 # The CBOR, dCBOR, and Gordian Envelope Book
 
