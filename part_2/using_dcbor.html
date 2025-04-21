@@ -175,7 +175,7 @@
 </code></pre>
 <h2 id="basic-usage"><a class="header" href="#basic-usage">Basic Usage</a></h2>
 <p><code>dcbor</code> includes a <code>prelude</code> module that re-exports all the types and traits you need to use dCBOR:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span>// This is all you need to import to use the library.
@@ -273,7 +273,8 @@ pub fn main() {
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -284,7 +285,7 @@ pub fn main() {
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -296,14 +297,15 @@ pub fn main() {
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -320,10 +322,11 @@ pub fn main() {
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -333,7 +336,7 @@ pub fn main() {
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -398,9 +401,9 @@ pub fn main() {
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -411,11 +414,40 @@ pub fn main() {
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>Many common types are directly convertable into dCBOR. Thanks to dCBOR's numeric reduction, you don't even need to specify whether common numeric types should be serialized as integers or floating point: the <code>dcbor</code> library will automatically choose the best representation for you.</p>
 <p>Note that when you use <code>value.to_cbor()</code> or <code>CBOR::from(value)</code>, you're not <em>actually</em> encoding the CBOR serialization in that moment. You're actually creating an intermediate representation of the data (an instance of <code>CBOR</code>) that can be serialized later, when you call a method like <code>to_cbor_data</code>.</p>
 <p>Converting back from CBOR is also easy: you simply specify the type you want to convert to, and the <code>dcbor</code> library will do the rest. You use the <code>try_from</code> method to convert from CBOR to a Rust type, which will succeed if the CBOR can be accurately converted to that type. If the conversion fails, it will return an error:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -513,7 +545,8 @@ assert_eq!(a, b);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -524,7 +557,7 @@ assert_eq!(a, b);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -536,14 +569,15 @@ assert_eq!(a, b);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -560,10 +594,11 @@ assert_eq!(a, b);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -573,7 +608,7 @@ assert_eq!(a, b);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -638,9 +673,9 @@ assert_eq!(a, b);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -651,9 +686,38 @@ assert_eq!(a, b);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>In the following example we use <code>try_from</code> to convert from CBOR to both a <code>u8</code> type and an <code>f64</code> type. Both succeed, because the value <code>42</code> can be represented as both an 8-bit unsigned integer and a 64-bit floating point number:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -751,7 +815,8 @@ assert_eq!(a as f64, c);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -762,7 +827,7 @@ assert_eq!(a as f64, c);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -774,14 +839,15 @@ assert_eq!(a as f64, c);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -798,10 +864,11 @@ assert_eq!(a as f64, c);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -811,7 +878,7 @@ assert_eq!(a as f64, c);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -876,9 +943,9 @@ assert_eq!(a as f64, c);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -889,12 +956,41 @@ assert_eq!(a as f64, c);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <blockquote>
 <p><strong>✅ NOTE:</strong> Observe the call to <code>clone()</code> above, which we need because the <code>try_from</code> method consumes the <code>CBOR</code> value, and we still need an instance for the second <code>try_from</code> call. Instances of <code>CBOR</code> are immutable, and the <code>dcbor</code> library implments structure sharing, so cloning is always cheap.</p>
 </blockquote>
 <p>Below we encode a floating point value with a non-zero fractional part, which succeeds in being decoded back to floating point, but fails to decode back to an integer, because precision would be lost:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -992,7 +1088,8 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -1003,7 +1100,7 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1015,14 +1112,15 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -1039,10 +1137,11 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -1052,7 +1151,7 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1117,9 +1216,9 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -1130,9 +1229,38 @@ assert!(u8::try_from(cbor).is_err());
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>The nice thing about this idiom is it's not just for numeric types. You can use it for any type that implements the <code>TryFrom&lt;CBOR&gt;</code>, like <code>String</code>:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -1230,7 +1358,8 @@ assert_eq!(a, b);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -1241,7 +1370,7 @@ assert_eq!(a, b);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1253,14 +1382,15 @@ assert_eq!(a, b);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -1277,10 +1407,11 @@ assert_eq!(a, b);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -1290,7 +1421,7 @@ assert_eq!(a, b);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1355,9 +1486,9 @@ assert_eq!(a, b);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -1368,9 +1499,38 @@ assert_eq!(a, b);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>It even works for vectors:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -1468,7 +1628,8 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -1479,7 +1640,7 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1491,14 +1652,15 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -1515,10 +1677,11 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -1528,7 +1691,7 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1593,9 +1756,9 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -1606,10 +1769,39 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <h2 id="byte-strings"><a class="header" href="#byte-strings">Byte Strings</a></h2>
 <p>But the last example raises an interesting question: is our <code>Vec&lt;u8&gt;</code> being serialized as a CBOR <em>array</em> or a CBOR <em>byte string</em>? Let's check:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -1707,7 +1899,8 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 let cbor = a.to_cbor();
 
-let expected = r#"
+let hex = cbor.hex_annotated();
+let expected_hex = r#"
 
 85      # array(5)
     01  # unsigned(1)
@@ -1718,7 +1911,7 @@ let expected = r#"
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected);
+assert_eq!(hex, expected_hex);
 <span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1730,14 +1923,15 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -1754,10 +1948,11 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -1767,7 +1962,7 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1832,9 +2027,9 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -1845,10 +2040,39 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>As you can see, the header byte specifies an array of five elements, followed by five CBOR data items for the integers <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, and <code>5</code>. So the <code>Vec&lt;u8&gt;</code> is being serialized as a CBOR array, not a byte string.</p>
 <p>In Rust, <code>Vec&lt;u8&gt;</code> is often used to represent a string or buffer of bytes, but in CBOR, a byte string is a different type distinct from a vector or an array. The <code>CBOR</code> type provides a static method <code>CBOR::to_byte_string</code> that will convert a <code>Vec&lt;u8&gt;</code> into a CBOR byte string:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -1946,7 +2170,8 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -1957,7 +2182,7 @@ assert_eq!(cbor.hex_annotated(), expected);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -1969,14 +2194,15 @@ let a = vec![1, 2, 3, 4, 5];
 let byte_string = CBOR::to_byte_string(a);
 let cbor = byte_string.to_cbor();
 
-let expected = r#"
+let hex = cbor.hex_annotated();
+let expected_hex = r#"
 
 45              # bytes(5)
     0102030405
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected);
+assert_eq!(hex, expected_hex);
 
 let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -1993,10 +2219,11 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -2006,7 +2233,7 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2071,9 +2298,9 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -2084,13 +2311,42 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>Everything in the serialization in this example is the same as the last, <em>except</em> the header byte, which was <code>0x85</code> for a 5-element array, and <code>0x45</code> for a byte string of length 5.</p>
 <p>Notice that recovering the byte string is also different. Since a byte string is not an array, we can't extract it as a <code>Vec&lt;u8&gt;</code>. Instead, we extract it as the type <code>ByteString</code>, and then convert <em>that</em> to a <code>Vec&lt;u8&gt;</code> using <code>.into()</code>.</p>
 <p><code>ByteString</code> is just a wrapper around <code>Vec&lt;u8&gt;</code>, and it has most of the same capabilities, but the <code>dcbor</code> library treats it as a CBOR byte string, not a CBOR array.</p>
 <h2 id="simple-values-false-true-and-null"><a class="header" href="#simple-values-false-true-and-null">Simple Values: <code>false</code>, <code>true</code>, and <code>null</code></a></h2>
 <p>dCBOR only allows three simple values: <code>false</code>, <code>true</code>, and <code>null</code>, and the <code>dcbor</code> library provides a set of conveniences for working with them. In the example below we create a CBOR array containing <code>[true, false, null]</code>, and then test its CBOR diagnostic notation and annotated hex serialization:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -2188,7 +2444,8 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -2199,7 +2456,7 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2211,14 +2468,15 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -2235,10 +2493,11 @@ assert_eq!(b, vec![1, 2, 3, 4, 5]);
 ];
 let cbor = v.to_cbor();
 
+let diagnostic = cbor.diagnostic();
 let expected_diagnostic = "[true, false, null]";
+assert_eq!(diagnostic, expected_diagnostic);
 
-assert_eq!(cbor.diagnostic(), expected_diagnostic);
-
+let hex = cbor.hex_annotated();
 let expected_hex = r#"
 
 83      # array(3)
@@ -2248,7 +2507,7 @@ let expected_hex = r#"
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected_hex);
+assert_eq!(hex, expected_hex);
 <span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2313,9 +2572,9 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -2326,7 +2585,36 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <p>Something interesting is going on here: our array has three values, two of which are booleans and the third is its own type: <code>null</code>. CBOR is designed to handle such <em>heterogenous arrays</em> with no problem. But Rust (unlike some languages like JavaScript) doesn't have a <code>null</code> value (preferring <code>Option&lt;T&gt;</code> for values which may not be present). Rust also doesn't natively support <code>Vec</code>s containing mixed types. So how does the <code>dcbor</code> library handle this?</p>
 <p>First, note that our array is not declared as a <code>Vec&lt;bool&gt;</code> but as a <code>Vec&lt;CBOR&gt;</code>. The CBOR type can hold <em>any</em> cbor value, including complex values like nested arrays and maps. In the context of the <code>vec!</code> macro composing a <code>Vec&lt;CBOR&gt;</code>, the Rust boolean values <code>true</code> and <code>false</code> can just be converted directly using <code>.into()</code>, and that's what we're doing here.</p>
 <p>Rust has no <code>null</code> value, so the <code>dcbor</code> library provides a <code>CBOR::null()</code> method that returns a <code>CBOR</code> instance representing the <code>null</code> value.</p>
@@ -2337,7 +2625,7 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 <h2 id="extracting-from-a-heterogenous-array"><a class="header" href="#extracting-from-a-heterogenous-array">Extracting from a Heterogenous Array</a></h2>
 <p>So now that we've gotten ourselves into this situation, how do we get the values back out? The <code>dcbor</code> library provides a set of methods for testing and extracting the CBOR major types, as well as unique values like <code>true</code>, <code>false</code>, and <code>null</code>.</p>
 <p>In the example below we first begin by extracting our CBOR array from the composed <code>CBOR</code> instance. We then demonstrate several methods to either extract values or test them against expected values.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -2435,7 +2723,8 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -2446,7 +2735,7 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2458,14 +2747,15 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -2482,10 +2772,11 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -2495,7 +2786,7 @@ assert_eq!(cbor.hex_annotated(), expected_hex);
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2560,9 +2851,9 @@ assert!(v2[2].is_null());
 </span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 </span><span class="boring">
 </span><span class="boring">// Check the hex representation of the serialized data
-</span><span class="boring">assert_eq!(hex::encode(&amp;data),
-</span><span class="boring">    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-</span><span class="boring">);
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">// Deserialize the data back into a CBOR object
 </span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -2573,11 +2864,40 @@ assert!(v2[2].is_null());
 </span><span class="boring">// Check that the original and deserialized HashMaps are equal
 </span><span class="boring">assert_eq!(h, h2);
 </span><span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
 <h2 id="maps"><a class="header" href="#maps">Maps</a></h2>
 <p>As long as all the types contained in a Rust <code>HashMap</code> or <code>BTreeMap</code> are supported by CBOR (we'll discuss how to make your own types CBOR-compatible in a later chapter), then converting them to CBOR and back is straightforward.</p>
 <p>In the example below we round-trip a Rust <code>HashMap</code> with <code>String</code> keys and <code>Vec&lt;String&gt;</code> values all the way to serialized CBOR data and back again:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">use anyhow::Result;
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::{collections::HashMap, vec};
 </span><span class="boring">
 </span><span class="boring">// This is all you need to import to use the library.
@@ -2675,7 +2995,8 @@ assert!(v2[2].is_null());
 </span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
 </span><span class="boring">let cbor = a.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">85      # array(5)
 </span><span class="boring">    01  # unsigned(1)
@@ -2686,7 +3007,7 @@ assert!(v2[2].is_null());
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2698,14 +3019,15 @@ assert!(v2[2].is_null());
 </span><span class="boring">let byte_string = CBOR::to_byte_string(a);
 </span><span class="boring">let cbor = byte_string.to_cbor();
 </span><span class="boring">
-</span><span class="boring">let expected = r#"
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">45              # bytes(5)
 </span><span class="boring">    0102030405
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">
 </span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
 </span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -2722,10 +3044,11 @@ assert!(v2[2].is_null());
 </span><span class="boring">];
 </span><span class="boring">let cbor = v.to_cbor();
 </span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
 </span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
-</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
 </span><span class="boring">let expected_hex = r#"
 </span><span class="boring">
 </span><span class="boring">83      # array(3)
@@ -2735,7 +3058,7 @@ assert!(v2[2].is_null());
 </span><span class="boring">
 </span><span class="boring">"#.trim();
 </span><span class="boring">
-</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">assert_eq!(hex, expected_hex);
 </span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
@@ -2800,9 +3123,9 @@ assert_eq!(diagnostic, expected_diagnostic);
 let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
 
 // Check the hex representation of the serialized data
-assert_eq!(hex::encode(&amp;data),
-    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-);
+let hex = hex::encode(&amp;data);
+let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+assert_eq!(hex, expected_hex);
 
 // Deserialize the data back into a CBOR object
 let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -2813,7 +3136,307 @@ let h2: HashMap&lt;String, Vec&lt;String&gt;&gt; = cbor2.try_into()?;
 // Check that the original and deserialized HashMaps are equal
 assert_eq!(h, h2);
 <span class="boring">Ok(())
-</span><span class="boring">}</span></code></pre></pre>
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic_flat();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
+<p>Those familiar with JSON know that it only supports string keys, but CBOR supports any type of CBOR value as a key, and it's a common pattern to use integers as keys, which are much more compact:</p>
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::{collections::HashMap, vec};
+</span><span class="boring">
+</span><span class="boring">// This is all you need to import to use the library.
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">pub fn main() {
+</span><span class="boring">    // Encode the integer 42
+</span><span class="boring">    let i = 42;
+</span><span class="boring">    let cbor = i.to_cbor();
+</span><span class="boring">
+</span><span class="boring">    // Check the diagnostic representation
+</span><span class="boring">    assert_eq!(cbor.diagnostic(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Check the hex representation
+</span><span class="boring">    assert_eq!(cbor.hex(), "1a002a");
+</span><span class="boring">
+</span><span class="boring">    // Check the CBOR data
+</span><span class="boring">    assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">let b = i32::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_3() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 42;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as a u8
+</span><span class="boring">let b = u8::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a as u8, b);
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let c = f64::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a as f64, c);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_4() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = 1.23456;
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64
+</span><span class="boring">let b = f64::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">// Cannot decode as a i32
+</span><span class="boring">assert!(u8::try_from(cbor).is_err());
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_5() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let a = "Hello, dCBOR!";
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as an f64 fails
+</span><span class="boring">assert!(f64::try_from(cbor.clone()).is_err());
+</span><span class="boring">
+</span><span class="boring">// Decode as a String succeeds
+</span><span class="boring">let b = String::try_from(cbor)?;
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_6() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Decode as Vec of a compatible type: 32-bit signed integers
+</span><span class="boring">let b: Vec&lt;i32&gt; = Vec::try_from(cbor.clone())?;
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_7() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a: Vec&lt;u8&gt; = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let cbor = a.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">85      # array(5)
+</span><span class="boring">    01  # unsigned(1)
+</span><span class="boring">    02  # unsigned(2)
+</span><span class="boring">    03  # unsigned(3)
+</span><span class="boring">    04  # unsigned(4)
+</span><span class="boring">    05  # unsigned(5)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(hex, expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_8() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Encode a vector of 8-bit unsigned integers
+</span><span class="boring">let a = vec![1, 2, 3, 4, 5];
+</span><span class="boring">let byte_string = CBOR::to_byte_string(a);
+</span><span class="boring">let cbor = byte_string.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">45              # bytes(5)
+</span><span class="boring">    0102030405
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(hex, expected_hex);
+</span><span class="boring">
+</span><span class="boring">let b: Vec&lt;u8&gt; = ByteString::try_from(cbor)?.into();
+</span><span class="boring">assert_eq!(b, vec![1, 2, 3, 4, 5]);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_9() -&gt; Result&lt;()&gt; {
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">let cbor = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">let diagnostic = cbor.diagnostic();
+</span><span class="boring">let expected_diagnostic = "[true, false, null]";
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">let hex = cbor.hex_annotated();
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">83      # array(3)
+</span><span class="boring">    f5  # true
+</span><span class="boring">    f4  # false
+</span><span class="boring">    f6  # null
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(hex, expected_hex);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_10() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Compose an array of CBOR values
+</span><span class="boring">let v: Vec&lt;CBOR&gt; = vec![
+</span><span class="boring">    true.into(),
+</span><span class="boring">    false.into(),
+</span><span class="boring">    CBOR::null(),
+</span><span class="boring">];
+</span><span class="boring">// Convert the array to a single CBOR object, which would
+</span><span class="boring">// be serialized to CBOR data or recovered from it.
+</span><span class="boring">let cbor: CBOR = v.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Recover the array from the CBOR object
+</span><span class="boring">let v2: Vec&lt;CBOR&gt; = cbor.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">// Check the length of the array
+</span><span class="boring">assert_eq!(v2.len(), 3);
+</span><span class="boring">
+</span><span class="boring">// For the first value (`true`), extract it so it could be saved for later.
+</span><span class="boring">let t = v2[0].clone().try_into_bool()?;
+</span><span class="boring">assert!(t);
+</span><span class="boring">
+</span><span class="boring">// For the second value (`false`), just assert that it is false.
+</span><span class="boring">assert!(v2[1].is_false());
+</span><span class="boring">
+</span><span class="boring">// For the third value (`null`), assert that it is null.
+</span><span class="boring">assert!(v2[2].is_null());
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_11() -&gt; Result&lt;()&gt; {
+</span><span class="boring">// Create a HashMap with String keys and Vec&lt;String&gt; values
+</span><span class="boring">let mut h: HashMap&lt;String, Vec&lt;String&gt;&gt; = HashMap::new();
+</span><span class="boring">h.insert("animals".into(), vec!("cat".into(), "dog".into(), "horse".into()));
+</span><span class="boring">h.insert("colors".into(), vec!["red".into(), "green".into(), "blue".into()]);
+</span><span class="boring">
+</span><span class="boring">// Convert the HashMap to a CBOR object
+</span><span class="boring">let cbor = h.to_cbor();
+</span><span class="boring">
+</span><span class="boring">// Check the representation in CBOR diagnostic notation
+</span><span class="boring">let diagnostic = cbor.diagnostic();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">{
+</span><span class="boring">    "colors":
+</span><span class="boring">    ["red", "green", "blue"],
+</span><span class="boring">    "animals":
+</span><span class="boring">    ["cat", "dog", "horse"]
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Serialize the CBOR to binary data
+</span><span class="boring">let data: Vec&lt;u8&gt; = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the serialized data
+</span><span class="boring">let hex = hex::encode(&amp;data);
+</span><span class="boring">let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+</span><span class="boring">assert_eq!(hex, expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Deserialize the data back into a CBOR object
+</span><span class="boring">let cbor2: CBOR = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert the CBOR object back into a HashMap
+</span><span class="boring">let h2: HashMap&lt;String, Vec&lt;String&gt;&gt; = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and deserialized HashMaps are equal
+</span><span class="boring">assert_eq!(h, h2);
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn test_12() -&gt; Result&lt;()&gt; {
+</span>// Create a HashMap with String keys and Vec&lt;String&gt; values
+let mut h: HashMap&lt;usize, Vec&lt;String&gt;&gt; = HashMap::new();
+h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+
+// Convert the HashMap to a CBOR object
+let cbor = h.to_cbor();
+
+// Check the representation in CBOR diagnostic notation
+let diagnostic = cbor.diagnostic_flat();
+let expected_diagnostic = r#"
+
+{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+
+"#.trim();
+assert_eq!(diagnostic, expected_diagnostic);
+
+// Convert the CBOR object back into a HashMap
+let h2: HashMap&lt;usize, Vec&lt;String&gt;&gt; = cbor.try_into()?;
+
+// Check that the original and deserialized HashMaps are equal
+assert_eq!(h, h2);
+<span class="boring">Ok(())
+</span><span class="boring">}</span></code></pre>
+<p>Note the use of <code>diagnostic_flat()</code> in this example, which returns the diagnostic notation with no line breaks or indentation. In previous examples we also used either <code>hex()</code> or <code>hex_annotated()</code> depending on the desired formatting.</p>
 <blockquote>
 <p>🚧 <strong>Work in Progress:</strong> <em>More in this chapter and more chapters forthcoming!</em></p>
 </blockquote>
