@@ -118,4 +118,14 @@ In the example below we first begin by extracting our CBOR array from the compos
 {{#rustdoc_include ../../tests/test_1.rs:test_10}}
 ```
 
+## Maps
+
+As long as all the types contained in a Rust `HashMap` or `BTreeMap` are supported by CBOR (we'll discuss how to make your own types CBOR-compatible in a later chapter), then converting them to CBOR and back is straightforward.
+
+In the example below we round-trip a Rust `HashMap` with `String` keys and `Vec<String>` values all the way to serialized CBOR data and back again:
+
+```rust
+{{#rustdoc_include ../../tests/test_1.rs:test_11}}
+```
+
 > 🚧 **Work in Progress:** _More in this chapter and more chapters forthcoming!_
