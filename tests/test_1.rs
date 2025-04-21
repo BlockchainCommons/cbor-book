@@ -109,7 +109,8 @@ fn test_7() -> Result<()> {
 let a: Vec<u8> = vec![1, 2, 3, 4, 5];
 let cbor = a.to_cbor();
 
-let expected = r#"
+let hex = cbor.hex_annotated();
+let expected_hex = r#"
 
 85      # array(5)
     01  # unsigned(1)
@@ -120,7 +121,7 @@ let expected = r#"
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected);
+assert_eq!(hex, expected_hex);
 // ANCHOR_END: test_7
 Ok(())
 }
@@ -134,14 +135,15 @@ let a = vec![1, 2, 3, 4, 5];
 let byte_string = CBOR::to_byte_string(a);
 let cbor = byte_string.to_cbor();
 
-let expected = r#"
+let hex = cbor.hex_annotated();
+let expected_hex = r#"
 
 45              # bytes(5)
     0102030405
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected);
+assert_eq!(hex, expected_hex);
 
 let b: Vec<u8> = ByteString::try_from(cbor)?.into();
 assert_eq!(b, vec![1, 2, 3, 4, 5]);
@@ -160,10 +162,11 @@ let v: Vec<CBOR> = vec![
 ];
 let cbor = v.to_cbor();
 
+let diagnostic = cbor.diagnostic();
 let expected_diagnostic = "[true, false, null]";
+assert_eq!(diagnostic, expected_diagnostic);
 
-assert_eq!(cbor.diagnostic(), expected_diagnostic);
-
+let hex = cbor.hex_annotated();
 let expected_hex = r#"
 
 83      # array(3)
@@ -173,7 +176,7 @@ let expected_hex = r#"
 
 "#.trim();
 
-assert_eq!(cbor.hex_annotated(), expected_hex);
+assert_eq!(hex, expected_hex);
 // ANCHOR_END: test_9
 Ok(())
 }
@@ -242,9 +245,9 @@ assert_eq!(diagnostic, expected_diagnostic);
 let data: Vec<u8> = cbor.to_cbor_data();
 
 // Check the hex representation of the serialized data
-assert_eq!(hex::encode(&data),
-    "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365",
-);
+let hex = hex::encode(&data);
+let expected_hex = "a266636f6c6f7273836372656465677265656e64626c756567616e696d616c73836363617463646f6765686f727365";
+assert_eq!(hex, expected_hex);
 
 // Deserialize the data back into a CBOR object
 let cbor2: CBOR = CBOR::try_from_data(data)?;
@@ -255,5 +258,36 @@ let h2: HashMap<String, Vec<String>> = cbor2.try_into()?;
 // Check that the original and deserialized HashMaps are equal
 assert_eq!(h, h2);
 // ANCHOR_END: test_11
+Ok(())
+}
+
+
+#[test]
+#[rustfmt::skip]
+fn test_12() -> Result<()> {
+// ANCHOR: test_12
+// Create a HashMap with String keys and Vec<String> values
+let mut h: HashMap<usize, Vec<String>> = HashMap::new();
+h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
+h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
+
+// Convert the HashMap to a CBOR object
+let cbor = h.to_cbor();
+
+// Check the representation in CBOR diagnostic notation
+let diagnostic = cbor.diagnostic_flat();
+let expected_diagnostic = r#"
+
+{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+
+"#.trim();
+assert_eq!(diagnostic, expected_diagnostic);
+
+// Convert the CBOR object back into a HashMap
+let h2: HashMap<usize, Vec<String>> = cbor.try_into()?;
+
+// Check that the original and deserialized HashMaps are equal
+assert_eq!(h, h2);
+// ANCHOR_END: test_12
 Ok(())
 }

@@ -128,4 +128,12 @@ In the example below we round-trip a Rust `HashMap` with `String` keys and `Vec<
 {{#rustdoc_include ../../tests/test_1.rs:test_11}}
 ```
 
+Those familiar with JSON know that it only supports string keys, but CBOR supports any type of CBOR value as a key, and it's a common pattern to use integers as keys, which are much more compact:
+
+```rust
+{{#rustdoc_include ../../tests/test_1.rs:test_12}}
+```
+
+Note the use of `diagnostic_flat()` in this example, which returns the diagnostic notation with no line breaks or indentation. In previous examples we also used either `hex()` or `hex_annotated()` depending on the desired formatting.
+
 > 🚧 **Work in Progress:** _More in this chapter and more chapters forthcoming!_
