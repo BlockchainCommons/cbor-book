@@ -14,7 +14,7 @@ We will progressively build up understanding by examining common data structures
 - [**CBOR Diagnostic Notation:**](https://datatracker.ietf.org/doc/draft-ietf-cbor-edn-literals/) A human-readable text format, similar to JSON but extended for CBOR's features, used for documentation and debugging.
 - **Hexadecimal CBOR:** The actual binary representation shown as hexadecimal bytes, which is how CBOR data is transmitted or stored.
 
-We will focus on the most common, definite-length encodings and the concept of "preferred serialization" – using the shortest possible form where choices exist.2 Advanced topics such as semantic tags (Major Type 6), indefinite-length encoding, full deterministic encoding rules (beyond preferred serialization), schema definition with CDDL, and CBOR sequences will be introduced in later chapters. By the end of this chapter, you should be able to look at simple CBOR byte sequences and understand the data they represent.
+We will focus on the most common, definite-length encodings and the concept of "preferred serialization" – using the shortest possible form where choices exist. Advanced topics such as semantic tags (Major Type 6), indefinite-length encoding, full deterministic encoding rules (beyond preferred serialization), schema definition with CDDL, and CBOR sequences will be introduced in later chapters. By the end of this chapter, you should be able to look at simple CBOR byte sequences and understand the data they represent.
 
 > **✅ TIP:** The [CBOR Playground](https://cbor.me/) is an excellent tool if you would like to follow along with the examples, converting CBOR Diagnostic Notation to binary and back.
 
@@ -88,7 +88,7 @@ Let's start with the simplest data types common to JSON and CBOR: integers, bool
 
 ### Integers (Major Types 0 & 1)
 
-CBOR distinguishes between unsigned integers (Major Type 0) and negative integers (Major Type 1). The Additional Information determines how the integer's value (or _argument_) is encoded.2
+CBOR distinguishes between unsigned integers (Major Type 0) and negative integers (Major Type 1). The Additional Information determines how the integer's value (or _argument_) is encoded.
 
 - **Small Integers (0-23):** If the unsigned integer is between 0 and 23 inclusive, it's encoded directly in the Additional Information bits of the initial byte (Major Type 0).
 - **Larger Integers:** For values 24 or greater, the Additional Information takes the value 24, 25, 26, or 27, indicating that the actual integer value follows in the next 1, 2, 4, or 8 bytes, respectively, in network byte order (big-endian).
@@ -186,7 +186,7 @@ CBOR supports ordered sequences of items (arrays) and unordered key-value pairs 
 
 ### Arrays (Major Type 4)
 
-Arrays use Major Type 4. The Additional Information encodes the number of data items (elements) contained within the array, using the same encoding rules as unsigned integers (AI 0-23 for counts 0-23, AI 24-27 + subsequent bytes for larger counts). The encoded data items follow the initial byte(s) in sequence.2
+Arrays use Major Type 4. The Additional Information encodes the number of data items (elements) contained within the array, using the same encoding rules as unsigned integers (AI 0-23 for counts 0-23, AI 24-27 + subsequent bytes for larger counts). The encoded data items follow the initial byte(s) in sequence.
 
 Like JSON, CBOR Diagnostic Notation uses square brackets `[]` with comma-separated elements.
 
@@ -203,7 +203,7 @@ Arrays in CBOR use Major Type 4. The Additional Information (AI) specifies the n
 
 ### Maps (Major Type 5)
 
-Maps (also known variously as *dictionaries* or *associative arrays*) use Major Type 5. The Additional Information encodes the number of _pairs_ in the map (not the total number of keys and values). Again, the encoding follows the rules for unsigned integers. The key-value pairs follow the initial byte(s), with each key immediately followed by its corresponding value (key1, value1, key2, value2,...).2
+Maps (also known variously as *dictionaries* or *associative arrays*) use Major Type 5. The Additional Information encodes the number of _pairs_ in the map (not the total number of keys and values). Again, the encoding follows the rules for unsigned integers. The key-value pairs follow the initial byte(s), with each key immediately followed by its corresponding value (key1, value1, key2, value2,...).
 
 A significant difference from JSON is that CBOR map keys can be _any_ CBOR data type (integers, strings, arrays, etc.), not just text strings.
 
