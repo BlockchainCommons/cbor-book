@@ -168,7 +168,7 @@
 <li><a href="https://datatracker.ietf.org/doc/draft-ietf-cbor-edn-literals/"><strong>CBOR Diagnostic Notation:</strong></a> A human-readable text format, similar to JSON but extended for CBOR's features, used for documentation and debugging.</li>
 <li><strong>Hexadecimal CBOR:</strong> The actual binary representation shown as hexadecimal bytes, which is how CBOR data is transmitted or stored.</li>
 </ul>
-<p>We will focus on the most common, definite-length encodings and the concept of "preferred serialization" – using the shortest possible form where choices exist.2 Advanced topics such as semantic tags (Major Type 6), indefinite-length encoding, full deterministic encoding rules (beyond preferred serialization), schema definition with CDDL, and CBOR sequences will be introduced in later chapters. By the end of this chapter, you should be able to look at simple CBOR byte sequences and understand the data they represent.</p>
+<p>We will focus on the most common, definite-length encodings and the concept of "preferred serialization" – using the shortest possible form where choices exist. Advanced topics such as semantic tags (Major Type 6), indefinite-length encoding, full deterministic encoding rules (beyond preferred serialization), schema definition with CDDL, and CBOR sequences will be introduced in later chapters. By the end of this chapter, you should be able to look at simple CBOR byte sequences and understand the data they represent.</p>
 <blockquote>
 <p><strong>✅ TIP:</strong> The <a href="https://cbor.me/">CBOR Playground</a> is an excellent tool if you would like to follow along with the examples, converting CBOR Diagnostic Notation to binary and back.</p>
 </blockquote>
@@ -229,7 +229,7 @@
 <h2 id="simple-scalar-types-integers-booleans-and-null"><a class="header" href="#simple-scalar-types-integers-booleans-and-null">Simple Scalar Types: Integers, Booleans, and Null</a></h2>
 <p>Let's start with the simplest data types common to JSON and CBOR: integers, booleans, and null.</p>
 <h3 id="integers-major-types-0--1"><a class="header" href="#integers-major-types-0--1">Integers (Major Types 0 &amp; 1)</a></h3>
-<p>CBOR distinguishes between unsigned integers (Major Type 0) and negative integers (Major Type 1). The Additional Information determines how the integer's value (or <em>argument</em>) is encoded.2</p>
+<p>CBOR distinguishes between unsigned integers (Major Type 0) and negative integers (Major Type 1). The Additional Information determines how the integer's value (or <em>argument</em>) is encoded.</p>
 <ul>
 <li><strong>Small Integers (0-23):</strong> If the unsigned integer is between 0 and 23 inclusive, it's encoded directly in the Additional Information bits of the initial byte (Major Type 0).</li>
 <li><strong>Larger Integers:</strong> For values 24 or greater, the Additional Information takes the value 24, 25, 26, or 27, indicating that the actual integer value follows in the next 1, 2, 4, or 8 bytes, respectively, in network byte order (big-endian).</li>
@@ -305,7 +305,7 @@
 <h2 id="collections-arrays-and-maps"><a class="header" href="#collections-arrays-and-maps">Collections: Arrays and Maps</a></h2>
 <p>CBOR supports ordered sequences of items (arrays) and unordered key-value pairs (maps), mirroring JSON's structures but with some key differences. This section focuses on definite-length collections, where the number of elements or pairs is known upfront.</p>
 <h3 id="arrays-major-type-4"><a class="header" href="#arrays-major-type-4">Arrays (Major Type 4)</a></h3>
-<p>Arrays use Major Type 4. The Additional Information encodes the number of data items (elements) contained within the array, using the same encoding rules as unsigned integers (AI 0-23 for counts 0-23, AI 24-27 + subsequent bytes for larger counts). The encoded data items follow the initial byte(s) in sequence.2</p>
+<p>Arrays use Major Type 4. The Additional Information encodes the number of data items (elements) contained within the array, using the same encoding rules as unsigned integers (AI 0-23 for counts 0-23, AI 24-27 + subsequent bytes for larger counts). The encoded data items follow the initial byte(s) in sequence.</p>
 <p>Like JSON, CBOR Diagnostic Notation uses square brackets <code>[]</code> with comma-separated elements.</p>
 <h3 id="examples-definite-length-arrays"><a class="header" href="#examples-definite-length-arrays">Examples: Definite Length Arrays</a></h3>
 <p>Arrays in CBOR use Major Type 4. The Additional Information (AI) specifies the number of elements in the array. The elements are encoded sequentially after the initial byte.</p>
@@ -317,7 +317,7 @@
 </tbody></table>
 </div>
 <h3 id="maps-major-type-5"><a class="header" href="#maps-major-type-5">Maps (Major Type 5)</a></h3>
-<p>Maps (also known variously as <em>dictionaries</em> or <em>associative arrays</em>) use Major Type 5. The Additional Information encodes the number of <em>pairs</em> in the map (not the total number of keys and values). Again, the encoding follows the rules for unsigned integers. The key-value pairs follow the initial byte(s), with each key immediately followed by its corresponding value (key1, value1, key2, value2,...).2</p>
+<p>Maps (also known variously as <em>dictionaries</em> or <em>associative arrays</em>) use Major Type 5. The Additional Information encodes the number of <em>pairs</em> in the map (not the total number of keys and values). Again, the encoding follows the rules for unsigned integers. The key-value pairs follow the initial byte(s), with each key immediately followed by its corresponding value (key1, value1, key2, value2,...).</p>
 <p>A significant difference from JSON is that CBOR map keys can be <em>any</em> CBOR data type (integers, strings, arrays, etc.), not just text strings.</p>
 <h3 id="examples-definite-length-maps"><a class="header" href="#examples-definite-length-maps">Examples: Definite Length Maps</a></h3>
 <p>CBOR maps use Major Type 5. The Additional Information (AI) specifies the number of key-value pairs. Keys and values follow in alternating sequence. Diagnostic notation uses curly braces <code>{}</code> with comma-separated <code>key: value</code> pairs.</p>
