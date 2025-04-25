@@ -1,5 +1,3 @@
-# Colophon
-
 **The CBOR, dCBOR, and Gordian Envelope Book**
 
 by

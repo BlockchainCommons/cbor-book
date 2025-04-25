@@ -266,7 +266,7 @@ Ok(())
 #[rustfmt::skip]
 fn test_12() -> Result<()> {
 // ANCHOR: test_12
-// Create a HashMap with String keys and Vec<String> values
+// Create a HashMap with integer keys and Vec<String> values
 let mut h: HashMap<usize, Vec<String>> = HashMap::new();
 h.insert(1, vec!("cat".into(), "dog".into(), "horse".into()));
 h.insert(2, vec!["red".into(), "green".into(), "blue".into()]);
@@ -289,5 +289,36 @@ let h2: HashMap<usize, Vec<String>> = cbor.try_into()?;
 // Check that the original and deserialized HashMaps are equal
 assert_eq!(h, h2);
 // ANCHOR_END: test_12
+Ok(())
+}
+
+
+#[test]
+#[rustfmt::skip]
+fn test_13() -> Result<()> {
+// ANCHOR: test_13
+// Create a HashMap with CBOR for its keys and values
+let mut h: HashMap<CBOR, CBOR> = HashMap::new();
+h.insert(1.into(), vec![CBOR::from("cat"), "dog".into(), "horse".into()].into());
+h.insert(2.into(), vec![CBOR::from("red"), "green".into(), "blue".into()].into());
+
+// Convert the HashMap to a CBOR object
+let cbor = h.to_cbor();
+
+// Check the representation in CBOR diagnostic notation
+let diagnostic = cbor.diagnostic_flat();
+let expected_diagnostic = r#"
+
+{1: ["cat", "dog", "horse"], 2: ["red", "green", "blue"]}
+
+"#.trim();
+assert_eq!(diagnostic, expected_diagnostic);
+
+// Convert the CBOR object back into a HashMap
+let h2: HashMap<CBOR, CBOR> = cbor.try_into()?;
+
+// Check that the original and deserialized HashMaps are equal
+assert_eq!(h, h2);
+// ANCHOR_END: test_13
 Ok(())
 }
