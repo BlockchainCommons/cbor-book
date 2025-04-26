@@ -233,9 +233,9 @@
 <ul>
 <li><strong>Small Integers (0-23):</strong> If the unsigned integer is between 0 and 23 inclusive, it's encoded directly in the Additional Information bits of the initial byte (Major Type 0).</li>
 <li><strong>Larger Integers:</strong> For values 24 or greater, the Additional Information takes the value 24, 25, 26, or 27, indicating that the actual integer value follows in the next 1, 2, 4, or 8 bytes, respectively, in network byte order (big-endian).</li>
-<li><strong>Negative Integers:</strong> Encoded using Major Type 1. The value encoded is `−1 − argument. So, an argument of 0 represents the integer -1, an argument of 9 represents -10, and so on. The argument itself is encoded using the same rules as unsigned integers (AI 0-23 for arguments 0-23, AI 24-27 for larger arguments).</li>
+<li><strong>Negative Integers:</strong> Encoded using Major Type 1. The value encoded is <code>−1 − argument</code>. So, an argument of 0 represents the integer <code>-1</code>, an argument of 9 represents <code>-10</code>, and so on. The argument itself is encoded using the same rules as unsigned integers (AI 0-23 for arguments 0-23, AI 24-27 for larger arguments).</li>
 </ul>
-<p>Preferred Serialization: CBOR allows multiple ways to encode the same number (e.g., the number 10 could theoretically be encoded using 1, 2, 4, or 8 bytes following an initial byte with AI 24, 25, 26, or 27). However, the standard strongly recommends <em>preferred serialization</em>, which means always using the shortest possible form. This avoids ambiguity and unnecessary padding. For non-negative integers, this means:</p>
+<p>Preferred Serialization: CBOR allows multiple ways to encode the same number (e.g., the number <code>10</code> could theoretically be encoded using 1, 2, 4, or 8 bytes following an initial byte with AI 24, 25, 26, or 27). However, the standard strongly recommends <em>preferred serialization</em>, which means always using the shortest possible form. This avoids ambiguity and unnecessary padding. For non-negative integers, this means:</p>
 <div class="table-wrapper"><table><thead><tr><th>Value Range</th><th>AI Value</th><th>Bytes Used After Initial Byte</th><th>Total Encoding Size</th></tr></thead><tbody>
 <tr><td>0–23</td><td>0–23</td><td>0</td><td>1 byte</td></tr>
 <tr><td>24–255</td><td>24</td><td>1</td><td>2 bytes</td></tr>
@@ -298,10 +298,14 @@
 <pre><code>67               # Text(7 bytes)
   2248656C6C6F22 # "Hello"
 </code></pre>
+<blockquote>
 <p>If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:</p>
+</blockquote>
 <pre><code>"\"Hello\""
 </code></pre>
+<blockquote>
 <p>So backslash escapes are part of CBOR Diagnostic Notation, but <em>not</em> part of the CBOR encoding itself.</p>
+</blockquote>
 <h2 id="collections-arrays-and-maps"><a class="header" href="#collections-arrays-and-maps">Collections: Arrays and Maps</a></h2>
 <p>CBOR supports ordered sequences of items (arrays) and unordered key-value pairs (maps), mirroring JSON's structures but with some key differences. This section focuses on definite-length collections, where the number of elements or pairs is known upfront.</p>
 <h3 id="arrays-major-type-4"><a class="header" href="#arrays-major-type-4">Arrays (Major Type 4)</a></h3>
