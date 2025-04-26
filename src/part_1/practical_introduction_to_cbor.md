@@ -92,9 +92,9 @@ CBOR distinguishes between unsigned integers (Major Type 0) and negative integer
 
 - **Small Integers (0-23):** If the unsigned integer is between 0 and 23 inclusive, it's encoded directly in the Additional Information bits of the initial byte (Major Type 0).
 - **Larger Integers:** For values 24 or greater, the Additional Information takes the value 24, 25, 26, or 27, indicating that the actual integer value follows in the next 1, 2, 4, or 8 bytes, respectively, in network byte order (big-endian).
-- **Negative Integers:** Encoded using Major Type 1. The value encoded is `−1 − argument. So, an argument of 0 represents the integer -1, an argument of 9 represents -10, and so on. The argument itself is encoded using the same rules as unsigned integers (AI 0-23 for arguments 0-23, AI 24-27 for larger arguments).
+- **Negative Integers:** Encoded using Major Type 1. The value encoded is `−1 − argument`. So, an argument of 0 represents the integer `-1`, an argument of 9 represents `-10`, and so on. The argument itself is encoded using the same rules as unsigned integers (AI 0-23 for arguments 0-23, AI 24-27 for larger arguments).
 
-Preferred Serialization: CBOR allows multiple ways to encode the same number (e.g., the number 10 could theoretically be encoded using 1, 2, 4, or 8 bytes following an initial byte with AI 24, 25, 26, or 27). However, the standard strongly recommends *preferred serialization*, which means always using the shortest possible form. This avoids ambiguity and unnecessary padding. For non-negative integers, this means:
+Preferred Serialization: CBOR allows multiple ways to encode the same number (e.g., the number `10` could theoretically be encoded using 1, 2, 4, or 8 bytes following an initial byte with AI 24, 25, 26, or 27). However, the standard strongly recommends *preferred serialization*, which means always using the shortest possible form. This avoids ambiguity and unnecessary padding. For non-negative integers, this means:
 
 | Value Range           | AI Value | Bytes Used After Initial Byte | Total Encoding Size |
 |-----------------------|----------|-------------------------------|---------------------|
@@ -172,13 +172,13 @@ Text strings use Major Type 3 and are explicitly defined as UTF-8 encoded Unicod
   2248656C6C6F22 # "Hello"
 ```
 
-If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:
+> If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:
 
 ```
 "\"Hello\""
 ```
 
-So backslash escapes are part of CBOR Diagnostic Notation, but *not* part of the CBOR encoding itself.
+> So backslash escapes are part of CBOR Diagnostic Notation, but *not* part of the CBOR encoding itself.
 
 ## Collections: Arrays and Maps
 
