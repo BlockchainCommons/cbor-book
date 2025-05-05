@@ -92,7 +92,7 @@ Protobuf's philosophy achieves performance, compactness, and type safety through
 
 ## MessagePack: The Compact JSON Alternative
 
-MessagePack emerged around 2008-2009, created by Sadayuki Furuhashi. Its goal was to provide a more efficient binary serialization format than JSON – "like JSON, but fast and small." It addresses scenarios where JSON's verbosity creates bottlenecks, such as network communication (RPC, message queues) and data caching (e.g., in Memcached).
+MessagePack emerged around 2008-2009, created by Sadayuki Furuhashi. Its goal was to provide a more efficient binary serialization format than JSON – "like JSON, but fast and small." It addresses scenarios where JSON's verbosity creates bottlenecks, such as network communication (RPC, message queues) and data caching (e.g., in `memcached`).
 
 ### Design and Encoding
 

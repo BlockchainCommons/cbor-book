@@ -4,12 +4,15 @@ use std::{collections::HashMap, vec};
 // ANCHOR: first
 // This is all you need to import to use the library.
 use dcbor::prelude::*;
+// ANCHOR_END: first
 
 #[rustfmt::skip]
+// ANCHOR: second
 pub fn main() {
     // Encode the integer 42
     let i = 42;
-    let cbor = i.to_cbor();
+    let cbor: CBOR = i.to_cbor();
+    // The CBOR type above here for clarity, can be inferred
 
     // Check the diagnostic representation
     assert_eq!(cbor.diagnostic(), "42");
@@ -20,7 +23,7 @@ pub fn main() {
     // Check the CBOR data
     assert_eq!(cbor.to_cbor_data(), vec![0x1a, 0x00, 0x2a]);
 }
-// ANCHOR_END: first
+// ANCHOR_END: second
 
 #[test]
 #[rustfmt::skip]

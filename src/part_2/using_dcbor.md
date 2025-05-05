@@ -4,7 +4,7 @@ So after all that discussion of the motivation for dCBOR, let's just recap its r
 
 - **Map Keys**: No duplicates. Must be serialized sorted lexicographically by the serialized key.
 - **Numeric Values**: "Preferred Serialization" isn't just preferred, it's required.
-- **Numeric Reducation**: Floating point values that can accurately be represented as integers must be serialized as integers.
+- **Numeric Reduction**: Floating point values that can accurately be represented as integers must be serialized as integers.
 - **Indefinite Length**: Indefinite length values are not allowed.
 - **Simple Values**: Only `false`, `true`, and `null` are allowed.
 - **Strings**: Must be encoded in Unicode Normalization Form C (NFC).
@@ -12,7 +12,7 @@ So after all that discussion of the motivation for dCBOR, let's just recap its r
 
 Pretty simple, right?
 
-It gets even simpler when you use a CBOR library that supports dCBOR, as the implemenation should take care of all the details for you. In fact, a good API will even make it _impossible_ to create invalid dCBOR serializations.
+It gets even simpler when you use a CBOR library that supports dCBOR directly, as the implementation should take care of all the details for you. In fact, a good API will even make it _impossible_ to create invalid dCBOR serializations.
 
 The [`dcbor`](https://crates.io/crates/dcbor) crate is the Rust reference implementation of dCBOR from Blockchain Commons, and in this chapter we'll show you how easy it is to use.
 
@@ -32,11 +32,15 @@ cargo add dcbor
 {{#rustdoc_include ../../tests/test_1.rs:first}}
 ```
 
-Many common types are directly convertable into dCBOR. Thanks to dCBOR's numeric reduction, you don't even need to specify whether common numeric types should be serialized as integers or floating point: the `dcbor` library will automatically choose the best representation for you.
+Many common types are directly convertible into dCBOR. Thanks to dCBOR's numeric reduction, you don't even need to specify whether common numeric types should be serialized as integers or floating point: the `dcbor` library will automatically choose the best representation for you.
 
-Note that when you use `value.to_cbor()` or `CBOR::from(value)`, you're not _actually_ encoding the CBOR serialization in that moment. You're actually creating an intermediate representation of the data (an instance of `CBOR`) that can be serialized later, when you call a method like `to_cbor_data`.
+```rust
+{{#rustdoc_include ../../tests/test_1.rs:second}}
+```
 
-Converting back from CBOR is also easy: you simply specify the type you want to convert to, and the `dcbor` library will do the rest. You use the `try_from` method to convert from CBOR to a Rust type, which will succeed if the CBOR can be accurately converted to that type. If the conversion fails, it will return an error:
+When you use `value.to_cbor()` or `CBOR::from(value)`, you're not _actually_ encoding the CBOR serialization in that moment. You're actually creating an intermediate representation of the data (an instance of `CBOR`) that can be serialized later when you call a method like `to_cbor_data`.
+
+Converting back from CBOR is also easy: you specify the type you want to convert to, and the `dcbor` library will do the rest. You use the `try_from` method to convert from CBOR to a Rust type, which will succeed if the CBOR can be accurately converted to that type. If the conversion fails, it will return an error:
 
 ```rust
 {{#rustdoc_include ../../tests/test_1.rs:test_2}}
@@ -48,7 +52,7 @@ In the following example we use `try_from` to convert from CBOR to both a `u8` t
 {{#rustdoc_include ../../tests/test_1.rs:test_3}}
 ```
 
-> **✅ NOTE:** Observe the call to `clone()` above, which we need because the `try_from` method consumes the `CBOR` value, and we still need an instance for the second `try_from` call. Instances of `CBOR` are immutable, and the `dcbor` library implments structure sharing, so cloning is always cheap.
+> **✅ NOTE:** Observe the call to `clone()` above, which we need because the `try_from` method consumes the `CBOR` value, and we still need an instance for the second `try_from` call. Instances of `CBOR` are immutable, and the `dcbor` library implements structure sharing, so cloning is always cheap.
 
 Below we encode a floating point value with a non-zero fractional part, which succeeds in being decoded back to floating point, but fails to decode back to an integer, because precision would be lost:
 
