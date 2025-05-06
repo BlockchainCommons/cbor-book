@@ -21,6 +21,7 @@
 - [Determinism: Why Consistent Encodings Matter](./part_2/determinism.md)
 - [From CBOR, to CDE, to dCBOR](./part_2/cbor_cde_dcbor.md)
 - [Using dCBOR](./part_2/using_dcbor.md)
+- [dCBOR Tags](./part_2/dcbor_tags.md)
 
 # Part III: Gordian Envelope
 
