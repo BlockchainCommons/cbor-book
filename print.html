@@ -8836,7 +8836,7 @@ assert_eq!(h, h2);
 <p>Let's say we wanted to define a tag that identifies a string as holding an ISO 4217 currency code like <code>USD</code> or <code>EUR</code>. We could just use a bare string, but if we want our type to be completely self-describing, we can define a tag for it.</p>
 <p>As long as you are the only one using that tag, you can choose any integer you want. But if you want your structure to interoperate with other systems, you should use a tag that is registered with IANA, discussed previously <a href="part_2/../part_1/cbor_tags.html#how-to-register-your-own-fcfs-tags">here</a>.</p>
 <p>For our demonstration we'll use the tag <code>33000</code>, which as of this writing is unassigned by IANA.</p>
-<p>So how would we tag a string as a currency type? Let's start by defining a constant for our tag:</p>
+<p>How would we tag a string as a currency type? Let's start by defining a constant for our tag:</p>
 <pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::fmt;
 </span><span class="boring">use dcbor::prelude::*;
@@ -8991,7 +8991,8 @@ const TAG_CURRENCY_CODE: u64 = 33000;
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -9035,12 +9036,13 @@ const TAG_CURRENCY_CODE: u64 = 33000;
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -9102,6 +9104,71 @@ const TAG_CURRENCY_CODE: u64 = 33000;
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -9318,7 +9385,8 @@ let usd = CBOR::to_tagged_value(TAG_CURRENCY_CODE, "USD");
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -9362,12 +9430,13 @@ let usd = CBOR::to_tagged_value(TAG_CURRENCY_CODE, "USD");
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -9429,6 +9498,71 @@ let usd = CBOR::to_tagged_value(TAG_CURRENCY_CODE, "USD");
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -9645,7 +9779,8 @@ assert_eq!(item.try_into_text()?, "USD");
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -9689,12 +9824,13 @@ assert_eq!(item.try_into_text()?, "USD");
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -9756,6 +9892,71 @@ assert_eq!(item.try_into_text()?, "USD");
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -9976,7 +10177,8 @@ assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -10020,12 +10222,13 @@ assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -10089,6 +10292,71 @@ assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">fn decimal_fraction_1() {
@@ -10148,7 +10416,7 @@ assert_eq!(diagnostic, expected_diagnostic);
 </span><span class="boring">    let boundary2 = DecimalFraction::new(-1, 1);
 </span><span class="boring">    assert_eq!(boundary2.to_string(), "0.1");
 </span><span class="boring">}</span></code></pre>
-<p>As shown above, we can always extract the <code>(Tag, CBOR)</code> tuple from a tagged value, and then compare the tag value to our constant to see whether we want to process it further. But it's a common pattern to expect to find a specific tag in a particular place in a CBOR structure. So <code>dcbor</code> provides a convenience method <code>try_into_expected_tagged_value()</code> to test the tag value and return an error if it doesn't match. If it succeeds, it returns the tagged value for further processing.</p>
+<p>As shown above, we can always extract the <code>(Tag, CBOR)</code> tuple from a tagged value, and then compare the tag value to our constant to see whether we want to process it further. But it's a common pattern to expect to find a specific tag in a particular place in a CBOR structure. <code>dcbor</code> provides a convenience method <code>try_into_expected_tagged_value()</code> to test the tag value and return an error if it doesn't match. If it succeeds, it returns the tagged value for further processing.</p>
 <pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::fmt;
 </span><span class="boring">use dcbor::prelude::*;
@@ -10303,7 +10571,8 @@ assert_eq!(item, "USD");
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -10347,12 +10616,13 @@ assert_eq!(item, "USD");
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -10416,6 +10686,71 @@ assert_eq!(item, "USD");
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">fn decimal_fraction_1() {
@@ -10477,7 +10812,7 @@ assert_eq!(item, "USD");
 </span><span class="boring">}</span></code></pre>
 <h2 id="tagging-a-complex-structure"><a class="header" href="#tagging-a-complex-structure">Tagging a Complex Structure</a></h2>
 <p>Let's say we want to combine our tagged currency code with an amount. Currency amounts can be tricky, because they are expressed as having decimal fractions, but many common floating point values, like <code>1.1</code> cannot be represented exactly in binary floating point, meaning that even highly-precise types like <code>f64</code> can't represent common currency values accurately.</p>
-<p>So let's define a new type called <code>DecimalFraction</code> that holds an integer mantissa and a signed exponent. The exponent is the number of decimal places, so <code>1.1</code> would be represented as a mantissa of <code>11</code> with an exponent of <code>-1</code>, and <code>1.01</code> would be represented as a mantissa of <code>101</code> with an exponent of <code>-2</code>:</p>
+<p>Let's define a new type called <code>DecimalFraction</code> that holds an integer mantissa and a signed base-10 exponent. The exponent is the number of decimal places, so <code>1.1</code> would be represented as a mantissa of <code>11</code> with an exponent of <code>-1</code>, and <code>1.01</code> would be represented as a mantissa of <code>101</code> with an exponent of <code>-2</code>:</p>
 <pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::fmt;
 </span><span class="boring">use dcbor::prelude::*;
@@ -10632,7 +10967,8 @@ assert_eq!(item, "USD");
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -10676,12 +11012,13 @@ assert_eq!(item, "USD");
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -10743,6 +11080,71 @@ assert_eq!(item, "USD");
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -10962,7 +11364,8 @@ impl From&lt;DecimalFraction&gt; for CBOR {
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -11006,12 +11409,13 @@ impl From&lt;DecimalFraction&gt; for CBOR {
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -11075,6 +11479,71 @@ impl From&lt;DecimalFraction&gt; for CBOR {
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">fn decimal_fraction_1() {
@@ -11134,7 +11603,7 @@ impl From&lt;DecimalFraction&gt; for CBOR {
 </span><span class="boring">    let boundary2 = DecimalFraction::new(-1, 1);
 </span><span class="boring">    assert_eq!(boundary2.to_string(), "0.1");
 </span><span class="boring">}</span></code></pre>
-<p>So now we can create a <code>DecimalFraction</code> and convert it to CBOR, showing the diagnostic notation:</p>
+<p>Now we can create a <code>DecimalFraction</code> and convert it to CBOR, showing the diagnostic notation:</p>
 <pre><code class="language-rust"><span class="boring">use anyhow::Result;
 </span><span class="boring">use std::fmt;
 </span><span class="boring">use dcbor::prelude::*;
@@ -11289,7 +11758,8 @@ assert_eq!(cbor.diagnostic(), r#"
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -11333,12 +11803,13 @@ assert_eq!(cbor.diagnostic(), r#"
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -11400,6 +11871,71 @@ assert_eq!(cbor.diagnostic(), r#"
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -11616,7 +12152,8 @@ impl TryFrom&lt;CBOR&gt; for DecimalFraction {
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -11660,12 +12197,13 @@ impl TryFrom&lt;CBOR&gt; for DecimalFraction {
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -11727,6 +12265,71 @@ impl TryFrom&lt;CBOR&gt; for DecimalFraction {
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -11943,7 +12546,8 @@ impl TryFrom&lt;CBOR&gt; for DecimalFraction {
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span>
 // Create a DecimalFraction
-let a = DecimalFraction::new(11, -1);
+let a = DecimalFraction::new(-1, 11);
+assert_eq!(a.to_string(), "1.1");
 
 // Convert to CBOR
 let cbor: CBOR = a.clone().into();
@@ -11987,12 +12591,13 @@ assert_eq!(a, b);
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -12054,6 +12659,71 @@ assert_eq!(a, b);
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -12271,7 +12941,8 @@ assert_eq!(a, b);
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -12315,12 +12986,13 @@ impl TryFrom&lt;CBOR&gt; for CurrencyCode {
     }
 }
 
+impl std::fmt::Display for CurrencyCode {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 <span class="boring">
-</span><span class="boring">impl std::fmt::Display for CurrencyCode {
-</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
-</span><span class="boring">        write!(f, "{}", self.0)
-</span><span class="boring">    }
-</span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -12382,6 +13054,71 @@ impl TryFrom&lt;CBOR&gt; for CurrencyCode {
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -12598,7 +13335,8 @@ impl TryFrom&lt;CBOR&gt; for CurrencyCode {
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -12642,12 +13380,13 @@ impl TryFrom&lt;CBOR&gt; for CurrencyCode {
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -12709,6 +13448,71 @@ assert_eq!(usd, usd2);
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -12926,7 +13730,8 @@ assert_eq!(usd, usd2);
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -12970,12 +13775,13 @@ assert_eq!(usd, usd2);
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -13037,6 +13843,71 @@ const TAG_CURRENCY_AMOUNT: u64 = 33001;
 </span><span class="boring">
 </span><span class="boring">        Ok(CurrencyAmount(currency, amount))
 </span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">
@@ -13253,7 +14124,8 @@ const TAG_CURRENCY_AMOUNT: u64 = 33001;
 </span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
 </span><span class="boring">
 </span><span class="boring">// Create a DecimalFraction
-</span><span class="boring">let a = DecimalFraction::new(11, -1);
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
 </span><span class="boring">
 </span><span class="boring">// Convert to CBOR
 </span><span class="boring">let cbor: CBOR = a.clone().into();
@@ -13297,12 +14169,13 @@ const TAG_CURRENCY_AMOUNT: u64 = 33001;
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">
 </span><span class="boring">impl std::fmt::Display for CurrencyCode {
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
 </span><span class="boring">        write!(f, "{}", self.0)
 </span><span class="boring">    }
 </span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">#[rustfmt::skip]
@@ -13366,7 +14239,72 @@ impl TryFrom&lt;CBOR&gt; for CurrencyAmount {
     }
 }
 
+impl std::fmt::Display for CurrencyAmount {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(f, "{} {}", self.currency(), self.amount())
+    }
+}
+
 <span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a CurrencyAmount
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let amount = DecimalFraction::new(-1, 11);
+</span><span class="boring">let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+</span><span class="boring">assert_eq!(currency_amount.to_string(), "USD 1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = currency_amount.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Check the diagnostic notation
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">33001(
+</span><span class="boring">    [
+</span><span class="boring">        33000("USD"),
+</span><span class="boring">        4(
+</span><span class="boring">            [-1, 11]
+</span><span class="boring">        )
+</span><span class="boring">    ]
+</span><span class="boring">)
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">// Convert to binary CBOR data
+</span><span class="boring">let data = cbor.to_cbor_data();
+</span><span class="boring">
+</span><span class="boring">// Check the hex representation of the binary data
+</span><span class="boring">let expected_hex = r#"
+</span><span class="boring">
+</span><span class="boring">d9 80e9                 # tag(33001)
+</span><span class="boring">    82                  # array(2)
+</span><span class="boring">        d9 80e8         # tag(33000)
+</span><span class="boring">            63          # text(3)
+</span><span class="boring">                555344  # "USD"
+</span><span class="boring">        c4              # tag(4)
+</span><span class="boring">            82          # array(2)
+</span><span class="boring">                20      # negative(-1)
+</span><span class="boring">                0b      # unsigned(11)
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">assert_eq!(cbor.hex_annotated(), expected_hex);
+</span><span class="boring">
+</span><span class="boring">// Convert back to CBOR
+</span><span class="boring">let cbor2 = CBOR::try_from_data(data)?;
+</span><span class="boring">
+</span><span class="boring">// Convert back to CurrencyAmount
+</span><span class="boring">let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(currency_amount, currency_amount2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
 </span><span class="boring">#[test]
 </span><span class="boring">fn decimal_fraction_1() {
 </span><span class="boring">    let a = DecimalFraction::new(-1, 11);
@@ -13427,6 +14365,401 @@ impl TryFrom&lt;CBOR&gt; for CurrencyAmount {
 </span><span class="boring">}</span></code></pre>
 <p>Notice that in the above example, we're able to call the <code>to_cbor()</code> method on the <code>CurrencyCode</code> and <code>DecimalFraction</code> types, because the <code>dcbor</code> library includes a <em>blanket implementation</em> for another trait called <code>CBOREncodable</code>, which automatically applies to any type that implements <code>Into&lt;CBOR&gt;</code> and <code>Clone</code>. (We implemented <code>From&lt;CurrencyCode&gt; for CBOR</code> and <code>From&lt;DecimalFraction&gt; for CBOR</code> which also implicitly implement the <code>Into&lt;CBOR&gt;</code> trait, so we get the <code>CBOREncodable</code> trait for free.)</p>
 <p>The <code>CBOREncodable</code> trait gives us the <code>to_cbor()</code> method, which can be called on a <code>&amp;self</code> (reference to self) unlike the <code>into()</code> method, which consumes the value. It also gives us the <code>to_cbor_data()</code> method, which returns the final, serialized CBOR data as a <code>Vec&lt;u8&gt;</code>.</p>
+<p>This use of blanket implementations is a common Rust idiom, similar to how types that implement the <code>Display</code> trait automatically implement the <code>ToString</code> trait and hence gain the <code>to_string()</code> method.</p>
+<p>Now, with all the pieces in place, we can do a full round-trip of our <code>CurrencyAmount</code> type:</p>
+<pre><code class="language-rust"><span class="boring">use anyhow::Result;
+</span><span class="boring">use std::fmt;
+</span><span class="boring">use dcbor::prelude::*;
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">const TAG_CURRENCY_CODE: u64 = 33000;
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn example_2() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">let usd = CBOR::to_tagged_value(TAG_CURRENCY_CODE, "USD");
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">let (tag, item) = usd.clone().try_into_tagged_value()?;
+</span><span class="boring">assert_eq!(tag.value(), TAG_CURRENCY_CODE);
+</span><span class="boring">assert_eq!(item.try_into_text()?, "USD");
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">let diagnostic = usd.diagnostic();
+</span><span class="boring">let expected_diagnostic = r#"
+</span><span class="boring">
+</span><span class="boring">33000("USD")
+</span><span class="boring">
+</span><span class="boring">"#.trim();
+</span><span class="boring">
+</span><span class="boring">assert_eq!(diagnostic, expected_diagnostic);
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">let item = usd
+</span><span class="boring">    .try_into_expected_tagged_value(TAG_CURRENCY_CODE)?
+</span><span class="boring">    .try_into_text()?;
+</span><span class="boring">assert_eq!(item, "USD");
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">// 33000("USD")
+</span><span class="boring">
+</span><span class="boring">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+</span><span class="boring">pub struct DecimalFraction {
+</span><span class="boring">    pub exponent: i8,
+</span><span class="boring">    pub mantissa: i64,
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl DecimalFraction {
+</span><span class="boring">    /// Create a new `DecimalFraction` from raw parts.
+</span><span class="boring">    pub fn new(exponent: i8, mantissa: i64) -&gt; Self {
+</span><span class="boring">        Self { exponent, mantissa }
+</span><span class="boring">    }
+</span><span class="boring">
+</span><span class="boring">    /// Convert back to `f64`. May lose precision on large exponents.
+</span><span class="boring">    pub fn to_f64(self) -&gt; f64 {
+</span><span class="boring">        (self.mantissa as f64) * (10f64).powi(self.exponent as i32)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl fmt::Display for DecimalFraction {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+</span><span class="boring">        if self.mantissa == 0 {
+</span><span class="boring">            return write!(f, "0");
+</span><span class="boring">        }
+</span><span class="boring">
+</span><span class="boring">        let abs_value = self.mantissa.abs();
+</span><span class="boring">        let is_negative = self.mantissa &lt; 0;
+</span><span class="boring">        let prefix = if is_negative { "-" } else { "" };
+</span><span class="boring">
+</span><span class="boring">        if self.exponent &gt;= 0 {
+</span><span class="boring">            // For positive exponent, add zeros after the number
+</span><span class="boring">            write!(f, "{}{}{}", prefix, abs_value, "0".repeat(self.exponent as usize))
+</span><span class="boring">        } else {
+</span><span class="boring">            // For negative exponent, insert decimal point
+</span><span class="boring">            let abs_exp = -self.exponent as usize;
+</span><span class="boring">            let value_str = abs_value.to_string();
+</span><span class="boring">
+</span><span class="boring">            if value_str.len() &lt;= abs_exp {
+</span><span class="boring">                // Decimal point at the beginning with possible leading zeros
+</span><span class="boring">                let padding = abs_exp - value_str.len();
+</span><span class="boring">                write!(f, "{}0.{}{}", prefix, "0".repeat(padding), value_str)
+</span><span class="boring">            } else {
+</span><span class="boring">                // Insert decimal point within the number
+</span><span class="boring">                let decimal_pos = value_str.len() - abs_exp;
+</span><span class="boring">                let (integer_part, fractional_part) = value_str.split_at(decimal_pos);
+</span><span class="boring">                write!(f, "{}{}.{}", prefix, integer_part, fractional_part)
+</span><span class="boring">            }
+</span><span class="boring">        }
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">const TAG_DECIMAL_FRACTION: u64 = 4;
+</span><span class="boring">
+</span><span class="boring">impl From&lt;DecimalFraction&gt; for CBOR {
+</span><span class="boring">    fn from(value: DecimalFraction) -&gt; Self {
+</span><span class="boring">        // Compose the two-element array
+</span><span class="boring">        let v: CBOR = vec![value.exponent as i64, value.mantissa].into();
+</span><span class="boring">
+</span><span class="boring">        // Return the tagged array
+</span><span class="boring">        CBOR::to_tagged_value(TAG_DECIMAL_FRACTION, v)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn decimal_fraction_cbor() {
+</span><span class="boring">
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">let cbor: CBOR = a.into();
+</span><span class="boring">assert_eq!(cbor.diagnostic(), r#"
+</span><span class="boring">
+</span><span class="boring">4(
+</span><span class="boring">    [-1, 11]
+</span><span class="boring">)
+</span><span class="boring">
+</span><span class="boring">"#.trim());
+</span><span class="boring">
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">impl TryFrom&lt;CBOR&gt; for DecimalFraction {
+</span><span class="boring">    type Error = dcbor::Error;
+</span><span class="boring">
+</span><span class="boring">    fn try_from(cbor: CBOR) -&gt; Result&lt;Self, Self::Error&gt; {
+</span><span class="boring">        // Decode the tagged array
+</span><span class="boring">        let item = cbor.try_into_expected_tagged_value(TAG_DECIMAL_FRACTION)?;
+</span><span class="boring">
+</span><span class="boring">        // Convert the item to an array
+</span><span class="boring">        let arr = item.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">        // Validate the length of the array
+</span><span class="boring">        if arr.len() != 2 {
+</span><span class="boring">            return Err("Expected a two-element array".into());
+</span><span class="boring">        }
+</span><span class="boring">
+</span><span class="boring">        // Extract the exponent and mantissa
+</span><span class="boring">        let exponent: i8 = arr[0].clone().try_into()?;
+</span><span class="boring">        let mantissa: i64 = arr[1].clone().try_into()?;
+</span><span class="boring">
+</span><span class="boring">        // Return the DecimalFraction
+</span><span class="boring">        Ok(DecimalFraction::new(exponent, mantissa))
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn decimal_fraction_cbor_roundtrip() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">// Create a DecimalFraction
+</span><span class="boring">let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">assert_eq!(a.to_string(), "1.1");
+</span><span class="boring">
+</span><span class="boring">// Convert to CBOR
+</span><span class="boring">let cbor: CBOR = a.clone().into();
+</span><span class="boring">
+</span><span class="boring">// Convert back to DecimalFraction
+</span><span class="boring">let b: DecimalFraction = cbor.try_into()?;
+</span><span class="boring">
+</span><span class="boring">// Check that the original and round-tripped values are equal
+</span><span class="boring">assert_eq!(a, b);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[derive(Clone, Debug, PartialEq, Eq)]
+</span><span class="boring">
+</span><span class="boring">pub struct CurrencyCode(String);
+</span><span class="boring">
+</span><span class="boring">impl CurrencyCode {
+</span><span class="boring">    pub fn new(code: &amp;str) -&gt; Self {
+</span><span class="boring">        Self(code.into())
+</span><span class="boring">    }
+</span><span class="boring">
+</span><span class="boring">    pub fn code(&amp;self) -&gt; &amp;str {
+</span><span class="boring">        &amp;self.0
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl From&lt;CurrencyCode&gt; for CBOR {
+</span><span class="boring">    fn from(value: CurrencyCode) -&gt; Self {
+</span><span class="boring">        CBOR::to_tagged_value(TAG_CURRENCY_CODE, value.0)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl TryFrom&lt;CBOR&gt; for CurrencyCode {
+</span><span class="boring">    type Error = dcbor::Error;
+</span><span class="boring">
+</span><span class="boring">    fn try_from(cbor: CBOR) -&gt; Result&lt;Self, Self::Error&gt; {
+</span><span class="boring">        let value = cbor.try_into_expected_tagged_value(TAG_CURRENCY_CODE)?;
+</span><span class="boring">        let currency_code: String = value.try_into()?;
+</span><span class="boring">        Ok(CurrencyCode(currency_code))
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyCode {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{}", self.0)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_code_cbor() -&gt; Result&lt;()&gt; {
+</span><span class="boring">
+</span><span class="boring">let usd = CurrencyCode::new("USD");
+</span><span class="boring">let cbor: CBOR = usd.clone().into();
+</span><span class="boring">let usd2: CurrencyCode = cbor.try_into()?;
+</span><span class="boring">assert_eq!(usd, usd2);
+</span><span class="boring">
+</span><span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">const TAG_CURRENCY_AMOUNT: u64 = 33001;
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[derive(Clone, Debug, PartialEq, Eq)]
+</span><span class="boring">
+</span><span class="boring">pub struct CurrencyAmount(CurrencyCode, DecimalFraction);
+</span><span class="boring">
+</span><span class="boring">impl CurrencyAmount {
+</span><span class="boring">    pub fn new(currency: CurrencyCode, amount: DecimalFraction) -&gt; Self {
+</span><span class="boring">        Self(currency, amount)
+</span><span class="boring">    }
+</span><span class="boring">
+</span><span class="boring">    pub fn currency(&amp;self) -&gt; &amp;CurrencyCode {
+</span><span class="boring">        &amp;self.0
+</span><span class="boring">    }
+</span><span class="boring">
+</span><span class="boring">    pub fn amount(&amp;self) -&gt; &amp;DecimalFraction {
+</span><span class="boring">        &amp;self.1
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl From&lt;CurrencyAmount&gt; for CBOR {
+</span><span class="boring">    fn from(value: CurrencyAmount) -&gt; Self {
+</span><span class="boring">        let v: CBOR = vec![
+</span><span class="boring">            value.currency().to_cbor(),
+</span><span class="boring">            value.amount().to_cbor()
+</span><span class="boring">        ].into();
+</span><span class="boring">        CBOR::to_tagged_value(TAG_CURRENCY_AMOUNT, v)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl TryFrom&lt;CBOR&gt; for CurrencyAmount {
+</span><span class="boring">    type Error = dcbor::Error;
+</span><span class="boring">
+</span><span class="boring">    fn try_from(cbor: CBOR) -&gt; Result&lt;Self, Self::Error&gt; {
+</span><span class="boring">        let item = cbor.try_into_expected_tagged_value(TAG_CURRENCY_AMOUNT)?;
+</span><span class="boring">        let arr = item.try_into_array()?;
+</span><span class="boring">
+</span><span class="boring">        if arr.len() != 2 {
+</span><span class="boring">            return Err("Expected a two-element array".into());
+</span><span class="boring">        }
+</span><span class="boring">
+</span><span class="boring">        let currency: CurrencyCode = arr[0].clone().try_into()?;
+</span><span class="boring">        let amount: DecimalFraction = arr[1].clone().try_into()?;
+</span><span class="boring">
+</span><span class="boring">        Ok(CurrencyAmount(currency, amount))
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl std::fmt::Display for CurrencyAmount {
+</span><span class="boring">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+</span><span class="boring">        write!(f, "{} {}", self.currency(), self.amount())
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">#[rustfmt::skip]
+</span><span class="boring">fn currency_amount_cbor() -&gt; Result&lt;()&gt; {
+</span>
+// Create a CurrencyAmount
+let usd = CurrencyCode::new("USD");
+let amount = DecimalFraction::new(-1, 11);
+let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+assert_eq!(currency_amount.to_string(), "USD 1.1");
+
+// Convert to CBOR
+let cbor: CBOR = currency_amount.clone().into();
+
+// Check the diagnostic notation
+let expected_diagnostic = r#"
+33001(
+    [
+        33000("USD"),
+        4(
+            [-1, 11]
+        )
+    ]
+)
+"#.trim();
+assert_eq!(cbor.diagnostic(), expected_diagnostic);
+
+// Convert to binary CBOR data
+let data = cbor.to_cbor_data();
+
+// Check the hex representation of the binary data
+let expected_hex = r#"
+
+d9 80e9                 # tag(33001)
+    82                  # array(2)
+        d9 80e8         # tag(33000)
+            63          # text(3)
+                555344  # "USD"
+        c4              # tag(4)
+            82          # array(2)
+                20      # negative(-1)
+                0b      # unsigned(11)
+
+"#.trim();
+assert_eq!(cbor.hex_annotated(), expected_hex);
+
+// Convert back to CBOR
+let cbor2 = CBOR::try_from_data(data)?;
+
+// Convert back to CurrencyAmount
+let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+
+// Check that the original and round-tripped values are equal
+assert_eq!(currency_amount, currency_amount2);
+
+<span class="boring">Ok(())
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">fn decimal_fraction_1() {
+</span><span class="boring">    let a = DecimalFraction::new(-1, 11);
+</span><span class="boring">    assert_eq!(a.mantissa, 11);
+</span><span class="boring">    assert_eq!(a.exponent, -1);
+</span><span class="boring">    assert!((a.to_f64() - 1.1).abs() &lt; f64::EPSILON);
+</span><span class="boring">
+</span><span class="boring">    let b = DecimalFraction::new(-2, 101);
+</span><span class="boring">    assert_eq!(b.mantissa, 101);
+</span><span class="boring">    assert_eq!(b.exponent, -2);
+</span><span class="boring">    assert!((b.to_f64() - 1.01).abs() &lt; f64::EPSILON);
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">#[test]
+</span><span class="boring">fn decimal_fraction_display() {
+</span><span class="boring">    // Test zero
+</span><span class="boring">    let zero = DecimalFraction::new(0, 0);
+</span><span class="boring">    assert_eq!(zero.to_string(), "0");
+</span><span class="boring">
+</span><span class="boring">    // Test positive value with zero exponent
+</span><span class="boring">    let simple = DecimalFraction::new(0, 42);
+</span><span class="boring">    assert_eq!(simple.to_string(), "42");
+</span><span class="boring">
+</span><span class="boring">    // Test positive values with positive exponent
+</span><span class="boring">    let pos_exp1 = DecimalFraction::new(2, 5);
+</span><span class="boring">    assert_eq!(pos_exp1.to_string(), "500");
+</span><span class="boring">
+</span><span class="boring">    let pos_exp2 = DecimalFraction::new(3, 123);
+</span><span class="boring">    assert_eq!(pos_exp2.to_string(), "123000");
+</span><span class="boring">
+</span><span class="boring">    // Test negative values with positive exponent
+</span><span class="boring">    let neg_pos_exp = DecimalFraction::new(1, -42);
+</span><span class="boring">    assert_eq!(neg_pos_exp.to_string(), "-420");
+</span><span class="boring">
+</span><span class="boring">    // Test positive values with negative exponent
+</span><span class="boring">    let pos_neg_exp1 = DecimalFraction::new(-2, 123);
+</span><span class="boring">    assert_eq!(pos_neg_exp1.to_string(), "1.23");
+</span><span class="boring">
+</span><span class="boring">    let pos_neg_exp2 = DecimalFraction::new(-1, 5);
+</span><span class="boring">    assert_eq!(pos_neg_exp2.to_string(), "0.5");
+</span><span class="boring">
+</span><span class="boring">    let pos_neg_exp3 = DecimalFraction::new(-3, 5);
+</span><span class="boring">    assert_eq!(pos_neg_exp3.to_string(), "0.005");
+</span><span class="boring">
+</span><span class="boring">    // Test negative values with negative exponent
+</span><span class="boring">    let neg_neg_exp1 = DecimalFraction::new(-2, -123);
+</span><span class="boring">    assert_eq!(neg_neg_exp1.to_string(), "-1.23");
+</span><span class="boring">
+</span><span class="boring">    let neg_neg_exp2 = DecimalFraction::new(-3, -5);
+</span><span class="boring">    assert_eq!(neg_neg_exp2.to_string(), "-0.005");
+</span><span class="boring">
+</span><span class="boring">    // Test boundary cases
+</span><span class="boring">    let boundary1 = DecimalFraction::new(-9, 123456789);
+</span><span class="boring">    assert_eq!(boundary1.to_string(), "0.123456789");
+</span><span class="boring">
+</span><span class="boring">    let boundary2 = DecimalFraction::new(-1, 1);
+</span><span class="boring">    assert_eq!(boundary2.to_string(), "0.1");
+</span><span class="boring">}</span></code></pre>
 <blockquote>
 <p>🚧 <strong>Work in Progress:</strong> <em>More in this chapter and more chapters forthcoming!</em></p>
 </blockquote>
