@@ -11,7 +11,7 @@ For our demonstration we'll use the tag `33000`, which as of this writing is una
 How would we tag a string as a currency type? Let's start by defining a constant for our tag:
 
 ```rust
-{{#rustdoc_include ../../tests/dcbor_tags.rs:example_1}}
+const TAG_CURRENCY_CODE: u64 = 33000;
 ```
 
 We now associate our string with the tag by using the `to_tagged_value()` method:
@@ -57,6 +57,10 @@ Let's define a new type called `DecimalFraction` that holds an integer mantissa 
 It turns out that [RFC8949 §3.4.4](https://www.rfc-editor.org/rfc/rfc8949.html#name-decimal-fractions-and-bigfl) already defines a CBOR structure for decimal fractions, so we can use that: it's just a two-element array with the exponent first and the mantissa second. It also reserves the tag `4` for decimal fractions, so we can use that as our tag.
 
 ```rust
+const TAG_DECIMAL_FRACTION: u64 = 4;
+```
+
+```rust
 {{#rustdoc_include ../../tests/dcbor_tags.rs:example_7}}
 ```
 
@@ -94,10 +98,10 @@ Now we can round-trip our `CurrencyCode` the same way we did with `DecimalFracti
 
 ## Combining the Two Types
 
-Originally we set out to create a structure that combined a currency code with a decimal fraction: `CurrencyAmount`. We'd also like this structure to have it's own tag, so we'll use `33001`, which is also unassigned by IANA as of this writing.
+Originally we set out to create a structure that combined a currency code with a decimal fraction: `CurrencyAmount`. We'd also like this structure to have its own tag, so we'll use `33001`, which is also unassigned by IANA as of this writing.
 
 ```rust
-{{#rustdoc_include ../../tests/dcbor_tags.rs:example_13}}
+const TAG_CURRENCY_AMOUNT: u64 = 33001;
 ```
 
 Now that we have completely reusable constituents, we can define `CurrencyAmount` as a type that consists of a `CurrencyCode` and a `DecimalFraction`.
@@ -112,10 +116,62 @@ The `CBOREncodable` trait gives us the `to_cbor()` method, which can be called o
 
 This use of blanket implementations is a common Rust idiom, similar to how types that implement the `Display` trait automatically implement the `ToString` trait and hence gain the `to_string()` method.
 
-Now, with all the pieces in place, we can do a full round-trip of our `CurrencyAmount` type:
+Now with all the pieces in place, we can do a full round-trip of our `CurrencyAmount` type:
 
 ```rust
 {{#rustdoc_include ../../tests/dcbor_tags.rs:example_15}}
 ```
+
+## Named Tags
+
+As mentioned, a CBOR tag is just an integer, and that integer is all that is ever serialized to the binary stream. But the `dcbor` library allows you to associate a human-readable name with a tag, which can be useful for debugging and documentation. The `dcbor` library provides a macro for defining compile-time constants for tags and their names:
+
+```rust
+{{#rustdoc_include ../../tests/dcbor_tags.rs:example_16}}
+```
+
+These macro invocations are a concise equivalent to the following code:
+
+```rust
+const TAG_DECIMAL_FRACTION: u64 = 4;
+const TAG_NAME_DECIMAL_FRACTION: &str = "DecimalFraction";
+
+const TAG_CURRENCY_CODE: u64 = 33000;
+const TAG_NAME_CURRENCY_CODE: &str = "CurrencyCode";
+
+const TAG_CURRENCY_AMOUNT: u64 = 33001;
+const TAG_NAME_CURRENCY_AMOUNT: &str = "CurrencyAmount";
+```
+
+To make these names available to runtime calls like `CBOR::diagnostic_annotated` and `CBOR::hex_annotated`, we need to _register_ them once at the start of our program:
+
+```rust
+{{#rustdoc_include ../../tests/dcbor_tags.rs:example_17}}
+```
+
+The `cbor_tag!` macro is actually doing the work of creating the `Tag` instances for us, using the same naming convention as the constants defined using the `const_cbor_tag!` macro. The `with_tags_mut!` provides writable, thread-safe access to the global tag registry.
+
+Here's the same example as before, but calling `register_tags()` at the start of the program. Now both output formats include the human-readable names for the tags:
+
+```rust
+{{#rustdoc_include ../../tests/dcbor_tags.rs:example_18}}
+```
+
+## A Note About the `Debug` and `Display` implementations on `CBOR`
+
+You've been learning about calls like `CBOR::diagnostic_annotated()` and `CBOR::hex_annotated()`, which are used to print the CBOR data in a human-readable format, and `CBOR::to_cbor_data()`, which returns the raw CBOR data as a `Vec<u8>`.
+
+These methods are useful for debugging (and of course serializing your CBOR), but they are not the same as the `Debug` and `Display` traits, and it's also important to understand the difference between how these trait outputs are formatted on your _original_ structures, versus how they are formatted on the `CBOR` type:
+
+```rust
+{{#rustdoc_include ../../tests/dcbor_tags.rs:example_19}}
+```
+
+- The `Debug` trait on `CurrencyAmount` is just the default `Debug` implementation for a struct, which prints the field names and values in a human-readable format.
+- The `Display` trait on `CurrencyAmount` is a custom implementation that formats the value as a string with the currency code and amount.
+- The `Debug` trait on `CBOR` is a nested symbolic representation of the CBOR major types and values.
+- The `Display` trait on `CBOR` is the same as would be returned by `CBOR::diagnostic_flat()`, which is valid diagnostic notation all on one line.
+
+Each of these formats is useful in its own way, so knowing when to use each one will help you get the most out of the `dcbor` library.
 
 > 🚧 **Work in Progress:** _More in this chapter and more chapters forthcoming!_

@@ -2,12 +2,6 @@ use anyhow::Result;
 use std::fmt;
 use dcbor::prelude::*;
 
-// ANCHOR: example_1
-
-const TAG_CURRENCY_CODE: u64 = 33000;
-
-// ANCHOR_END: example_1
-
 #[test]
 #[rustfmt::skip]
 fn example_2() -> Result<()> {
@@ -104,8 +98,6 @@ impl fmt::Display for DecimalFraction {
 }
 
 // ANCHOR: example_7
-
-const TAG_DECIMAL_FRACTION: u64 = 4;
 
 impl From<DecimalFraction> for CBOR {
     fn from(value: DecimalFraction) -> Self {
@@ -241,12 +233,6 @@ assert_eq!(usd, usd2);
 Ok(())
 }
 
-// ANCHOR: example_13
-
-const TAG_CURRENCY_AMOUNT: u64 = 33001;
-
-// ANCHOR_END: example_13
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 // ANCHOR: example_14
 
@@ -309,9 +295,10 @@ fn currency_amount_cbor() -> Result<()> {
 // ANCHOR: example_15
 
 // Create a CurrencyAmount
-let usd = CurrencyCode::new("USD");
-let amount = DecimalFraction::new(-1, 11);
-let currency_amount = CurrencyAmount::new(usd.clone(), amount.clone());
+let currency_amount = CurrencyAmount::new(
+    CurrencyCode::new("USD"),
+    DecimalFraction::new(-1, 11)
+);
 assert_eq!(currency_amount.to_string(), "USD 1.1");
 
 // Convert to CBOR
@@ -328,7 +315,7 @@ let expected_diagnostic = r#"
     ]
 )
 "#.trim();
-assert_eq!(cbor.diagnostic(), expected_diagnostic);
+assert_eq!(cbor.diagnostic_annotated(), expected_diagnostic);
 
 // Convert to binary CBOR data
 let data = cbor.to_cbor_data();
@@ -359,6 +346,150 @@ let currency_amount2: CurrencyAmount = cbor2.try_into()?;
 assert_eq!(currency_amount, currency_amount2);
 
 // ANCHOR_END: example_15
+Ok(())
+}
+
+// ANCHOR: example_16
+
+const_cbor_tag!(4, DECIMAL_FRACTION, "DecimalFraction");
+const_cbor_tag!(33000, CURRENCY_CODE, "CurrencyCode");
+const_cbor_tag!(33001, CURRENCY_AMOUNT, "CurrencyAmount");
+
+// ANCHOR_END: example_16
+
+// ANCHOR: example_17
+
+pub fn register_tags() {
+    with_tags_mut!(|tags_store: &mut TagsStore| {
+        tags_store.insert_all(vec![
+            cbor_tag!(DECIMAL_FRACTION),
+            cbor_tag!(CURRENCY_CODE),
+            cbor_tag!(CURRENCY_AMOUNT),
+        ]);
+    });
+}
+
+// ANCHOR_END: example_17
+
+#[test]
+#[rustfmt::skip]
+fn currency_amount_cbor_named() -> Result<()> {
+// ANCHOR: example_18
+
+// Register our tags first thing
+register_tags();
+
+// Create a CurrencyAmount
+let currency_amount = CurrencyAmount::new(
+    CurrencyCode::new("USD"),
+    DecimalFraction::new(-1, 11)
+);
+assert_eq!(currency_amount.to_string(), "USD 1.1");
+
+// Convert to CBOR
+let cbor: CBOR = currency_amount.clone().into();
+
+// Check the diagnostic notation, now with named tags
+let expected_diagnostic = r#"
+
+33001(   / CurrencyAmount /
+    [
+        33000("USD"),   / CurrencyCode /
+        4(   / DecimalFraction /
+            [-1, 11]
+        )
+    ]
+)
+
+"#.trim();
+assert_eq!(cbor.diagnostic_annotated(), expected_diagnostic);
+
+// Convert to binary CBOR data
+let data = cbor.to_cbor_data();
+
+// Check the hex representation of the binary data, now with named tags
+let expected_hex = r#"
+
+d9 80e9                 # tag(33001) CurrencyAmount
+    82                  # array(2)
+        d9 80e8         # tag(33000) CurrencyCode
+            63          # text(3)
+                555344  # "USD"
+        c4              # tag(4) DecimalFraction
+            82          # array(2)
+                20      # negative(-1)
+                0b      # unsigned(11)
+
+"#.trim();
+assert_eq!(cbor.hex_annotated(), expected_hex);
+
+// Convert back to CBOR
+let cbor2 = CBOR::try_from_data(data)?;
+
+// Convert back to CurrencyAmount
+let currency_amount2: CurrencyAmount = cbor2.try_into()?;
+
+// Check that the original and round-tripped values are equal
+assert_eq!(currency_amount, currency_amount2);
+
+// ANCHOR_END: example_18
+Ok(())
+}
+
+#[test]
+#[rustfmt::skip]
+fn debug_and_display_formats() -> Result<()> {
+// ANCHOR: example_19
+
+let currency_amount = CurrencyAmount::new(
+    CurrencyCode::new("USD"),
+    DecimalFraction::new(-1, 11)
+);
+
+//
+// Using the `Debug` implementation on `CurrencyAmount`
+//
+let expected_debug = r#"
+
+CurrencyAmount(CurrencyCode("USD"), DecimalFraction { exponent: -1, mantissa: 11 })
+
+"#.trim();
+assert_eq!(format!("{:?}", currency_amount), expected_debug);
+
+//
+// Using the `Display` implementation on `CurrencyAmount`
+//
+let expected_display = r#"
+
+USD 1.1
+
+"#.trim();
+assert_eq!(format!("{}", currency_amount), expected_display);
+
+let cbor = currency_amount.to_cbor();
+
+//
+// Using the `Debug` implementation on `CBOR`
+//
+let expected_debug_cbor = r#"
+
+tagged(33001, array([tagged(33000, text("USD")), tagged(4, array([negative(-1), unsigned(11)]))]))
+
+"#.trim();
+assert_eq!(format!("{:?}", cbor), expected_debug_cbor);
+
+//
+// Using the `Display` implementation on `CBOR`
+//
+let expected_display_cbor = r#"
+
+33001([33000("USD"), 4([-1, 11])])
+
+"#.trim();
+assert_eq!(format!("{}", cbor), expected_display_cbor);
+
+// ANCHOR_END: example_19
+
 Ok(())
 }
 

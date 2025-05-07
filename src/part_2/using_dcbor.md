@@ -60,7 +60,7 @@ Below we encode a floating point value with a non-zero fractional part, which su
 {{#rustdoc_include ../../tests/using_dcbor.rs:test_4}}
 ```
 
-This idiom is not just for numeric types: you can use it for any type that implements the `TryFrom<CBOR>`, like `String`:
+This idiom is not just for numeric types: you can use it for any type that implements the `TryFrom<CBOR>` trait, like `String`:
 
 ```rust
 {{#rustdoc_include ../../tests/using_dcbor.rs:test_5}}
@@ -102,17 +102,17 @@ dCBOR supports three *simple values*— `false`, `true`, and `null`— and the `
 {{#rustdoc_include ../../tests/using_dcbor.rs:test_9}}
 ```
 
-Something interesting is going on here: our array has three values, two of which are booleans and the third is its own type: `null`. CBOR is designed to handle such _heterogenous arrays_ with no problem. But Rust (unlike some languages like JavaScript) doesn't have a `null` value (preferring `Option<T>` for values which may not be present). Rust also doesn't natively support `Vec`s containing mixed types. So how does the `dcbor` library handle this?
+Something interesting is going on here: our array has three values, two of which are booleans and the third is its own type: `null`. CBOR is designed to handle such _heterogeneous arrays_ with no problem. But Rust (unlike some languages like JavaScript) doesn't have a `null` value (preferring `Option<T>` for values which may not be present). Rust also doesn't natively support `Vec`s containing mixed types. So how does the `dcbor` library handle this?
 
-First, note that our array is not declared as a `Vec<bool>` but as a `Vec<CBOR>`. The CBOR type can hold *any* cbor value, including complex values like nested arrays and maps. In the context of the `vec!` macro composing a `Vec<CBOR>`, the Rust boolean values `true` and `false` can just be converted directly using `.into()`, and that's what we're doing here.
+First, note that our array is not declared as a `Vec<bool>` but as a `Vec<CBOR>`. The CBOR type can hold *any* CBOR value, including complex values like nested arrays and maps. In the context of the `vec!` macro composing a `Vec<CBOR>`, the Rust boolean values `true` and `false` can just be converted directly using `.into()`, and that's what we're doing here.
 
 Rust has no `null` value, so the `dcbor` library provides a `CBOR::null()` method that returns a `CBOR` instance representing the `null` value.
 
-And since all three elements of the array are being converted directly into CBOR, there is no problem constructing the heterogenous array.
+And since all three elements of the array are being converted directly into CBOR, there is no problem constructing the heterogeneous array.
 
 > **✅ NOTE:** Of course, dCBOR doesn't support CBOR `undefined` or any of the other simple values, so the `dcbor` API doesn't have ways to let you construct them.
 
-## Extracting from a Heterogenous Array
+## Extracting from a Heterogeneous Array
 
 So now that we've gotten ourselves into this situation, how do we get the values back out? The `dcbor` library provides a set of methods for testing and extracting the CBOR major types, as well as unique values like `true`, `false`, and `null`:
 
@@ -140,9 +140,9 @@ Those familiar with JSON know that it only supports string keys, but CBOR suppor
 
 Note the use of `diagnostic_flat()` in this example, which returns the diagnostic notation with no line breaks or indentation. In previous examples we also used either `hex()` or `hex_annotated()` depending on the desired formatting.
 
-## Heterogenous Maps
+## Heterogeneous Maps
 
-CBOR (and the `dcbor` library) supports heterogenous maps, which means that the keys and values can be of different types within the same map. The technique is basically the same as with heterogenous arrays: you use `CBOR` as the type for the keys and values, and then convert them to the appropriate types when you extract them.
+CBOR (and the `dcbor` library) supports heterogeneous maps, which means that the keys and values can be of different types within the same map. The technique is basically the same as with heterogeneous arrays: you use `CBOR` as the type for the keys and values, and then convert them to the appropriate types when you extract them.
 
 ```rust
 {{#rustdoc_include ../../tests/using_dcbor.rs:test_13}}
