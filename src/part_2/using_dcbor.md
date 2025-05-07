@@ -24,7 +24,7 @@ This will add the latest version of the `dcbor` crate to your `Cargo.toml` file:
 cargo add dcbor
 ```
 
-## Basic Usage
+## Getting Started
 
 `dcbor` includes a `prelude` module that re-exports all the types and traits you need to use dCBOR:
 
