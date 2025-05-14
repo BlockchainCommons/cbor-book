@@ -156,7 +156,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="dcbor-tags"><a class="header" href="#dcbor-tags">dCBOR Tags</a></h1>
-<p>As discussed in <a href="../part_1/cbor_tags.html">Part I: CBOR Tags</a>, CBOR tags are an integer that "tags" the CBOR data item that follows, specifying its type or meaning. This is a powerful feature of CBOR.</p>
+<p>As discussed in <a href="../part_1/cbor_tags.html">Part I: CBOR Tags</a>, CBOR tags are a powerful feature of CBOR that provides a space of integers used to "tag" CBOR data items, specifying their type or meaning.</p>
 <p>Let's say we wanted to define a tag that identifies a string as holding an ISO 4217 currency code like <code>USD</code> or <code>EUR</code>. We could just use a bare string, but if we want our type to be completely self-describing, we can define a tag for it.</p>
 <p>As long as you are the only one using that tag, you can choose any integer you want. But if you want your structure to interoperate with other systems, you should use a tag that is registered with IANA, discussed previously <a href="../part_1/cbor_tags.html#how-to-register-your-own-fcfs-tags">here</a>.</p>
 <p>For our demonstration we'll use the tag <code>33000</code>, which as of this writing is unassigned by IANA.</p>

@@ -8426,7 +8426,7 @@ assert_eq!(h, h2);
 </span><span class="boring">}</span></code></pre>
 <p>In the next chapter we'll cover how to use tags in dCBOR.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dcbor-tags"><a class="header" href="#dcbor-tags">dCBOR Tags</a></h1>
-<p>As discussed in <a href="part_2/../part_1/cbor_tags.html">Part I: CBOR Tags</a>, CBOR tags are an integer that "tags" the CBOR data item that follows, specifying its type or meaning. This is a powerful feature of CBOR.</p>
+<p>As discussed in <a href="part_2/../part_1/cbor_tags.html">Part I: CBOR Tags</a>, CBOR tags are a powerful feature of CBOR that provides a space of integers used to "tag" CBOR data items, specifying their type or meaning.</p>
 <p>Let's say we wanted to define a tag that identifies a string as holding an ISO 4217 currency code like <code>USD</code> or <code>EUR</code>. We could just use a bare string, but if we want our type to be completely self-describing, we can define a tag for it.</p>
 <p>As long as you are the only one using that tag, you can choose any integer you want. But if you want your structure to interoperate with other systems, you should use a tag that is registered with IANA, discussed previously <a href="part_2/../part_1/cbor_tags.html#how-to-register-your-own-fcfs-tags">here</a>.</p>
 <p>For our demonstration we'll use the tag <code>33000</code>, which as of this writing is unassigned by IANA.</p>
@@ -10794,6 +10794,174 @@ assert_eq!(format!("{}", cbor), expected_display_cbor);
 </ul>
 <p>Each of these formats is useful in its own way, so knowing when to use each one will help you get the most out of the <code>dcbor</code> library.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="determinism-with-dcbor"><a class="header" href="#determinism-with-dcbor">Determinism with dCBOR</a></h1>
+<blockquote>
+<p>"Be conservative in what you send, be liberal in what you accept."<br />
+— Postel's Law</p>
+</blockquote>
+<p>John Postel was one of the architects of the early Internet, and his "law" also known as <em>The Robustness Principle</em>, suggests that when designing protocols or systems, you should be strict about the data you produce (i.e., follow the specifications closely) but lenient about the data you accept (i.e., be forgiving of minor deviations from the specifications).</p>
+<p>Applying Postel's Law worked especially well— initially— in the context of hand-written HTML, allowing authors to create web pages that would work in most browsers, even if they were not strictly valid HTML. The idea is that by being lenient, you can accommodate a wider range of inputs and make your system more robust. However, this led to HTML parsers becoming more complex and less predictable, as they had to handle a wide variety of malformed HTML.</p>
+<p>So it turns out that Postel's Law is a double-edged sword: while it fosters compatibility, it can also mask errors, lead to insecure systems, or encourage sloppy implementations when abused. Recognition of this led to the development of specifications like XHTML, which must validate as well-formed XML, and the HTML5 specification, which is much more explicit about what is allowed and what is not.</p>
+<p>So, you're using dCBOR to encode and decode your data: <em>determinism achieved!</em></p>
+<p>Well, not really. Determinism as a goal is not a simple problem, and no semantic layer can guarantee it by itself. Technically the top layer, the application, could specify every aspect of a deterministic encoding, but by making choices about the lower layers, you can reduce the cognitive load on the application designers and implementers.</p>
+<p>dCBOR identifies and avoids a common set of "foot-guns" that can lead to non-deterministic encodings, so by adopting it you gain those benefits. But when determinism is a goal, you also have to design your data structures with determinism in mind, which is why we visit this topic several times in this book.</p>
+<blockquote>
+<p>✅ <strong>Note:</strong> <em>Not everyone needs determinism.</em> You might adopt CBOR or even the <code>dCBOR</code> library for other reasons, including its support for Gordian Envelope, which we'll discuss in Part III. Envelope has its own ways of supporting determinism, and its own set of best practices for achieving it.</p>
+</blockquote>
+<h2 id="optionality"><a class="header" href="#optionality">Optionality</a></h2>
+<p>In CBOR there are three common ways to represent “no value” for an otherwise‐required field:</p>
+<p>Representation	Example diagnostic	Possible semantic meaning
+Omitted key	{name:"Wolf"}	“We do not track this attribute.”
+Null value	{name:null}	“We track it but it is unset.”
+Empty string	{name:""}	“User explicitly refused to provide it.”</p>
+<p>Unless a profile dictates which of the three is authoritative, two encoders can serialize the same high‑level state differently.</p>
+<pre><code class="language-cddl">; under‑specified
+profile = {
+  name : null / tstr,        ; absent also legal
+}
+</code></pre>
+<p>Diagnostic examples that all mean “name is unknown”:</p>
+<pre><code class="language-cbor">{name:null}
+{}                            ; key omitted
+{name:""}                     ; empty string
+</code></pre>
+<p>Canonical resolution</p>
+<p>Decide a single rule and reject the others.  Example: omit the field when unknown.</p>
+<pre><code class="language-cddl">profile = {
+  ? name : tstr               ; present → non‑empty text only
+}
+</code></pre>
+<p>Canonical encoder:</p>
+<pre><code class="language-cbor">{}                            ; unknown
+{name:"Wolf"}                ; known
+</code></pre>
+<p>Decoder rejects {name:null} and {name:""}.</p>
+<h2 id="type-choice"><a class="header" href="#type-choice">Type Choice</a></h2>
+<p>One concept, many CBOR base types or tags.</p>
+<pre><code class="language-cddl">; under‑specified
+timestamp = #6.0(tstr) / #6.1(int)
+</code></pre>
+<p>Same instant, two encodings:</p>
+<pre><code class="language-cbor">0("2025-05-07T10:00:00Z")
+1(1746621600)
+</code></pre>
+<p>Canonical rule – “always Tag 1”.</p>
+<pre><code class="language-cddl">timestamp = #6.1(int)
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">1(1746621600)
+</code></pre>
+<h2 id="numeric-normalization"><a class="header" href="#numeric-normalization">Numeric Normalization</a></h2>
+<p>Multiple mathematically equivalent encodings after the type is fixed.</p>
+<pre><code class="language-cddl">; under‑specified decimal
+amount = #6.4([exponent:int, mantissa:int])
+</code></pre>
+<p>All three mean “one hundred”:</p>
+<pre><code class="language-cbor">4([2,1])    ; [2,1]
+4([1,10])   ; [1,10]
+4([0,100])  ; [0,100]
+</code></pre>
+<p>Canonical rule – “mantissa has no trailing zeroes, exponent minimal”.</p>
+<pre><code class="language-cddl">amount = #6.4([0, uint])   ; exponent always 0
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">4([0,100])
+</code></pre>
+<h2 id="structural-modeling"><a class="header" href="#structural-modeling">Structural Modeling</a></h2>
+<p>Different container shapes for the same record.</p>
+<pre><code class="language-cddl">; under‑specified
+coord = {lat:float,lon:float}
+      / [lat:float,lon:float]
+</code></pre>
+<p>Equal positions:</p>
+<pre><code class="language-cbor">{lat:36.0,lon:-115.0}
+[36.0,-115.0]
+</code></pre>
+<p>Canonical rule – “ordered array only”.</p>
+<pre><code class="language-cddl">coord = [lat:float, lon:float]
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">[36.0,-115.0]
+</code></pre>
+<h2 id="redundancy--aliasing"><a class="header" href="#redundancy--aliasing">Redundancy &amp; Aliasing</a></h2>
+<p>Synonymous fields or duplicate information.</p>
+<pre><code class="language-cddl">; under‑specified
+distance = {
+  (meters / kilometres) : float
+}
+</code></pre>
+<p>Two encodings for the same five‑meter length:</p>
+<pre><code class="language-cbor">{meters:5.0}
+{kilometres:0.005}
+</code></pre>
+<p>Canonical rule – “meters only”.</p>
+<pre><code class="language-cddl">distance = {meters:float}
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">{meters:5.0}
+</code></pre>
+<h2 id="precision--quantization"><a class="header" href="#precision--quantization">Precision &amp; Quantization</a></h2>
+<p>Choice of width or scaling.</p>
+<pre><code class="language-cddl">; under‑specified
+price = float          ; 19.99 could be any float width
+</code></pre>
+<pre><code class="language-cbor">fa4198f5c29            ; float32 19.99
+fb4033f5c28f5c29f      ; float64 19.99
+</code></pre>
+<p>Canonical rule – “store cents as unsigned integer”.</p>
+<pre><code class="language-cddl">price = uint           ; 19.99 USD → 1999
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">1999
+</code></pre>
+<h2 id="unit--scale-variation"><a class="header" href="#unit--scale-variation">Unit &amp; Scale Variation</a></h2>
+<p>Same quantity in different units.</p>
+<pre><code class="language-cddl">; under‑specified
+duration = {seconds:uint} / {milliseconds:uint}
+</code></pre>
+<p>Two encodings for three seconds:</p>
+<pre><code class="language-cbor">{seconds:3}
+{milliseconds:3000}
+</code></pre>
+<p>Canonical rule – “microseconds only”.</p>
+<pre><code class="language-cddl">duration = {microseconds:uint}
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">{microseconds:3000000}
+</code></pre>
+<h2 id="tagging-conventions"><a class="header" href="#tagging-conventions">Tagging Conventions</a></h2>
+<p>Optional tags or competing tags.</p>
+<pre><code class="language-cddl">; under‑specified
+blob = bytes / #6.23(tstr)      ; raw vs Base64
+</code></pre>
+<p>Two encodings for the same bytes:</p>
+<pre><code class="language-cbor">h'DEADBEEF'
+23(h'DEADBEEF')
+</code></pre>
+<p>Canonical rule – “raw bytes, never Tag 23”.</p>
+<pre><code class="language-cddl">blob = bytes
+</code></pre>
+<p>Canonical encoding:</p>
+<pre><code class="language-cbor">h'DEADBEEF'
+</code></pre>
+<h2 id="extension-points--unknowns"><a class="header" href="#extension-points--unknowns">Extension Points &amp; Unknowns</a></h2>
+<p>Open maps that tolerate extra keys.</p>
+<pre><code class="language-cddl">; under‑specified
+config = { * tstr =&gt; any }
+</code></pre>
+<pre><code class="language-cbor">{version:1,foo:7}
+{version:1,bar:"x"}
+</code></pre>
+<p>Canonical rule – closed world with an allow‑list.</p>
+<pre><code class="language-cddl">config = {
+  version : uint,
+  params  : {
+    * ("foo" / "bar" / "baz") =&gt; int
+  }
+}
+</code></pre>
+<p>Only allowed encoding for version 1 and foo = 7:</p>
+<pre><code class="language-cbor">{version:1,params:{foo:7}}
+</code></pre>
 <blockquote>
 <p>🚧 <strong>Work in Progress:</strong> <em>More in this chapter and more chapters forthcoming!</em></p>
 </blockquote>
