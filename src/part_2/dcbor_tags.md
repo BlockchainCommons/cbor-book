@@ -1,6 +1,6 @@
 # dCBOR Tags
 
-As discussed in [Part I: CBOR Tags](../part_1/cbor_tags.md), CBOR tags are an integer that "tags" the CBOR data item that follows, specifying its type or meaning. This is a powerful feature of CBOR.
+As discussed in [Part I: CBOR Tags](../part_1/cbor_tags.md), CBOR tags are a powerful feature of CBOR that provides a space of integers used to "tag" CBOR data items, specifying their type or meaning.
 
 Let's say we wanted to define a tag that identifies a string as holding an ISO 4217 currency code like `USD` or `EUR`. We could just use a bare string, but if we want our type to be completely self-describing, we can define a tag for it.
 

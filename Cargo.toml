@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-dcbor = "^0.18.0"
-bc-envelope = "^0.26.0"
+dcbor = "^0.19.0"
+bc-envelope = "^0.28.0"
 anyhow = "1.0.98"
 hex = "0.4.3"
