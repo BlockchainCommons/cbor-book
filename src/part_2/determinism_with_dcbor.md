@@ -1,5 +1,7 @@
 # Determinism with dCBOR
 
+> 🚧 **Work in Progress:** _This chapter is not yet ready for review!_
+
 > "Be conservative in what you send, be liberal in what you accept."\
 > — Postel's Law
 

@@ -22,7 +22,8 @@
 - [From CBOR, to CDE, to dCBOR](./part_2/cbor_cde_dcbor.md)
 - [Using dCBOR](./part_2/using_dcbor.md)
 - [dCBOR Tags](./part_2/dcbor_tags.md)
-- [Determinism with dCBOR](./part_2/determinism_with_dcbor.md)
+- [The `dcbor` Command Line Tool](./part_2/dcbor_cli.md)
+<!-- - [Determinism with dCBOR](./part_2/determinism_with_dcbor.md) -->
 
 # Part III: Gordian Envelope
 

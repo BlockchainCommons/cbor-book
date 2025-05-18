@@ -305,23 +305,17 @@ Let's see how these tags combine with basic CBOR types to represent a more compl
 }
 ```
 
-Here, `sensorID` is a UUID, `captureTime` is a standard timestamp, `reading` could be represented as a decimal fraction (`-12345 * 10^-3`), `statusURL` is a URI, and `alertPayload` is base64-encoded binary data (`0x01020304`).
+Here, `sensorID` is a UUID, `captureTime` is a standard timestamp, `reading` could be represented as a decimal fraction (`-12345 * 10^-3`), `statusURL` is a URI, and `alertPayload` is binary data (`h'01020304'`).
 
 **CBOR Diagnostic Notation (using tags):**
 
 ```
 {
-  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    // Tag 37 for UUID
-  "captureTime": 0("2023-10-27T14:30:15.123Z"),           // Tag 0 for RFC3339 string
-  // Alternative: Represent reading as decimal fraction
-  // "reading": 4([-3, -12345]),                          // Tag 4 for decimal fraction
-  "reading": -12.345,                                     // Using standard float for simplicity here
-  "readingScale": -3,                                     // Simple integer
-  "rawValue": -12345,                                     // Simple integer
-  "statusURL": 32("https://example.com/status/f81d4fae"), // Tag 32 for URI
-  "alertPayload": h'01020304'                             // Direct byte string
-  // Alternative: Use Tag 22 hint if JSON interop requires base64
-  // "alertPayload": 22(h'01020304')
+  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
+  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
+  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
+  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
+  "alertPayload": h'01020304'                             # Direct byte string
 }
 ```
 
