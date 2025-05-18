@@ -1222,20 +1222,14 @@ Tags intended to assist with implementation, such as invalid tags and programmin
   "alertPayload": "AQIDBA=="
 }
 </code></pre>
-<p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is base64-encoded binary data (<code>0x01020304</code>).</p>
+<p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is binary data (<code>h'01020304'</code>).</p>
 <p><strong>CBOR Diagnostic Notation (using tags):</strong></p>
 <pre><code>{
-  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    // Tag 37 for UUID
-  "captureTime": 0("2023-10-27T14:30:15.123Z"),           // Tag 0 for RFC3339 string
-  // Alternative: Represent reading as decimal fraction
-  // "reading": 4([-3, -12345]),                          // Tag 4 for decimal fraction
-  "reading": -12.345,                                     // Using standard float for simplicity here
-  "readingScale": -3,                                     // Simple integer
-  "rawValue": -12345,                                     // Simple integer
-  "statusURL": 32("https://example.com/status/f81d4fae"), // Tag 32 for URI
-  "alertPayload": h'01020304'                             // Direct byte string
-  // Alternative: Use Tag 22 hint if JSON interop requires base64
-  // "alertPayload": 22(h'01020304')
+  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
+  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
+  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
+  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
+  "alertPayload": h'01020304'                             # Direct byte string
 }
 </code></pre>
 <p>This example illustrates how tags integrate seamlessly into the CBOR structure. Tag 37 clearly identifies the <code>sensorID</code> bytes as a UUID, Tag 0 provides a standard string representation for <code>captureTime</code>, and Tag 32 marks the <code>statusURL</code> string as a URI. We chose to represent <code>reading</code> as a standard float, but Tag 4 could have been used for exact decimal precision if required by the application. For <code>alertPayload</code>, we used a direct byte string, as CBOR handles binary natively; Tag 22 could be added as a hint if this data frequently needs conversion to base64 for JSON compatibility. The tags add semantic precision and clarity beyond what the JSON representation alone could offer directly.</p>
@@ -10793,178 +10787,266 @@ assert_eq!(format!("{}", cbor), expected_display_cbor);
 <li>The <code>Display</code> trait on <code>CBOR</code> is the same as would be returned by <code>CBOR::diagnostic_flat()</code>, which is valid diagnostic notation all on one line.</li>
 </ul>
 <p>Each of these formats is useful in its own way, so knowing when to use each one will help you get the most out of the <code>dcbor</code> library.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="determinism-with-dcbor"><a class="header" href="#determinism-with-dcbor">Determinism with dCBOR</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-dcbor-command-line-tool"><a class="header" href="#the-dcbor-command-line-tool">The <code>dcbor</code> Command Line Tool</a></h1>
+<p>The <code>dcbor</code> command line tool is a simple utility that allows you to encode and decode CBOR data using the <code>dCBOR</code> library. It is designed to be easy to use and provides a convenient way to work with CBOR data from the command line.</p>
 <blockquote>
-<p>"Be conservative in what you send, be liberal in what you accept."<br />
-— Postel's Law</p>
+<p>✅ <strong>TIP:</strong> This chapter assumes some familiarity with the command line, also called the <em>shell</em>. If you're not comfortable using the shell, you may want to refer to the <a href="https://www.codecademy.com/learn/learn-the-command-line">Command Line Basics</a> course on Codecademy or similar resources.</p>
 </blockquote>
-<p>John Postel was one of the architects of the early Internet, and his "law" also known as <em>The Robustness Principle</em>, suggests that when designing protocols or systems, you should be strict about the data you produce (i.e., follow the specifications closely) but lenient about the data you accept (i.e., be forgiving of minor deviations from the specifications).</p>
-<p>Applying Postel's Law worked especially well— initially— in the context of hand-written HTML, allowing authors to create web pages that would work in most browsers, even if they were not strictly valid HTML. The idea is that by being lenient, you can accommodate a wider range of inputs and make your system more robust. However, this led to HTML parsers becoming more complex and less predictable, as they had to handle a wide variety of malformed HTML.</p>
-<p>So it turns out that Postel's Law is a double-edged sword: while it fosters compatibility, it can also mask errors, lead to insecure systems, or encourage sloppy implementations when abused. Recognition of this led to the development of specifications like XHTML, which must validate as well-formed XML, and the HTML5 specification, which is much more explicit about what is allowed and what is not.</p>
-<p>So, you're using dCBOR to encode and decode your data: <em>determinism achieved!</em></p>
-<p>Well, not really. Determinism as a goal is not a simple problem, and no semantic layer can guarantee it by itself. Technically the top layer, the application, could specify every aspect of a deterministic encoding, but by making choices about the lower layers, you can reduce the cognitive load on the application designers and implementers.</p>
-<p>dCBOR identifies and avoids a common set of "foot-guns" that can lead to non-deterministic encodings, so by adopting it you gain those benefits. But when determinism is a goal, you also have to design your data structures with determinism in mind, which is why we visit this topic several times in this book.</p>
-<blockquote>
-<p>✅ <strong>Note:</strong> <em>Not everyone needs determinism.</em> You might adopt CBOR or even the <code>dCBOR</code> library for other reasons, including its support for Gordian Envelope, which we'll discuss in Part III. Envelope has its own ways of supporting determinism, and its own set of best practices for achieving it.</p>
-</blockquote>
-<h2 id="optionality"><a class="header" href="#optionality">Optionality</a></h2>
-<p>In CBOR there are three common ways to represent “no value” for an otherwise‐required field:</p>
-<p>Representation	Example diagnostic	Possible semantic meaning
-Omitted key	{name:"Wolf"}	“We do not track this attribute.”
-Null value	{name:null}	“We track it but it is unset.”
-Empty string	{name:""}	“User explicitly refused to provide it.”</p>
-<p>Unless a profile dictates which of the three is authoritative, two encoders can serialize the same high‑level state differently.</p>
-<pre><code class="language-cddl">; under‑specified
-profile = {
-  name : null / tstr,        ; absent also legal
-}
+<h2 id="installation-1"><a class="header" href="#installation-1">Installation</a></h2>
+<p>To install the <code>dcbor</code> CLI tool, you need to have Rust and Cargo installed on your system. If you don't have them installed, you can follow the instructions on the <a href="https://www.rust-lang.org/tools/install">Rust website</a> to get started.</p>
+<p>Once you have Rust and Cargo installed, you can install the <code>dcbor</code> tool by running the following command:</p>
+<pre><code class="language-bash">$ cargo install dcbor-cli
 </code></pre>
-<p>Diagnostic examples that all mean “name is unknown”:</p>
-<pre><code class="language-cbor">{name:null}
-{}                            ; key omitted
-{name:""}                     ; empty string
+<p>You can verify that the installation was successful by running:</p>
+<pre><code class="language-bash">$ dcbor --version
 </code></pre>
-<p>Canonical resolution</p>
-<p>Decide a single rule and reject the others.  Example: omit the field when unknown.</p>
-<pre><code class="language-cddl">profile = {
-  ? name : tstr               ; present → non‑empty text only
-}
+<p>You can get help on how to use the <code>dcbor</code> tool by running:</p>
+<pre><code class="language-bash">$ dcbor --help
 </code></pre>
-<p>Canonical encoder:</p>
-<pre><code class="language-cbor">{}                            ; unknown
-{name:"Wolf"}                ; known
+<p>This will display the available options and usage information.</p>
+<h2 id="getting-started-1"><a class="header" href="#getting-started-1">Getting Started</a></h2>
+<p>The basic function of the <code>dcbor</code> tool is to transform CBOR between various formats and validate it against the deterministic encoding rules.</p>
+<p>The three input formats are:</p>
+<ul>
+<li><code>diag</code> - CBOR diagnostic notation</li>
+<li><code>hex</code> - hexadecimal encoding</li>
+<li><code>bin</code> - binary encoding— this is CBOR's native format, but not human-readable</li>
+</ul>
+<p>The three output formats are:</p>
+<ul>
+<li><code>diag</code> - CBOR diagnostic notation</li>
+<li><code>hex</code> - hexadecimal encoding</li>
+<li><code>bin</code> - binary encoding— this is CBOR's native format, but not human-readable</li>
+<li><code>none</code> - no output, just validate the input</li>
+</ul>
+<p>The default input format is <code>diag</code>, and the default output format is <code>hex</code>. The hex format is useful for sending to other tools like the <code>envelope</code> command line tool we'll discuss in Part III. So by default you put in some human-readable diagnostic notation and get out some CBOR hex:</p>
+<pre><code class="language-bash">$ dcbor 42
+182a
 </code></pre>
-<p>Decoder rejects {name:null} and {name:""}.</p>
-<h2 id="type-choice"><a class="header" href="#type-choice">Type Choice</a></h2>
-<p>One concept, many CBOR base types or tags.</p>
-<pre><code class="language-cddl">; under‑specified
-timestamp = #6.0(tstr) / #6.1(int)
+<p>In the above example, <code>42</code> is the string input, and <code>182a</code> is the hexadecimal output.</p>
+<p>Here's an example with a floating-point number:</p>
+<pre><code class="language-bash">$ dcbor 3.14
+fb40091eb851eb851f
 </code></pre>
-<p>Same instant, two encodings:</p>
-<pre><code class="language-cbor">0("2025-05-07T10:00:00Z")
-1(1746621600)
+<h2 id="quoting-input"><a class="header" href="#quoting-input">Quoting Input</a></h2>
+<p>For simple cases like the ones above, you don't need to do anything special with quoting the input. But in many cases you'll need to understand how the shell's use of quotes interacts with CBOR diagnostic notation.</p>
+<p>For example, in CBOR diagnostic notation, a string is quoted with double quotes, so for the <code>dcbor</code> tool to recognize it as a string, you need to include the double quotes in the input. But in the shell, double quotes are already used to quote the entire argument. If you naively run this command you'll get an error:</p>
+<pre><code class="language-bash">$ dcbor "Hello"
+Error: line 1: Unrecognized token
+Hello
+^
 </code></pre>
-<p>Canonical rule – “always Tag 1”.</p>
-<pre><code class="language-cddl">timestamp = #6.1(int)
+<p>This is because the shell is interpreting the double quotes as something to be stripped off. To get around this, you can use single quotes to quote the entire argument:</p>
+<pre><code class="language-bash">$ dcbor '"Hello"'
+6548656c6c6f
 </code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">1(1746621600)
+<p>Another option is to escape the inner double quotes with a backslash:</p>
+<pre><code class="language-bash">$ dcbor "\"Hello\""
+6548656c6c6f
 </code></pre>
-<h2 id="numeric-normalization"><a class="header" href="#numeric-normalization">Numeric Normalization</a></h2>
-<p>Multiple mathematically equivalent encodings after the type is fixed.</p>
-<pre><code class="language-cddl">; under‑specified decimal
-amount = #6.4([exponent:int, mantissa:int])
+<p>But the most general and flexible way is to use the <em>here document</em> ("<em>heredoc</em>") shell feature. This allows you to pass a block of text to the <code>dcbor</code> tool without worrying about quoting:</p>
+<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+"Hello"
+EOF
+6548656c6c6f
 </code></pre>
-<p>All three mean “one hundred”:</p>
-<pre><code class="language-cbor">4([2,1])    ; [2,1]
-4([1,10])   ; [1,10]
-4([0,100])  ; [0,100]
+<p>Notice the first line uses <code>&lt;&lt;</code> to indicate the start of a heredoc, which is immediately followed by the delimiter <code>EOF</code>. The last line is the same delimiter, which indicates the end of the here document. You can use any string as a delimiter, but <code>EOF</code> is a common convention. The here document can also be used to pass as many lines of input as you want. Here is an example of an array of strings spread across multiple lines:</p>
+<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+[
+  "Hello",
+  "World"
+]
+EOF
+826548656c6c6f65576f726c64
 </code></pre>
-<p>Canonical rule – “mantissa has no trailing zeroes, exponent minimal”.</p>
-<pre><code class="language-cddl">amount = #6.4([0, uint])   ; exponent always 0
+<h2 id="comments"><a class="header" href="#comments">Comments</a></h2>
+<p>CBOR diagnostic notation supports two different types of comments: <em>inline comments</em> delimited by <code>/</code> and <em>end-of-line comments</em> delimited by <code>#</code>. The <code>dcbor</code> tool ignores comments in the input, so you can use them freely to annotate your input. Here is an example of both types of comments:</p>
+<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+[ # Start of array
+  / First element / "Hello",
+  / Second element / "World"
+] # End of array
+EOF
+826548656c6c6f65576f726c64
 </code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">4([0,100])
-</code></pre>
-<h2 id="structural-modeling"><a class="header" href="#structural-modeling">Structural Modeling</a></h2>
-<p>Different container shapes for the same record.</p>
-<pre><code class="language-cddl">; under‑specified
-coord = {lat:float,lon:float}
-      / [lat:float,lon:float]
-</code></pre>
-<p>Equal positions:</p>
-<pre><code class="language-cbor">{lat:36.0,lon:-115.0}
-[36.0,-115.0]
-</code></pre>
-<p>Canonical rule – “ordered array only”.</p>
-<pre><code class="language-cddl">coord = [lat:float, lon:float]
-</code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">[36.0,-115.0]
-</code></pre>
-<h2 id="redundancy--aliasing"><a class="header" href="#redundancy--aliasing">Redundancy &amp; Aliasing</a></h2>
-<p>Synonymous fields or duplicate information.</p>
-<pre><code class="language-cddl">; under‑specified
-distance = {
-  (meters / kilometres) : float
-}
-</code></pre>
-<p>Two encodings for the same five‑meter length:</p>
-<pre><code class="language-cbor">{meters:5.0}
-{kilometres:0.005}
-</code></pre>
-<p>Canonical rule – “meters only”.</p>
-<pre><code class="language-cddl">distance = {meters:float}
-</code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">{meters:5.0}
-</code></pre>
-<h2 id="precision--quantization"><a class="header" href="#precision--quantization">Precision &amp; Quantization</a></h2>
-<p>Choice of width or scaling.</p>
-<pre><code class="language-cddl">; under‑specified
-price = float          ; 19.99 could be any float width
-</code></pre>
-<pre><code class="language-cbor">fa4198f5c29            ; float32 19.99
-fb4033f5c28f5c29f      ; float64 19.99
-</code></pre>
-<p>Canonical rule – “store cents as unsigned integer”.</p>
-<pre><code class="language-cddl">price = uint           ; 19.99 USD → 1999
-</code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">1999
-</code></pre>
-<h2 id="unit--scale-variation"><a class="header" href="#unit--scale-variation">Unit &amp; Scale Variation</a></h2>
-<p>Same quantity in different units.</p>
-<pre><code class="language-cddl">; under‑specified
-duration = {seconds:uint} / {milliseconds:uint}
-</code></pre>
-<p>Two encodings for three seconds:</p>
-<pre><code class="language-cbor">{seconds:3}
-{milliseconds:3000}
-</code></pre>
-<p>Canonical rule – “microseconds only”.</p>
-<pre><code class="language-cddl">duration = {microseconds:uint}
-</code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">{microseconds:3000000}
-</code></pre>
-<h2 id="tagging-conventions"><a class="header" href="#tagging-conventions">Tagging Conventions</a></h2>
-<p>Optional tags or competing tags.</p>
-<pre><code class="language-cddl">; under‑specified
-blob = bytes / #6.23(tstr)      ; raw vs Base64
-</code></pre>
-<p>Two encodings for the same bytes:</p>
-<pre><code class="language-cbor">h'DEADBEEF'
-23(h'DEADBEEF')
-</code></pre>
-<p>Canonical rule – “raw bytes, never Tag 23”.</p>
-<pre><code class="language-cddl">blob = bytes
-</code></pre>
-<p>Canonical encoding:</p>
-<pre><code class="language-cbor">h'DEADBEEF'
-</code></pre>
-<h2 id="extension-points--unknowns"><a class="header" href="#extension-points--unknowns">Extension Points &amp; Unknowns</a></h2>
-<p>Open maps that tolerate extra keys.</p>
-<pre><code class="language-cddl">; under‑specified
-config = { * tstr =&gt; any }
-</code></pre>
-<pre><code class="language-cbor">{version:1,foo:7}
-{version:1,bar:"x"}
-</code></pre>
-<p>Canonical rule – closed world with an allow‑list.</p>
-<pre><code class="language-cddl">config = {
-  version : uint,
-  params  : {
-    * ("foo" / "bar" / "baz") =&gt; int
-  }
-}
-</code></pre>
-<p>Only allowed encoding for version 1 and foo = 7:</p>
-<pre><code class="language-cbor">{version:1,params:{foo:7}}
+<p>This example produces the same output as the previous example, but it includes comments to explain what each part of the input is doing.</p>
+<h2 id="round-trip-conversion"><a class="header" href="#round-trip-conversion">Round-Trip Conversion</a></h2>
+<p>Now that we have an example of hex-encoded CBOR, let's see how to convert it back to diagnostic notation. The <code>dcbor</code> tool can do this by specifying the input format as <code>hex</code> and the output format as <code>diag</code>:</p>
+<pre><code class="language-bash">$ dcbor -i hex -o diag 826548656c6c6f65576f726c64
+["Hello", "World"]
 </code></pre>
 <blockquote>
-<p>🚧 <strong>Work in Progress:</strong> <em>More in this chapter and more chapters forthcoming!</em></p>
+<p>✅ <strong>TIP:</strong> The <code>-i</code> and <code>-o</code> flags are short for <code>--in</code> and <code>--out</code>, respectively. You can use the full names if you prefer, but the short names are more convenient for quick commands.</p>
 </blockquote>
+<blockquote>
+<p>⚠️ <strong>WARNING:</strong> CBOR diagnostic notation looks a lot like JSON, but as its name suggests, it is for use during development and debugging, while CBOR is the actual binary encoding format. Diagnostic notation is not optimized for size or speed, and may not be perfectly compatible across implementations. So don't use diagnostic notation in production code.</p>
+</blockquote>
+<h2 id="supported-data-types"><a class="header" href="#supported-data-types">Supported Data Types</a></h2>
+<p>The <code>dcbor</code> tool parses a variety of data types, including the primitives defined in the CBOR specification. It also supports specialized types like Uniform Resources (URs) and Known Values that can be quite useful when working with Gordian Envelope, which we'll discuss in Part III. Here is a summary of the supported data types:</p>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody>
+<tr><td>Boolean</td><td><code>true</code><br><code>false</code></td></tr>
+<tr><td>Null</td><td><code>null</code></td></tr>
+<tr><td>Integers</td><td><code>0</code><br><code>1</code><br><code>-1</code><br><code>42</code></td></tr>
+<tr><td>Floats</td><td><code>3.14</code><br><code>-2.5</code><br><code>Infinity</code><br><code>-Infinity</code><br><code>NAN</code></td></tr>
+<tr><td>Strings</td><td><code>"hello"</code><br><code>"🌎"</code></td></tr>
+<tr><td>Hex Byte Strings</td><td><code>h'68656c6c6f'</code></td></tr>
+<tr><td>Base64 Byte Strings</td><td><code>b64'AQIDBAUGBwgJCg=='</code></td></tr>
+<tr><td>Tagged Values</td><td><code>1234("hello")</code><br><code>5678(3.14)</code></td></tr>
+<tr><td>Name-Tagged Values</td><td><code>tag-name("hello")</code><br><code>tag-name(3.14)</code></td></tr>
+<tr><td>Known Values</td><td><code>'1'</code><br><code>'isA'</code></td></tr>
+<tr><td>Unit Known Value</td><td><code>Unit</code><br><code>''</code><br><code>'0'</code></td></tr>
+<tr><td>URs</td><td><code>ur:date/cyisdadmlasgtapttl</code></td></tr>
+<tr><td>Arrays</td><td><code>[1, 2, 3]</code><br><code>["hello", "world"]</code><br><code>[1, [2, 3]]</code></td></tr>
+<tr><td>Maps</td><td><code>{1: 2, 3: 4}</code><br><code>{"key": "value"}</code><br><code>{1: [2, 3], 4: 5}</code></td></tr>
+</tbody></table>
+</div>
+<p>Note these are <em>input formats</em>, and not all of them will round-trip to the same output format. For example, the <code>b64</code> format can be used to convert existing Base64-encoded data to CBOR, but when output back to diagnostic notation, it will be converted to a <code>h</code> format hex byte string.</p>
+<p>The <code>ur</code> format is a URI encoding of tagged CBOR, and the <code>dcbor</code> tool will automatically convert URs it knows about to the appropriate tagged CBOR format. On output, tagged CBOR will appear in the usual <code>integer(item)</code> format.</p>
+<p>The <code>dcbor</code> tool has built-in libraries of name-number correspondences for:</p>
+<ul>
+<li><a href="https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-006-urtypes.md">CBOR tags/UR types</a></li>
+<li><a href="https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2023-002-known-value.md">Known Values</a></li>
+</ul>
+<p>Where it can, it will accept these names in place of numeric values.</p>
+<h2 id="validating-input"><a class="header" href="#validating-input">Validating Input</a></h2>
+<p>Every time the <code>dcbor</code> tool is run, it validates the input as valid CBOR, and the dCBOR deterministic encoding rules. If the input is valid, it will produce the output in the specified format. If the input is not valid, it will produce an error message. For example, if we change the first byte of the hex-encoded CBOR from the example above to <code>0x83</code> (representing a CBOR array of three elements), we will get an error:</p>
+<pre><code class="language-bash">$ dcbor -i hex -o diag 836548656c6c6f65576f726c64
+Error: early end of CBOR data
+</code></pre>
+<p>This error message indicates that the input expected a third array element, but it reached the end of the input before finding it. We can "hack" the input to make it valid by adding a third element. Let's just add a <code>0</code> to the end of the array:</p>
+<pre><code class="language-bash">$ dcbor -i hex -o diag 836548656c6c6f65576f726c6400
+["Hello", "World", 0]
+</code></pre>
+<p>This is a valid CBOR array of three elements, and the <code>dcbor</code> tool produces the expected output.</p>
+<h2 id="annotated-output"><a class="header" href="#annotated-output">Annotated Output</a></h2>
+<p>When producing either hex or diagnostic notation output, the <code>--annotate</code> flag can be used to produce output that is even more human-readable. Let's define a shell variable with a hex-encoded CBOR structure, a cryptographic seed:</p>
+<pre><code class="language-bash">$ CBOR_SEED=d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e
+</code></pre>
+<p>Now we can pass this variable to the <code>dcbor</code> by just referring to it as <code>$CBOR_SEED</code>:</p>
+<pre><code class="language-bash">$ dcbor --in hex --out diag $CBOR_SEED
+40300({1: h'59f2293a5bce7d4de59e71b4207ac5d2', 2: 1(1614124800), 3: "Dark Purple Aqua Love", 4: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."})
+</code></pre>
+<p>The output is "flat" diagnostic notation, entirely on one line. This is useful for passing to other tools, but not very human-readable. The <code>--annotate</code> flag will produce a more readable output:</p>
+<pre><code class="language-bash">$ dcbor --in hex --out diag --annotate $CBOR_SEED
+40300(   / seed /
+    {
+        1:
+        h'59f2293a5bce7d4de59e71b4207ac5d2',
+        2:
+        1(1614124800),   / date /
+        3:
+        "Dark Purple Aqua Love",
+        4:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    }
+)
+</code></pre>
+<p>Now it's much easier to see that the entire structure is a map with four keys: the first key is a byte string, the second key is a tagged number representing a date, and so on. The entire structure is tagged with <code>40300</code>, which is a registered CBOR tag for a cryptographic seed in this format. You can see the definition of this format in the <a href="https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-006-urtypes.md#cryptographic-seed-seed">Blockchain Commons Registry of UR Types</a>.</p>
+<p>The hex output format also supports the <code>--annotate</code> flag:</p>
+<pre><code class="language-bash">$ dcbor --in hex --annotate $CBOR_SEED
+d9 9d6c                                 # tag(40300) seed
+    a4                                  # map(4)
+        01                              # unsigned(1)
+        50                              # bytes(16)
+            59f2293a5bce7d4de59e71b4207ac5d2
+        02                              # unsigned(2)
+        c1                              # tag(1) date
+            1a60359700                  # unsigned(1614124800)
+        03                              # unsigned(3)
+        75                              # text(21)
+            4461726b20507572706c652041717561204c6f7665 # "Dark Purple Aqua Love"
+        04                              # unsigned(4)
+        78 7b                           # text(123)
+            4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e # "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+</code></pre>
+<p>The annotated hex output also uses indentation and comments to make its structure and semantics more clear.</p>
+<p>Recall that the default input format is <code>diag</code>, and the default output format is <code>hex</code>. So in this case we're using <code>--in</code> to specify the input format as <code>hex</code>, and leaving the output format as the default <code>hex</code>, but adding the <code>--annotate</code> flag to produce the annotated output.</p>
+<h2 id="binary-input-and-output"><a class="header" href="#binary-input-and-output">Binary Input and Output</a></h2>
+<p>CBOR is, after all, a binary format, and <code>bin</code> can be used with <code>--in</code> or <code>--out</code> to specify binary input or output:</p>
+<pre><code class="language-bash"># Write the binary to a file using stdout.
+$ dcbor --in hex --out bin $CBOR_SEED &gt;test.bin
+
+# Show the first 48 bytes of the binary file.
+(base) ➜  ~ hexdump -C test.bin | head -n 3
+00000000  d9 9d 6c a4 01 50 59 f2  29 3a 5b ce 7d 4d e5 9e  |..l..PY.):[.}M..|
+00000010  71 b4 20 7a c5 d2 02 c1  1a 60 35 97 00 03 75 44  |q. z.....`5...uD|
+00000020  61 72 6b 20 50 75 72 70  6c 65 20 41 71 75 61 20  |ark Purple Aqua |
+
+# The file is exactly 178 bytes long.
+wc -c &lt; test.bin | xargs
+178
+
+# Read it back in from the file.
+$ dcbor --in bin &lt;test.bin
+d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e
+
+# Read it in again, but with output in diagnostic notation.
+$ dcbor --in bin --out diag &lt;test.bin
+40300({1: h'59f2293a5bce7d4de59e71b4207ac5d2', 2: 1(1614124800), 3: "Dark Purple Aqua Love", 4: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."})
+</code></pre>
+<h2 id="a-more-complex-example"><a class="header" href="#a-more-complex-example">A More Complex Example</a></h2>
+<p>In <a href="part_2/../part_1/cbor_tags.html#example-tags-in-action">a previous chapter</a> we saw an example of a CBOR structure in diagnostic notation that used a number of different tags and complex types like arrays and maps. Let's see how to encode that structure using the <code>dcbor</code> tool:</p>
+<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+{
+  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
+  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
+  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
+  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
+  "alertPayload": h'01020304'                             # Direct byte string
+}
+EOF
+a56772656164696e67c482223930386873656e736f724944d82550f81d4fae7dec11d0a76500a0c91e6bf66973746174757355524cd820782368747470733a2f2f6578616d706c652e636f6d2f7374617475732f66383164346661656b6361707475726554696d65c07818323032332d31302d32375431343a33303a31352e3132335a6c616c6572745061796c6f61644401020304
+</code></pre>
+<h2 id="composing-arrays-and-maps"><a class="header" href="#composing-arrays-and-maps">Composing Arrays and Maps</a></h2>
+<p>We've seen how to compose arrays and maps in CBOR diagnostic notation:</p>
+<pre><code class="language-bash"># Compose an array of strings:
+$ dcbor &lt;&lt;EOF
+[ "Hello", "World" ]
+EOF
+826548656c6c6f65576f726c64
+
+# Compose a map of with string keys and values:
+$ dcbor &lt;&lt;EOF
+{ "Hello": "World" }
+EOF
+a26148656c6c6f576f726c64
+</code></pre>
+<p>When working with shell scripts, you can interpolate shell variable into the input. For example, let's define a shell variable with a string value:</p>
+<pre><code class="language-bash">$ HELLO="Hello"
+$ dcbor &lt;&lt;EOF
+[ "$HELLO", "World" ]
+EOF
+826548656c6c6f65576f726c64
+</code></pre>
+<p>This isn't bad when you know the number of elements in the array, but what if you have a variable number of elements? Here's a little script that generates the first 10 Fibonacci numbers and puts them in an array:</p>
+<pre><code class="language-bash">$ FIB=($(awk 'BEGIN{a=1;b=1;for(i=0;i&lt;10;i++){printf "%d ",a; t=a;a=b;b=t+b}}'))
+$ echo "${FIB[@]}"
+1 1 2 3 5 8 13 21 34 55
+</code></pre>
+<p>To get this into a CBOR array, we can use the <code>array</code> subcommand of the <code>dcbor</code> tool:</p>
+<pre><code class="language-bash">$ FIB_DIAG=`dcbor array --out diag "${FIB[@]}"`
+$ echo $FIB_DIAG
+[1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+</code></pre>
+<p>The <code>array</code> subcommand takes a strings which can be <em>any</em> diagnostic notation (not just atomic values like the numbers we're using here), and produces a CBOR array so you don't have to muck about with brackets and commas.</p>
+<p>Now let's say you want to use <code>$FIB_DIAG</code> in a CBOR map. You can use the <code>map</code> subcommand to do this:</p>
+<pre><code class="language-bash">$ FIB_MAP=`dcbor map --annotate --out diag \
+    '"name"' '"Fibonacci Numbers"' \
+    '"value"' "$FIB_DIAG"`
+
+$ echo $FIB_MAP
+{
+    "name":
+    "Fibonacci Numbers",
+    "value":
+    [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+}
+</code></pre>
+<p>The <code>map</code> subcommand takes a list alternating keys and values. Note how we're being careful to quote the keys and values, with single-quotes being used for strings (so they don't get interpreted by the shell) and double-quotes used for the <code>$FIB_DIAG</code> variable (so it gets interpolated).</p>
+<p>When we've got our map composed the way we want it, we can serialized it to binary, or hex for use with the <code>envelope</code> tool we'll discuss in Part III:</p>
+<pre><code class="language-bash">$ dcbor --in diag --out hex $FIB_MAP
+a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518221837
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction-to-gordian-envelope"><a class="header" href="#introduction-to-gordian-envelope">Introduction to Gordian Envelope</a></h1>
 <blockquote>
 <p>🚧 <em>forthcoming...</em></p>

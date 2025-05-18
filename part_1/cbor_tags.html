@@ -441,20 +441,14 @@ Tags intended to assist with implementation, such as invalid tags and programmin
   "alertPayload": "AQIDBA=="
 }
 </code></pre>
-<p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is base64-encoded binary data (<code>0x01020304</code>).</p>
+<p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is binary data (<code>h'01020304'</code>).</p>
 <p><strong>CBOR Diagnostic Notation (using tags):</strong></p>
 <pre><code>{
-  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    // Tag 37 for UUID
-  "captureTime": 0("2023-10-27T14:30:15.123Z"),           // Tag 0 for RFC3339 string
-  // Alternative: Represent reading as decimal fraction
-  // "reading": 4([-3, -12345]),                          // Tag 4 for decimal fraction
-  "reading": -12.345,                                     // Using standard float for simplicity here
-  "readingScale": -3,                                     // Simple integer
-  "rawValue": -12345,                                     // Simple integer
-  "statusURL": 32("https://example.com/status/f81d4fae"), // Tag 32 for URI
-  "alertPayload": h'01020304'                             // Direct byte string
-  // Alternative: Use Tag 22 hint if JSON interop requires base64
-  // "alertPayload": 22(h'01020304')
+  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
+  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
+  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
+  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
+  "alertPayload": h'01020304'                             # Direct byte string
 }
 </code></pre>
 <p>This example illustrates how tags integrate seamlessly into the CBOR structure. Tag 37 clearly identifies the <code>sensorID</code> bytes as a UUID, Tag 0 provides a standard string representation for <code>captureTime</code>, and Tag 32 marks the <code>statusURL</code> string as a URI. We chose to represent <code>reading</code> as a standard float, but Tag 4 could have been used for exact decimal precision if required by the application. For <code>alertPayload</code>, we used a direct byte string, as CBOR handles binary natively; Tag 22 could be added as a hint if this data frequently needs conversion to base64 for JSON compatibility. The tags add semantic precision and clarity beyond what the JSON representation alone could offer directly.</p>
