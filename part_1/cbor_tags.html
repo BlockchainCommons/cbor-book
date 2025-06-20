@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -41,6 +42,17 @@
         <script src="../toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +130,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -229,8 +241,8 @@
 <h3 id="tag-nesting"><a class="header" href="#tag-nesting">Tag Nesting</a></h3>
 <p>Tags can be nested. A tag can enclose another tag, which in turn encloses a data item. For example, consider <code>TagA(TagB(ItemC))</code>. The interpretation applies from the inside out: <code>TagB</code> modifies or adds semantics to <code>ItemC</code>, and then <code>TagA</code> applies to the result of <code>TagB(ItemC)</code>.</p>
 <p>Later in the book we'll discuss Gordian Envelope. The CBOR diagnostic notation for a very simple envelope containing just a text string might look like this:</p>
-<pre><code>200(201("Hello, envelope!"))
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">200</span><span style="color:#333333">(</span><span style="color:#0E76B0">201</span><span style="color:#333333">(</span><span style="color:#0B631E">"Hello, envelope!"</span><span style="color:#333333">))</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">200</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">201</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"Hello, envelope!"</span><span style="color:#BBBBBB">))</span></span></code></pre></div>
 <p>Tag 200 is registered with IANA as "Gordian Envelope". So anytime you encounter tag 200, you know you're looking at a Gordian Envelope. The tag 201 represents dCBOR (deterministic CBOR), which we'll also cover in this book. In the Gordian Envelope specification, an Envelope containing just dCBOR is a <code>LEAF</code> node, which can be any valid dCBOR-- in this case, a text string.</p>
 <h2 id="finding-your-tags-the-iana-registry"><a class="header" href="#finding-your-tags-the-iana-registry">Finding Your Tags: The IANA Registry</a></h2>
 <p>With potentially 2⁶⁴ tag numbers available, how do we ensure that different applications don't use the same number for conflicting purposes? With that many tags, you could just pick them at random and be pretty certain nobody else is using them, but there's a better way! The Internet Assigned Numbers Authority (IANA) maintains the official <a href="https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml">Concise Binary Object Representation (CBOR) Tags registry</a>.</p>
@@ -430,8 +442,7 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 </code></pre>
 <h2 id="example-tags-in-action"><a class="header" href="#example-tags-in-action">Example: Tags in Action:</a></h2>
 <p>Let's see how these tags combine with basic CBOR types to represent a more complex data structure. Consider this JSON object representing a hypothetical sensor reading message:</p>
-<p><strong>JSON:</strong></p>
-<pre><code>{
+<pre><code class="language-json">{
   "sensorID": "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
   "captureTime": "2023-10-27T14:30:15.123Z",
   "reading": -12.345,
@@ -443,14 +454,20 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 </code></pre>
 <p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is binary data (<code>h'01020304'</code>).</p>
 <p><strong>CBOR Diagnostic Notation (using tags):</strong></p>
-<pre><code>{
-  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
-  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
-  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
-  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
-  "alertPayload": h'01020304'                             # Direct byte string
-}
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">  "sensorID"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 37</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696">    # Tag 37 for UUID</span></span>
+<span class="line"><span style="color:#0B631E">  "captureTime"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 0</span><span style="color:#333333">(</span><span style="color:#0B631E">"2023-10-27T14:30:15.123Z"</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696">           # Tag 0 for RFC3339 string</span></span>
+<span class="line"><span style="color:#0B631E">  "reading"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 4</span><span style="color:#333333">([</span><span style="color:#0E76B0">-3,</span><span style="color:#0E76B0"> -12345</span><span style="color:#333333">])</span><span style="color:#0E76B0">,</span><span style="color:#979696">                             # Tag 4 for decimal fraction</span></span>
+<span class="line"><span style="color:#0B631E">  "statusURL"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 32</span><span style="color:#333333">(</span><span style="color:#0B631E">"https://example.com/status/f81d4fae"</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696"> # Tag 32 for URI</span></span>
+<span class="line"><span style="color:#0B631E">  "alertPayload"</span><span style="color:#0E76B0">:</span><span style="color:#0D7D65"> h'01020304'</span><span style="color:#979696">                             # Direct byte string</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">  "sensorID"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 37</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">    # Tag 37 for UUID</span></span>
+<span class="line"><span style="color:#8ABE5E">  "captureTime"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 0</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"2023-10-27T14:30:15.123Z"</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">           # Tag 0 for RFC3339 string</span></span>
+<span class="line"><span style="color:#8ABE5E">  "reading"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 4</span><span style="color:#BBBBBB">(</span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">-3,</span><span style="color:#34A5DA"> -12345</span><span style="color:#D4D4D4">]</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">                             # Tag 4 for decimal fraction</span></span>
+<span class="line"><span style="color:#8ABE5E">  "statusURL"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 32</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"https://example.com/status/f81d4fae"</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C"> # Tag 32 for URI</span></span>
+<span class="line"><span style="color:#8ABE5E">  "alertPayload"</span><span style="color:#34A5DA">:</span><span style="color:#4EC9B0"> h'01020304'</span><span style="color:#8D8C8C">                             # Direct byte string</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
 <p>This example illustrates how tags integrate seamlessly into the CBOR structure. Tag 37 clearly identifies the <code>sensorID</code> bytes as a UUID, Tag 0 provides a standard string representation for <code>captureTime</code>, and Tag 32 marks the <code>statusURL</code> string as a URI. We chose to represent <code>reading</code> as a standard float, but Tag 4 could have been used for exact decimal precision if required by the application. For <code>alertPayload</code>, we used a direct byte string, as CBOR handles binary natively; Tag 22 could be added as a hint if this data frequently needs conversion to base64 for JSON compatibility. The tags add semantic precision and clarity beyond what the JSON representation alone could offer directly.</p>
 <h2 id="conclusion-the-power-of-extensibility"><a class="header" href="#conclusion-the-power-of-extensibility">Conclusion: The Power of Extensibility</a></h2>
 <p>CBOR Tags (Major Type 6) are the primary mechanism for extending CBOR's data model beyond its fundamental types. They provide a standardized way to imbue data items with specific semantic meaning, enabling the representation of complex types like dates, times, large or high-precision numbers, URIs, UUIDs, and much more, all while maintaining CBOR's characteristic compactness.1 The IANA registry plays a vital role in ensuring interoperability by providing a central authority for tag definitions, while the tiered registration system balances the need for stable, standardized core tags with flexibility for application-specific extensions.1</p>

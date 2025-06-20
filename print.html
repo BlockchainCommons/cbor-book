@@ -30,6 +30,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -42,6 +43,17 @@
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -119,7 +131,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -781,8 +793,8 @@ and other contributors to Blockchain Commons.</p>
 <blockquote>
 <p>If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:</p>
 </blockquote>
-<pre><code>"\"Hello\""
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0B631E">"\"Hello\""</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#8ABE5E">"\"Hello\""</span></span></code></pre></div>
 <blockquote>
 <p>So backslash escapes are part of CBOR Diagnostic Notation, but <em>not</em> part of the CBOR encoding itself.</p>
 </blockquote>
@@ -873,8 +885,7 @@ and other contributors to Blockchain Commons.</p>
 <p>For the most up-to-date information, refer to the <a href="https://www.iana.org/assignments/cbor-simple-values/cbor-simple-values.xhtml">IANA CBOR Simple Values registry</a>.</p>
 <h2 id="putting-it-together-a-nested-example"><a class="header" href="#putting-it-together-a-nested-example">Putting It Together: A Nested Example</a></h2>
 <p>Now let's combine these elements into a more complex, nested structure. Consider the following JSON object:</p>
-<p>JSON</p>
-<pre><code>{
+<pre><code class="language-json">{
   "name": "Gadget",
   "id": 12345,
   "enabled": true,
@@ -890,20 +901,32 @@ and other contributors to Blockchain Commons.</p>
 </code></pre>
 <p>Note that the <code>"data"</code> value in JSON is base64 encoded, representing the bytes <code>0x01, 0x00, 0x00, 0xff</code>. In CBOR, we can represent this directly as a byte string.</p>
 <p><strong>CBOR Diagnostic Notation:</strong></p>
-<pre><code>{
-  "name": "Gadget",
-  "id": 12345,
-  "enabled": true,
-  "parts": [
-    "bolt",
-    "nut"
-  ],
-  "spec": {
-    "size": 10.5,
-    "data": h'010000ff'
-  }
-}
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">  "name"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Gadget"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "id"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 12345,</span></span>
+<span class="line"><span style="color:#0B631E">  "enabled"</span><span style="color:#0E76B0">:</span><span style="color:#5D3CA9"> true</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "parts"</span><span style="color:#0E76B0">:</span><span style="color:#333333"> [</span></span>
+<span class="line"><span style="color:#0B631E">    "bolt"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">    "nut"</span></span>
+<span class="line"><span style="color:#333333">  ]</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "spec"</span><span style="color:#0E76B0">:</span><span style="color:#333333"> {</span></span>
+<span class="line"><span style="color:#0B631E">    "size"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 10.5,</span></span>
+<span class="line"><span style="color:#0B631E">    "data"</span><span style="color:#0E76B0">:</span><span style="color:#0D7D65"> h'010000ff'</span></span>
+<span class="line"><span style="color:#333333">  }</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">  "name"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Gadget"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "id"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 12345,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "enabled"</span><span style="color:#34A5DA">:</span><span style="color:#9C9CF9"> true</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "parts"</span><span style="color:#34A5DA">:</span><span style="color:#D4D4D4"> [</span></span>
+<span class="line"><span style="color:#8ABE5E">    "bolt"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "nut"</span></span>
+<span class="line"><span style="color:#D4D4D4">  ]</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "spec"</span><span style="color:#34A5DA">:</span><span style="color:#BBBBBB"> {</span></span>
+<span class="line"><span style="color:#8ABE5E">    "size"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 10.5,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "data"</span><span style="color:#34A5DA">:</span><span style="color:#4EC9B0"> h'010000ff'</span></span>
+<span class="line"><span style="color:#BBBBBB">  }</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
 <p><strong>CBOR Hexadecimal Encoding with Commentary:</strong></p>
 <pre><code>a5                     # map(5 pairs follow)
    64 6e616d65         # key 0: text (4 bytes, "name")
@@ -1010,8 +1033,8 @@ and other contributors to Blockchain Commons.</p>
 <h3 id="tag-nesting"><a class="header" href="#tag-nesting">Tag Nesting</a></h3>
 <p>Tags can be nested. A tag can enclose another tag, which in turn encloses a data item. For example, consider <code>TagA(TagB(ItemC))</code>. The interpretation applies from the inside out: <code>TagB</code> modifies or adds semantics to <code>ItemC</code>, and then <code>TagA</code> applies to the result of <code>TagB(ItemC)</code>.</p>
 <p>Later in the book we'll discuss Gordian Envelope. The CBOR diagnostic notation for a very simple envelope containing just a text string might look like this:</p>
-<pre><code>200(201("Hello, envelope!"))
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">200</span><span style="color:#333333">(</span><span style="color:#0E76B0">201</span><span style="color:#333333">(</span><span style="color:#0B631E">"Hello, envelope!"</span><span style="color:#333333">))</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">200</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">201</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"Hello, envelope!"</span><span style="color:#BBBBBB">))</span></span></code></pre></div>
 <p>Tag 200 is registered with IANA as "Gordian Envelope". So anytime you encounter tag 200, you know you're looking at a Gordian Envelope. The tag 201 represents dCBOR (deterministic CBOR), which we'll also cover in this book. In the Gordian Envelope specification, an Envelope containing just dCBOR is a <code>LEAF</code> node, which can be any valid dCBOR-- in this case, a text string.</p>
 <h2 id="finding-your-tags-the-iana-registry"><a class="header" href="#finding-your-tags-the-iana-registry">Finding Your Tags: The IANA Registry</a></h2>
 <p>With potentially 2⁶⁴ tag numbers available, how do we ensure that different applications don't use the same number for conflicting purposes? With that many tags, you could just pick them at random and be pretty certain nobody else is using them, but there's a better way! The Internet Assigned Numbers Authority (IANA) maintains the official <a href="https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml">Concise Binary Object Representation (CBOR) Tags registry</a>.</p>
@@ -1211,8 +1234,7 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 </code></pre>
 <h2 id="example-tags-in-action"><a class="header" href="#example-tags-in-action">Example: Tags in Action:</a></h2>
 <p>Let's see how these tags combine with basic CBOR types to represent a more complex data structure. Consider this JSON object representing a hypothetical sensor reading message:</p>
-<p><strong>JSON:</strong></p>
-<pre><code>{
+<pre><code class="language-json">{
   "sensorID": "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
   "captureTime": "2023-10-27T14:30:15.123Z",
   "reading": -12.345,
@@ -1224,14 +1246,20 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 </code></pre>
 <p>Here, <code>sensorID</code> is a UUID, <code>captureTime</code> is a standard timestamp, <code>reading</code> could be represented as a decimal fraction (<code>-12345 * 10^-3</code>), <code>statusURL</code> is a URI, and <code>alertPayload</code> is binary data (<code>h'01020304'</code>).</p>
 <p><strong>CBOR Diagnostic Notation (using tags):</strong></p>
-<pre><code>{
-  "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
-  "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
-  "reading": 4([-3, -12345]),                             # Tag 4 for decimal fraction
-  "statusURL": 32("https://example.com/status/f81d4fae"), # Tag 32 for URI
-  "alertPayload": h'01020304'                             # Direct byte string
-}
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">  "sensorID"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 37</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696">    # Tag 37 for UUID</span></span>
+<span class="line"><span style="color:#0B631E">  "captureTime"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 0</span><span style="color:#333333">(</span><span style="color:#0B631E">"2023-10-27T14:30:15.123Z"</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696">           # Tag 0 for RFC3339 string</span></span>
+<span class="line"><span style="color:#0B631E">  "reading"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 4</span><span style="color:#333333">([</span><span style="color:#0E76B0">-3,</span><span style="color:#0E76B0"> -12345</span><span style="color:#333333">])</span><span style="color:#0E76B0">,</span><span style="color:#979696">                             # Tag 4 for decimal fraction</span></span>
+<span class="line"><span style="color:#0B631E">  "statusURL"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 32</span><span style="color:#333333">(</span><span style="color:#0B631E">"https://example.com/status/f81d4fae"</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696"> # Tag 32 for URI</span></span>
+<span class="line"><span style="color:#0B631E">  "alertPayload"</span><span style="color:#0E76B0">:</span><span style="color:#0D7D65"> h'01020304'</span><span style="color:#979696">                             # Direct byte string</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">  "sensorID"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 37</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">    # Tag 37 for UUID</span></span>
+<span class="line"><span style="color:#8ABE5E">  "captureTime"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 0</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"2023-10-27T14:30:15.123Z"</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">           # Tag 0 for RFC3339 string</span></span>
+<span class="line"><span style="color:#8ABE5E">  "reading"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 4</span><span style="color:#BBBBBB">(</span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">-3,</span><span style="color:#34A5DA"> -12345</span><span style="color:#D4D4D4">]</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">                             # Tag 4 for decimal fraction</span></span>
+<span class="line"><span style="color:#8ABE5E">  "statusURL"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 32</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"https://example.com/status/f81d4fae"</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C"> # Tag 32 for URI</span></span>
+<span class="line"><span style="color:#8ABE5E">  "alertPayload"</span><span style="color:#34A5DA">:</span><span style="color:#4EC9B0"> h'01020304'</span><span style="color:#8D8C8C">                             # Direct byte string</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
 <p>This example illustrates how tags integrate seamlessly into the CBOR structure. Tag 37 clearly identifies the <code>sensorID</code> bytes as a UUID, Tag 0 provides a standard string representation for <code>captureTime</code>, and Tag 32 marks the <code>statusURL</code> string as a URI. We chose to represent <code>reading</code> as a standard float, but Tag 4 could have been used for exact decimal precision if required by the application. For <code>alertPayload</code>, we used a direct byte string, as CBOR handles binary natively; Tag 22 could be added as a hint if this data frequently needs conversion to base64 for JSON compatibility. The tags add semantic precision and clarity beyond what the JSON representation alone could offer directly.</p>
 <h2 id="conclusion-the-power-of-extensibility"><a class="header" href="#conclusion-the-power-of-extensibility">Conclusion: The Power of Extensibility</a></h2>
 <p>CBOR Tags (Major Type 6) are the primary mechanism for extending CBOR's data model beyond its fundamental types. They provide a standardized way to imbue data items with specific semantic meaning, enabling the representation of complex types like dates, times, large or high-precision numbers, URIs, UUIDs, and much more, all while maintaining CBOR's characteristic compactness.1 The IANA registry plays a vital role in ensuring interoperability by providing a central authority for tag definitions, while the tiered registration system balances the need for stable, standardized core tags with flexibility for application-specific extensions.1</p>
@@ -1626,11 +1654,11 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 <p>The fragility in the face of malformed items is a direct consequence of the design choice to omit explicit delimiters for the sake of conciseness. Unlike newline-delimited formats like NDJSON, where a parser can often resynchronize by searching for the next newline character even after encountering invalid JSON, a CBOR Sequence parser relies entirely on the internal integrity of each item to navigate the byte stream. If an item's structure is compromised, the parser effectively becomes lost. This implies that applications relying on CBOR Sequences should prioritize robust data validation <em>before</em> or <em>during</em> sequence generation, or they must be prepared for the possibility that transmission errors affecting a single item could render a large portion of a sequence unusable. For applications demanding higher resilience against such errors, incorporating additional framing or error-checking mechanisms at a higher protocol layer might be necessary.</p>
 <h2 id="cbor-sequences-in-diagnostic-notation"><a class="header" href="#cbor-sequences-in-diagnostic-notation">CBOR Sequences in Diagnostic Notation</a></h2>
 <p>The current draft for <a href="https://www.ietf.org/archive/id/draft-ietf-cbor-edn-literals-16.html">CBOR Extended Diagnostic Notation</a> (EDN) proposes a way to represent CBOR Sequences in a human-readable format using <code>&lt;&lt;</code> and <code>&gt;&gt;</code> as delimiters, with the items separated by commas:</p>
-<pre><code>&lt;&lt; item1, item2, item3, ... &gt;&gt;
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#886200">&#x3C;&#x3C;</span><span style="color:#9E5C1A"> item1</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A"> item2</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A"> item3</span><span style="color:#0E76B0">,</span><span style="color:#979696"> ...</span><span style="color:#886200"> >></span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FFFF00">&#x3C;&#x3C;</span><span style="color:#FDCB56"> item1</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56"> item2</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56"> item3</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C"> ...</span><span style="color:#FFFF00"> >></span></span></code></pre></div>
 <p>The sequence from the example given above would be represented as:</p>
-<pre><code>&lt;&lt; 1, "foo", true &gt;&gt;
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#886200">&#x3C;&#x3C;</span><span style="color:#0E76B0"> 1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#886200"> >></span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FFFF00">&#x3C;&#x3C;</span><span style="color:#34A5DA"> 1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#FFFF00"> >></span></span></code></pre></div>
 <p>If you enter this into the <a href="https://cbor.me">CBOR Playground</a> and convert it to the serialized hexadecimal representation, you'll see that it converts the sequence to a CBOR byte string:</p>
 <pre><code>46              # bytes(6)
    0163666F6FF5
@@ -1643,8 +1671,8 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 </code></pre>
 <p>The fact that the byte string header <code>0x46</code> is included might be confusing, as it implies that the sequence is a single item.</p>
 <p>When we convert the serialized sequence back into diagnostic notation, we just get the byte string representation, as we would expect:</p>
-<pre><code>h'0163666F6FF5'
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0D7D65">h'0163666F6FF5'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#4EC9B0">h'0163666F6FF5'</span></span></code></pre></div>
 <p>CBOR arrays begin with a header that specifies the array's fixed length, and indefinite-length arrays begin with the <em>indefinite array</em> item and end with the <em>break</em> item. But sequences do not themselves have delimiters or other framing.</p>
 <p>The EDN notation is just a way to represent the sequence in a human-readable format, but it does not change the underlying encoding of the sequence itself. Sequences serialized this way are therefor not self-identifying. A CBOR decoder could be instructed to decode a byte string as a sequence, but the fact that it <em>is</em> a sequence cannot be determined by inspecting the byte string itself.</p>
 <h2 id="practical-use-cases"><a class="header" href="#practical-use-cases">Practical Use Cases</a></h2>
@@ -2597,10 +2625,11 @@ gadget-spec = {
 <div style="break-before: page; page-break-before: always;"></div><h1 id="using-dcbor"><a class="header" href="#using-dcbor">Using dCBOR</a></h1>
 <p>So after all that discussion of the motivation for dCBOR, let's just recap its rules all in one place, and specifically how they differ from basic CBOR:</p>
 <ul>
-<li><strong>Map Keys</strong>: No duplicates. Must be serialized sorted lexicographically by the serialized key.</li>
 <li><strong>Numeric Values</strong>: "Preferred Serialization" isn't just preferred, it's required.</li>
 <li><strong>Numeric Reduction</strong>: Floating point values that can accurately be represented as integers must be serialized as integers.</li>
-<li><strong>Indefinite Length</strong>: Indefinite length values are not allowed.</li>
+<li><strong>No NaNs with Payloads</strong>: Did you even know NaN has “payloads”?</li>
+<li><strong>Map Keys</strong>: No duplicates. Must be serialized sorted lexicographically by the serialized key.</li>
+<li><strong>Indefinite Lengths</strong>: Indefinite length arrays, maps, bytestrings, and strings are not allowed.</li>
 <li><strong>Simple Values</strong>: Only <code>false</code>, <code>true</code>, and <code>null</code> are allowed.</li>
 <li><strong>Strings</strong>: Must be encoded in Unicode Normalization Form C (NFC).</li>
 <li><strong>Decoders</strong>: Must check all the rules above and reject any serialization that doesn't conform to them.</li>
@@ -10788,12 +10817,12 @@ assert_eq!(format!("{}", cbor), expected_display_cbor);
 </ul>
 <p>Each of these formats is useful in its own way, so knowing when to use each one will help you get the most out of the <code>dcbor</code> library.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-dcbor-command-line-tool"><a class="header" href="#the-dcbor-command-line-tool">The <code>dcbor</code> Command Line Tool</a></h1>
-<p>The <code>dcbor</code> command line tool is a simple utility that allows you to encode and decode CBOR data using the <code>dCBOR</code> library. It is designed to be easy to use and provides a convenient way to work with CBOR data from the command line.</p>
+<p>The <code>dcbor</code> tool is an easy to use tool facilitates encoding and decoding dCBOR data from the command line or scripts.</p>
 <blockquote>
-<p>✅ <strong>TIP:</strong> This chapter assumes some familiarity with the command line, also called the <em>shell</em>. If you're not comfortable using the shell, you may want to refer to the <a href="https://www.codecademy.com/learn/learn-the-command-line">Command Line Basics</a> course on Codecademy or similar resources.</p>
+<p>✅ <strong>TIP:</strong> This chapter assumes some familiarity with the command line, also called the <em>shell</em>. If you're not comfortable using the shell, you may want to refer to the <a href="https://www.codecademy.com/learn/learn-the-command-line">Command Line Basics</a> course on CodeAcademy or similar resources.</p>
 </blockquote>
 <h2 id="installation-1"><a class="header" href="#installation-1">Installation</a></h2>
-<p>To install the <code>dcbor</code> CLI tool, you need to have Rust and Cargo installed on your system. If you don't have them installed, you can follow the instructions on the <a href="https://www.rust-lang.org/tools/install">Rust website</a> to get started.</p>
+<p>To install the <code>dcbor</code> CLI tool, you need to have Rust and <code>cargo</code> installed on your system. If you don't have them installed, you can follow the instructions on the <a href="https://www.rust-lang.org/tools/install">Rust website</a> to get started.</p>
 <p>Once you have Rust and Cargo installed, you can install the <code>dcbor</code> tool by running the following command:</p>
 <pre><code class="language-bash">$ cargo install dcbor-cli
 </code></pre>
@@ -10829,17 +10858,24 @@ assert_eq!(format!("{}", cbor), expected_display_cbor);
 fb40091eb851eb851f
 </code></pre>
 <h2 id="quoting-input"><a class="header" href="#quoting-input">Quoting Input</a></h2>
-<p>For simple cases like the ones above, you don't need to do anything special with quoting the input. But in many cases you'll need to understand how the shell's use of quotes interacts with CBOR diagnostic notation.</p>
-<p>For example, in CBOR diagnostic notation, a string is quoted with double quotes, so for the <code>dcbor</code> tool to recognize it as a string, you need to include the double quotes in the input. But in the shell, double quotes are already used to quote the entire argument. If you naively run this command you'll get an error:</p>
+<p>For simple cases like the ones above, you don't need to do anything special with quoting the input. But in many cases you'll need to understand how the shell's use of quotes interacts with CBOR diagnostic notation, because the shell and CBOR diagnostic notation both use single and double quotes for their own purposes.</p>
+<p>For example, in CBOR diagnostic notation, a string is quoted with <code>"double quotes"</code>, so for the <code>dcbor</code> tool to recognize it as a string, you need to include the double quotes in the input. But in the shell, double quotes are also used to group a sequence of characters into an argument. So the following command has two arguments:</p>
+<pre><code class="language-bash">$ ls "First File" "Second File"
+</code></pre>
+<p>The shell <code>ls</code> command will see two arguments, <em>without</em> the quotes. The first argument is <code>First File</code>, and the second argument is <code>Second File</code>. If you passed the command without quotes, the shell would see four arguments:</p>
+<pre><code class="language-bash">$ ls First File Second File
+</code></pre>
+<p>So back to <code>dcbor</code>, if you naïvely run this command you'll get an error:</p>
 <pre><code class="language-bash">$ dcbor "Hello"
 Error: line 1: Unrecognized token
 Hello
 ^
 </code></pre>
-<p>This is because the shell is interpreting the double quotes as something to be stripped off. To get around this, you can use single quotes to quote the entire argument:</p>
+<p>This is because the shell is interpreting the double quotes as its own argument grouping syntax, and strips them off, even though <code>dcbor</code> still needs them. To get around this, you can use single quotes to quote the entire argument:</p>
 <pre><code class="language-bash">$ dcbor '"Hello"'
 6548656c6c6f
 </code></pre>
+<p>The shell can use either single or double quotes to group arguments.</p>
 <p>Another option is to escape the inner double quotes with a backslash:</p>
 <pre><code class="language-bash">$ dcbor "\"Hello\""
 6548656c6c6f
@@ -10887,7 +10923,7 @@ EOF
 <tr><td>Boolean</td><td><code>true</code><br><code>false</code></td></tr>
 <tr><td>Null</td><td><code>null</code></td></tr>
 <tr><td>Integers</td><td><code>0</code><br><code>1</code><br><code>-1</code><br><code>42</code></td></tr>
-<tr><td>Floats</td><td><code>3.14</code><br><code>-2.5</code><br><code>Infinity</code><br><code>-Infinity</code><br><code>NAN</code></td></tr>
+<tr><td>Floats</td><td><code>3.14</code><br><code>-2.5</code><br><code>Infinity</code><br><code>-Infinity</code><br><code>NaN</code></td></tr>
 <tr><td>Strings</td><td><code>"hello"</code><br><code>"🌎"</code></td></tr>
 <tr><td>Hex Byte Strings</td><td><code>h'68656c6c6f'</code></td></tr>
 <tr><td>Base64 Byte Strings</td><td><code>b64'AQIDBAUGBwgJCg=='</code></td></tr>

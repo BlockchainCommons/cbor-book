@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -41,6 +42,17 @@
         <script src="../toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +130,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -301,8 +313,8 @@
 <blockquote>
 <p>If you use the CBOR Playground to convert this to Diagnostic Notation, you'll get:</p>
 </blockquote>
-<pre><code>"\"Hello\""
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0B631E">"\"Hello\""</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#8ABE5E">"\"Hello\""</span></span></code></pre></div>
 <blockquote>
 <p>So backslash escapes are part of CBOR Diagnostic Notation, but <em>not</em> part of the CBOR encoding itself.</p>
 </blockquote>
@@ -393,8 +405,7 @@
 <p>For the most up-to-date information, refer to the <a href="https://www.iana.org/assignments/cbor-simple-values/cbor-simple-values.xhtml">IANA CBOR Simple Values registry</a>.</p>
 <h2 id="putting-it-together-a-nested-example"><a class="header" href="#putting-it-together-a-nested-example">Putting It Together: A Nested Example</a></h2>
 <p>Now let's combine these elements into a more complex, nested structure. Consider the following JSON object:</p>
-<p>JSON</p>
-<pre><code>{
+<pre><code class="language-json">{
   "name": "Gadget",
   "id": 12345,
   "enabled": true,
@@ -410,20 +421,32 @@
 </code></pre>
 <p>Note that the <code>"data"</code> value in JSON is base64 encoded, representing the bytes <code>0x01, 0x00, 0x00, 0xff</code>. In CBOR, we can represent this directly as a byte string.</p>
 <p><strong>CBOR Diagnostic Notation:</strong></p>
-<pre><code>{
-  "name": "Gadget",
-  "id": 12345,
-  "enabled": true,
-  "parts": [
-    "bolt",
-    "nut"
-  ],
-  "spec": {
-    "size": 10.5,
-    "data": h'010000ff'
-  }
-}
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">  "name"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Gadget"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "id"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 12345,</span></span>
+<span class="line"><span style="color:#0B631E">  "enabled"</span><span style="color:#0E76B0">:</span><span style="color:#5D3CA9"> true</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "parts"</span><span style="color:#0E76B0">:</span><span style="color:#333333"> [</span></span>
+<span class="line"><span style="color:#0B631E">    "bolt"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">    "nut"</span></span>
+<span class="line"><span style="color:#333333">  ]</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">  "spec"</span><span style="color:#0E76B0">:</span><span style="color:#333333"> {</span></span>
+<span class="line"><span style="color:#0B631E">    "size"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 10.5,</span></span>
+<span class="line"><span style="color:#0B631E">    "data"</span><span style="color:#0E76B0">:</span><span style="color:#0D7D65"> h'010000ff'</span></span>
+<span class="line"><span style="color:#333333">  }</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">  "name"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Gadget"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "id"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 12345,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "enabled"</span><span style="color:#34A5DA">:</span><span style="color:#9C9CF9"> true</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "parts"</span><span style="color:#34A5DA">:</span><span style="color:#D4D4D4"> [</span></span>
+<span class="line"><span style="color:#8ABE5E">    "bolt"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "nut"</span></span>
+<span class="line"><span style="color:#D4D4D4">  ]</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">  "spec"</span><span style="color:#34A5DA">:</span><span style="color:#BBBBBB"> {</span></span>
+<span class="line"><span style="color:#8ABE5E">    "size"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 10.5,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "data"</span><span style="color:#34A5DA">:</span><span style="color:#4EC9B0"> h'010000ff'</span></span>
+<span class="line"><span style="color:#BBBBBB">  }</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
 <p><strong>CBOR Hexadecimal Encoding with Commentary:</strong></p>
 <pre><code>a5                     # map(5 pairs follow)
    64 6e616d65         # key 0: text (4 bytes, "name")

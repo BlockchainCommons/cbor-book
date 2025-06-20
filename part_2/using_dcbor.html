@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -41,6 +42,17 @@
         <script src="../toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +130,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -158,10 +170,11 @@
                         <h1 id="using-dcbor"><a class="header" href="#using-dcbor">Using dCBOR</a></h1>
 <p>So after all that discussion of the motivation for dCBOR, let's just recap its rules all in one place, and specifically how they differ from basic CBOR:</p>
 <ul>
-<li><strong>Map Keys</strong>: No duplicates. Must be serialized sorted lexicographically by the serialized key.</li>
 <li><strong>Numeric Values</strong>: "Preferred Serialization" isn't just preferred, it's required.</li>
 <li><strong>Numeric Reduction</strong>: Floating point values that can accurately be represented as integers must be serialized as integers.</li>
-<li><strong>Indefinite Length</strong>: Indefinite length values are not allowed.</li>
+<li><strong>No NaNs with Payloads</strong>: Did you even know NaN has “payloads”?</li>
+<li><strong>Map Keys</strong>: No duplicates. Must be serialized sorted lexicographically by the serialized key.</li>
+<li><strong>Indefinite Lengths</strong>: Indefinite length arrays, maps, bytestrings, and strings are not allowed.</li>
 <li><strong>Simple Values</strong>: Only <code>false</code>, <code>true</code>, and <code>null</code> are allowed.</li>
 <li><strong>Strings</strong>: Must be encoded in Unicode Normalization Form C (NFC).</li>
 <li><strong>Decoders</strong>: Must check all the rules above and reject any serialization that doesn't conform to them.</li>

@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -41,6 +42,17 @@
         <script src="../toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +130,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -244,11 +256,11 @@
 <p>The fragility in the face of malformed items is a direct consequence of the design choice to omit explicit delimiters for the sake of conciseness. Unlike newline-delimited formats like NDJSON, where a parser can often resynchronize by searching for the next newline character even after encountering invalid JSON, a CBOR Sequence parser relies entirely on the internal integrity of each item to navigate the byte stream. If an item's structure is compromised, the parser effectively becomes lost. This implies that applications relying on CBOR Sequences should prioritize robust data validation <em>before</em> or <em>during</em> sequence generation, or they must be prepared for the possibility that transmission errors affecting a single item could render a large portion of a sequence unusable. For applications demanding higher resilience against such errors, incorporating additional framing or error-checking mechanisms at a higher protocol layer might be necessary.</p>
 <h2 id="cbor-sequences-in-diagnostic-notation"><a class="header" href="#cbor-sequences-in-diagnostic-notation">CBOR Sequences in Diagnostic Notation</a></h2>
 <p>The current draft for <a href="https://www.ietf.org/archive/id/draft-ietf-cbor-edn-literals-16.html">CBOR Extended Diagnostic Notation</a> (EDN) proposes a way to represent CBOR Sequences in a human-readable format using <code>&lt;&lt;</code> and <code>&gt;&gt;</code> as delimiters, with the items separated by commas:</p>
-<pre><code>&lt;&lt; item1, item2, item3, ... &gt;&gt;
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#886200">&#x3C;&#x3C;</span><span style="color:#9E5C1A"> item1</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A"> item2</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A"> item3</span><span style="color:#0E76B0">,</span><span style="color:#979696"> ...</span><span style="color:#886200"> >></span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FFFF00">&#x3C;&#x3C;</span><span style="color:#FDCB56"> item1</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56"> item2</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56"> item3</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C"> ...</span><span style="color:#FFFF00"> >></span></span></code></pre></div>
 <p>The sequence from the example given above would be represented as:</p>
-<pre><code>&lt;&lt; 1, "foo", true &gt;&gt;
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#886200">&#x3C;&#x3C;</span><span style="color:#0E76B0"> 1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#886200"> >></span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FFFF00">&#x3C;&#x3C;</span><span style="color:#34A5DA"> 1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#FFFF00"> >></span></span></code></pre></div>
 <p>If you enter this into the <a href="https://cbor.me">CBOR Playground</a> and convert it to the serialized hexadecimal representation, you'll see that it converts the sequence to a CBOR byte string:</p>
 <pre><code>46              # bytes(6)
    0163666F6FF5
@@ -261,8 +273,8 @@
 </code></pre>
 <p>The fact that the byte string header <code>0x46</code> is included might be confusing, as it implies that the sequence is a single item.</p>
 <p>When we convert the serialized sequence back into diagnostic notation, we just get the byte string representation, as we would expect:</p>
-<pre><code>h'0163666F6FF5'
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0D7D65">h'0163666F6FF5'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#4EC9B0">h'0163666F6FF5'</span></span></code></pre></div>
 <p>CBOR arrays begin with a header that specifies the array's fixed length, and indefinite-length arrays begin with the <em>indefinite array</em> item and end with the <em>break</em> item. But sequences do not themselves have delimiters or other framing.</p>
 <p>The EDN notation is just a way to represent the sequence in a human-readable format, but it does not change the underlying encoding of the sequence itself. Sequences serialized this way are therefor not self-identifying. A CBOR decoder could be instructed to decode a byte string as a sequence, but the fact that it <em>is</em> a sequence cannot be determined by inspecting the byte string itself.</p>
 <h2 id="practical-use-cases"><a class="header" href="#practical-use-cases">Practical Use Cases</a></h2>

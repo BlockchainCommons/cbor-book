@@ -1,0 +1,78 @@
+/* Custom CSS for dCBOR Envelope syntax highlighting theme switching */
+
+/* Hide dark theme content by default (light theme is default) */
+.dark-theme-only {
+  display: none;
+}
+
+/* Show light theme content by default */
+.light-theme-only {
+  display: block;
+}
+
+/* When mdbook switches to dark theme - covers all dark themes */
+html[data-theme="coal"] .dark-theme-only,
+html[data-theme="navy"] .dark-theme-only,
+html[data-theme="ayu"] .dark-theme-only,
+.coal .dark-theme-only,
+.navy .dark-theme-only,
+.ayu .dark-theme-only {
+  display: block;
+}
+
+html[data-theme="coal"] .light-theme-only,
+html[data-theme="navy"] .light-theme-only,
+html[data-theme="ayu"] .light-theme-only,
+.coal .light-theme-only,
+.navy .light-theme-only,
+.ayu .light-theme-only {
+  display: none;
+}
+
+/* For light themes */
+html[data-theme="light"] .light-theme-only,
+html[data-theme="rust"] .light-theme-only,
+.light .light-theme-only,
+.rust .light-theme-only {
+  display: block;
+}
+
+html[data-theme="light"] .dark-theme-only,
+html[data-theme="rust"] .dark-theme-only,
+.light .dark-theme-only,
+.rust .dark-theme-only {
+  display: none;
+}
+
+/* Ensure smooth transitions */
+.dark-theme-only,
+.light-theme-only {
+  transition: opacity 0.2s ease;
+}
+
+/* Ensure both theme blocks take up the same space to prevent layout shift */
+.light-theme-only,
+.dark-theme-only {
+  margin: 0;
+}
+
+/* Make sure the wrapper containers don't add extra spacing */
+.light-theme-only > pre,
+.dark-theme-only > pre {
+  margin: 0;
+}
+
+/* Optional: Add a subtle indicator when themes switch (for debugging) */
+/*
+.dark-theme-only::before {
+    content: "🌙 ";
+    opacity: 0.3;
+    font-size: 0.8em;
+}
+
+.light-theme-only::before {
+    content: "☀️ ";
+    opacity: 0.3;
+    font-size: 0.8em;
+}
+*/
