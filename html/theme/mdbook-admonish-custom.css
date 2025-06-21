@@ -1,0 +1,20 @@
+:root {
+  --md-admonition-icon--admonish-wip: url("data:image/svg+xml;charset=utf-8,<?xml version='1.0' encoding='UTF-8'?><svg width='1200pt' height='1200pt' version='1.1' viewBox='0 0 1200 1200' xmlns='http://www.w3.org/2000/svg'><path d='m1200 120h-120v-120h-120v120h-720v-120h-120v120h-120v480h120v600h120v-240h720v240h120v-600h120zm-636 360 240-240h192l-240 240zm-360 0 240-240h192l-240 240zm72-240-156 156v-156zm684 600h-720v-240h720zm-36-360 156-156v156z'/></svg>");
+}
+
+:is(.admonition):is(.admonish-wip) {
+  border-color: #d0da14;
+}
+
+:is(.admonish-wip) > :is(.admonition-title, summary.admonition-title) {
+  background-color: rgba(167, 171, 36, 0.2);
+}
+:is(.admonish-wip) > :is(.admonition-title, summary.admonition-title)::before {
+  background-color: #fff701;
+  mask-image: var(--md-admonition-icon--admonish-wip);
+  -webkit-mask-image: var(--md-admonition-icon--admonish-wip);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
