@@ -186,13 +186,13 @@
 <h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
 <p>To install the <code>dcbor</code> CLI tool, you need to have Rust and <code>cargo</code> installed on your system. If you don't have them installed, you can follow the instructions on the <a href="https://www.rust-lang.org/tools/install">Rust website</a> to get started.</p>
 <p>Once you have Rust and Cargo installed, you can install the <code>dcbor</code> tool by running the following command:</p>
-<pre><code class="language-bash">$ cargo install dcbor-cli
+<pre><code class="language-bash">cargo install dcbor-cli
 </code></pre>
 <p>You can verify that the installation was successful by running:</p>
-<pre><code class="language-bash">$ dcbor --version
+<pre><code class="language-bash">dcbor --version
 </code></pre>
 <p>You can get help on how to use the <code>dcbor</code> tool by running:</p>
-<pre><code class="language-bash">$ dcbor --help
+<pre><code class="language-bash">dcbor --help
 </code></pre>
 <p>This will display the available options and usage information.</p>
 <h2 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h2>
@@ -211,68 +211,77 @@
 <li><code>none</code> - no output, just validate the input</li>
 </ul>
 <p>The default input format is <code>diag</code>, and the default output format is <code>hex</code>. The hex format is useful for sending to other tools like the <code>envelope</code> command line tool we'll discuss in Part III. So by default you put in some human-readable diagnostic notation and get out some CBOR hex:</p>
-<pre><code class="language-bash">$ dcbor 42
-182a
+<pre><code class="language-bash">dcbor 42
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">182a</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">182a</span></span></code></pre></div>
 <p>In the above example, <code>42</code> is the string input, and <code>182a</code> is the hexadecimal output.</p>
 <p>Here's an example with a floating-point number:</p>
-<pre><code class="language-bash">$ dcbor 3.14
-fb40091eb851eb851f
+<pre><code class="language-bash">dcbor 3.14
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">fb40091eb851eb851f</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">fb40091eb851eb851f</span></span></code></pre></div>
 <h2 id="quoting-input"><a class="header" href="#quoting-input">Quoting Input</a></h2>
 <p>For simple cases like the ones above, you don't need to do anything special with quoting the input. But in many cases you'll need to understand how the shell's use of quotes interacts with CBOR diagnostic notation, because the shell and CBOR diagnostic notation both use single and double quotes for their own purposes.</p>
 <p>For example, in CBOR diagnostic notation, a string is quoted with <code>"double quotes"</code>, so for the <code>dcbor</code> tool to recognize it as a string, you need to include the double quotes in the input. But in the shell, double quotes are also used to group a sequence of characters into an argument. So the following command has two arguments:</p>
-<pre><code class="language-bash">$ ls "First File" "Second File"
+<pre><code class="language-bash">ls "First File" "Second File"
 </code></pre>
 <p>The shell <code>ls</code> command will see two arguments, <em>without</em> the quotes. The first argument is <code>First File</code>, and the second argument is <code>Second File</code>. If you passed the command without quotes, the shell would see four arguments:</p>
-<pre><code class="language-bash">$ ls First File Second File
+<pre><code class="language-bash">ls First File Second File
 </code></pre>
 <p>So back to <code>dcbor</code>, if you naïvely run this command you'll get an error:</p>
-<pre><code class="language-bash">$ dcbor "Hello"
-Error: line 1: Unrecognized token
-Hello
-^
+<pre><code class="language-bash">dcbor "Hello"
+
+│ Error: line 1: Unrecognized token
+│ Hello
+│ ^
 </code></pre>
 <p>This is because the shell is interpreting the double quotes as its own argument grouping syntax, and strips them off, even though <code>dcbor</code> still needs them. To get around this, you can use single quotes to quote the entire argument:</p>
-<pre><code class="language-bash">$ dcbor '"Hello"'
-6548656c6c6f
+<pre><code class="language-bash">dcbor '"Hello"'
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">6548656c6c6f</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">6548656c6c6f</span></span></code></pre></div>
 <p>The shell can use either single or double quotes to group arguments.</p>
 <p>Another option is to escape the inner double quotes with a backslash:</p>
-<pre><code class="language-bash">$ dcbor "\"Hello\""
-6548656c6c6f
+<pre><code class="language-bash">dcbor "\"Hello\""
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">6548656c6c6f</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">6548656c6c6f</span></span></code></pre></div>
 <p>But the most general and flexible way is to use the <em>here document</em> ("<em>heredoc</em>") shell feature. This allows you to pass a block of text to the <code>dcbor</code> tool without worrying about quoting:</p>
-<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
 "Hello"
 EOF
-6548656c6c6f
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">6548656c6c6f</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">6548656c6c6f</span></span></code></pre></div>
 <p>Notice the first line uses <code>&lt;&lt;</code> to indicate the start of a heredoc, which is immediately followed by the delimiter <code>EOF</code>. The last line is the same delimiter, which indicates the end of the here document. You can use any string as a delimiter, but <code>EOF</code> is a common convention. The here document can also be used to pass as many lines of input as you want. Here is an example of an array of strings spread across multiple lines:</p>
-<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
 [
   "Hello",
   "World"
 ]
 EOF
-826548656c6c6f65576f726c64
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">826548656c6c6f65576f726c64</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">826548656c6c6f65576f726c64</span></span></code></pre></div>
 <h2 id="comments"><a class="header" href="#comments">Comments</a></h2>
 <p>CBOR diagnostic notation supports two different types of comments: <em>inline comments</em> delimited by <code>/</code> and <em>end-of-line comments</em> delimited by <code>#</code>. The <code>dcbor</code> tool ignores comments in the input, so you can use them freely to annotate your input. Here is an example of both types of comments:</p>
-<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
 [ # Start of array
   / First element / "Hello",
   / Second element / "World"
 ] # End of array
 EOF
-826548656c6c6f65576f726c64
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">826548656c6c6f65576f726c64</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">826548656c6c6f65576f726c64</span></span></code></pre></div>
 <p>This example produces the same output as the previous example, but it includes comments to explain what each part of the input is doing.</p>
 <h2 id="round-trip-conversion"><a class="header" href="#round-trip-conversion">Round-Trip Conversion</a></h2>
 <p>Now that we have an example of hex-encoded CBOR, let's see how to convert it back to diagnostic notation. The <code>dcbor</code> tool can do this by specifying the input format as <code>hex</code> and the output format as <code>diag</code>:</p>
-<pre><code class="language-bash">$ dcbor -i hex -o diag 826548656c6c6f65576f726c64
-["Hello", "World"]
+<pre><code class="language-bash">dcbor -i hex -o diag 826548656c6c6f65576f726c64
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0B631E">"Hello"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "World"</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"Hello"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "World"</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
 <div id="admonition-tip-1" class="admonition admonish-tip" role="note" aria-labelledby="admonition-tip-1-title">
 <div class="admonition-title">
 <div id="admonition-tip-1-title">
@@ -298,20 +307,20 @@ EOF
 <h2 id="supported-data-types"><a class="header" href="#supported-data-types">Supported Data Types</a></h2>
 <p>The <code>dcbor</code> tool parses a variety of data types, including the primitives defined in the CBOR specification. It also supports specialized types like Uniform Resources (URs) and Known Values that can be quite useful when working with Gordian Envelope, which we'll discuss in Part III. Here is a summary of the supported data types:</p>
 <div class="table-wrapper"><table><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody>
-<tr><td>Boolean</td><td><code>true</code><br><code>false</code></td></tr>
-<tr><td>Null</td><td><code>null</code></td></tr>
-<tr><td>Integers</td><td><code>0</code><br><code>1</code><br><code>-1</code><br><code>42</code></td></tr>
-<tr><td>Floats</td><td><code>3.14</code><br><code>-2.5</code><br><code>Infinity</code><br><code>-Infinity</code><br><code>NaN</code></td></tr>
-<tr><td>Strings</td><td><code>"hello"</code><br><code>"🌎"</code></td></tr>
-<tr><td>Hex Byte Strings</td><td><code>h'68656c6c6f'</code></td></tr>
-<tr><td>Base64 Byte Strings</td><td><code>b64'AQIDBAUGBwgJCg=='</code></td></tr>
-<tr><td>Tagged Values</td><td><code>1234("hello")</code><br><code>5678(3.14)</code></td></tr>
-<tr><td>Name-Tagged Values</td><td><code>tag-name("hello")</code><br><code>tag-name(3.14)</code></td></tr>
-<tr><td>Known Values</td><td><code>'1'</code><br><code>'isA'</code></td></tr>
-<tr><td>Unit Known Value</td><td><code>Unit</code><br><code>''</code><br><code>'0'</code></td></tr>
-<tr><td>URs</td><td><code>ur:date/cyisdadmlasgtapttl</code></td></tr>
-<tr><td>Arrays</td><td><code>[1, 2, 3]</code><br><code>["hello", "world"]</code><br><code>[1, [2, 3]]</code></td></tr>
-<tr><td>Maps</td><td><code>{1: 2, 3: 4}</code><br><code>{"key": "value"}</code><br><code>{1: [2, 3], 4: 5}</code></td></tr>
+<tr><td>Boolean</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">true</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">true</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">false</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">false</span></span></code></td></tr>
+<tr><td>Null</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">null</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">null</span></span></code></td></tr>
+<tr><td>Integers</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">0</span></span><span class="dark-theme-only"><span style="color:#34A5DA">0</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">-1</span></span><span class="dark-theme-only"><span style="color:#34A5DA">-1</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">42</span></span><span class="dark-theme-only"><span style="color:#34A5DA">42</span></span></code></td></tr>
+<tr><td>Floats</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">3.14</span></span><span class="dark-theme-only"><span style="color:#34A5DA">3.14</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">-2.5</span></span><span class="dark-theme-only"><span style="color:#34A5DA">-2.5</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">Infinity</span></span><span class="dark-theme-only"><span style="color:#34A5DA">Infinity</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">-Infinity</span></span><span class="dark-theme-only"><span style="color:#34A5DA">-Infinity</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">NaN</span></span><span class="dark-theme-only"><span style="color:#34A5DA">NaN</span></span></code></td></tr>
+<tr><td>Strings</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0B631E">"hello"</span></span><span class="dark-theme-only"><span style="color:#8ABE5E">"hello"</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0B631E">"🌎"</span></span><span class="dark-theme-only"><span style="color:#8ABE5E">"🌎"</span></span></code></td></tr>
+<tr><td>Hex Byte Strings</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'68656c6c6f'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'68656c6c6f'</span></span></code></td></tr>
+<tr><td>Base64 Byte Strings</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">b64'AQIDBAUGBwgJCg=='</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">b64'AQIDBAUGBwgJCg=='</span></span></code></td></tr>
+<tr><td>Tagged Values</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1234</span><span style="color:#333333">(</span><span style="color:#0B631E">"hello"</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1234</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"hello"</span><span style="color:#BBBBBB">)</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">5678</span><span style="color:#333333">(</span><span style="color:#0E76B0">3.14</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">5678</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">3.14</span><span style="color:#BBBBBB">)</span></span></code></td></tr>
+<tr><td>Name-Tagged Values</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#9E5C1A">tag-name</span><span style="color:#333333">(</span><span style="color:#0B631E">"hello"</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#FDCB56">tag-name</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"hello"</span><span style="color:#BBBBBB">)</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#9E5C1A">tag-name</span><span style="color:#333333">(</span><span style="color:#0E76B0">3.14</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#FDCB56">tag-name</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">3.14</span><span style="color:#BBBBBB">)</span></span></code></td></tr>
+<tr><td>Known Values</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529721">'1'</span></span><span class="dark-theme-only"><span style="color:#D6E893">'1'</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529721">'isA'</span></span><span class="dark-theme-only"><span style="color:#D6E893">'isA'</span></span></code></td></tr>
+<tr><td>Unit Known Value</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529721">Unit</span></span><span class="dark-theme-only"><span style="color:#D6E893">Unit</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529721">''</span></span><span class="dark-theme-only"><span style="color:#D6E893">''</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529721">'0'</span></span><span class="dark-theme-only"><span style="color:#D6E893">'0'</span></span></code></td></tr>
+<tr><td>URs</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#3D724C">ur:date/cyisdadmlasgtapttl</span></span><span class="dark-theme-only"><span style="color:#B5CEA8">ur:date/cyisdadmlasgtapttl</span></span></code></td></tr>
+<tr><td>Arrays</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">1,</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0B631E">"hello"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "world"</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"hello"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "world"</span><span style="color:#D4D4D4">]</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">1,</span><span style="color:#333333"> [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#D4D4D4"> [</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]]</span></span></code></td></tr>
+<tr><td>Maps</td><td><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#0E76B0">1:</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3:</span><span style="color:#0E76B0"> 4</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#34A5DA">1:</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3:</span><span style="color:#34A5DA"> 4</span><span style="color:#BBBBBB">}</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#0B631E">"key"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "value"</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#8ABE5E">"key"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "value"</span><span style="color:#BBBBBB">}</span></span></code><br><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#0E76B0">1:</span><span style="color:#333333"> [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 4:</span><span style="color:#0E76B0"> 5</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#34A5DA">1:</span><span style="color:#D4D4D4"> [</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 4:</span><span style="color:#34A5DA"> 5</span><span style="color:#BBBBBB">}</span></span></code></td></tr>
 </tbody></table>
 </div>
 <p>Note these are <em>input formats</em>, and not all of them will round-trip to the same output format. For example, the <code>b64</code> format can be used to convert existing Base64-encoded data to CBOR, but when output back to diagnostic notation, it will be converted to a <code>h</code> format hex byte string.</p>
@@ -322,85 +331,153 @@ EOF
 <li><a href="https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2023-002-known-value.md">Known Values</a></li>
 </ul>
 <p>Where it can, it will accept these names in place of numeric values.</p>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+<p>Currently there is no way to define your own names for tagged values or known values within the <code>dcbor</code> tool.</p>
+<p>Tagged values could definitely benefit from a feature where users can define name-tag correspondences.</p>
+<p>Known values, by definition, are all publicly defined in the registry linked to above, so if you want to define some named known values, then registration information is also in the link above.</p>
+</div>
+</div>
 <h2 id="validating-input"><a class="header" href="#validating-input">Validating Input</a></h2>
 <p>Every time the <code>dcbor</code> tool is run, it validates the input as valid CBOR, and the dCBOR deterministic encoding rules. If the input is valid, it will produce the output in the specified format. If the input is not valid, it will produce an error message. For example, if we change the first byte of the hex-encoded CBOR from the example above to <code>0x83</code> (representing a CBOR array of three elements), we will get an error:</p>
-<pre><code class="language-bash">$ dcbor -i hex -o diag 836548656c6c6f65576f726c64
-Error: early end of CBOR data
+<pre><code class="language-bash">dcbor -i hex -o diag 836548656c6c6f65576f726c64
+
+│ Error: early end of CBOR data
 </code></pre>
-<p>This error message indicates that the input expected a third array element, but it reached the end of the input before finding it. We can "hack" the input to make it valid by adding a third element. Let's just add a <code>0</code> to the end of the array:</p>
-<pre><code class="language-bash">$ dcbor -i hex -o diag 836548656c6c6f65576f726c6400
-["Hello", "World", 0]
+<p>This error message indicates that the input expected a third array element, but it reached the end of the input before finding it. We can "hack" the input to make it valid by adding a third element. Let's just add a <code>0</code> byte to the end of the array:</p>
+<pre><code class="language-bash">dcbor -i hex -o diag 836548656c6c6f65576f726c6400
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0B631E">"Hello"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "World"</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 0</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"Hello"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "World"</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 0</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
 <p>This is a valid CBOR array of three elements, and the <code>dcbor</code> tool produces the expected output.</p>
+<p>dCBOR does not allow duplicate map keys:</p>
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
+{ "Hello": "World", "Hello": "CBOR" }
+EOF
+
+│ Error: line 1: Duplicate map key
+│ { "Hello": "World", "Hello": "CBOR" }
+│                     ^^^^^^^
+</code></pre>
+<p>dCBOR does not distinguish between integer and floating point numbers, so this
+is also a case of duplicate keys:</p>
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
+{ 42: "Forty-Two", 42.0: "Forty-Two Float" }
+EOF
+
+│ Error: line 1: Duplicate map key
+│ { 42: "Forty-Two", 42.0: "Forty-Two Float" }
+│                    ^^^^
+</code></pre>
 <h2 id="annotated-output"><a class="header" href="#annotated-output">Annotated Output</a></h2>
 <p>When producing either hex or diagnostic notation output, the <code>--annotate</code> flag can be used to produce output that is even more human-readable. Let's define a shell variable with a hex-encoded CBOR structure, a cryptographic seed:</p>
-<pre><code class="language-bash">$ CBOR_SEED=d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e
+<pre><code class="language-bash">CBOR_SEED=d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e
 </code></pre>
 <p>Now we can pass this variable to the <code>dcbor</code> by just referring to it as <code>$CBOR_SEED</code>:</p>
-<pre><code class="language-bash">$ dcbor --in hex --out diag $CBOR_SEED
-40300({1: h'59f2293a5bce7d4de59e71b4207ac5d2', 2: 1(1614124800), 3: "Dark Purple Aqua Love", 4: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."})
+<pre><code class="language-bash">dcbor --in hex --out diag $CBOR_SEED
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">40300</span><span style="color:#333333">({</span><span style="color:#0E76B0">1:</span><span style="color:#0D7D65"> h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 2:</span><span style="color:#0E76B0"> 1</span><span style="color:#333333">(</span><span style="color:#0E76B0">1614124800</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 3:</span><span style="color:#0B631E"> "Dark Purple Aqua Love"</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 4:</span><span style="color:#0B631E"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span><span style="color:#333333">})</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">40300</span><span style="color:#BBBBBB">({</span><span style="color:#34A5DA">1:</span><span style="color:#4EC9B0"> h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 2:</span><span style="color:#34A5DA"> 1</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1614124800</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 3:</span><span style="color:#8ABE5E"> "Dark Purple Aqua Love"</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 4:</span><span style="color:#8ABE5E"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span><span style="color:#BBBBBB">})</span></span></code></pre></div>
 <p>The output is "flat" diagnostic notation, entirely on one line. This is useful for passing to other tools, but not very human-readable. The <code>--annotate</code> flag will produce a more readable output:</p>
-<pre><code class="language-bash">$ dcbor --in hex --out diag --annotate $CBOR_SEED
-40300(   / seed /
-    {
-        1:
-        h'59f2293a5bce7d4de59e71b4207ac5d2',
-        2:
-        1(1614124800),   / date /
-        3:
-        "Dark Purple Aqua Love",
-        4:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-    }
-)
+<pre><code class="language-bash">dcbor --in hex --out diag --annotate $CBOR_SEED
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">40300</span><span style="color:#333333">(   </span><span style="color:#979696">/ seed /</span></span>
+<span class="line"><span style="color:#333333">│     {</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">1:</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0D7D65">h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">2:</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">1</span><span style="color:#333333">(</span><span style="color:#0E76B0">1614124800</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#979696">   / date /</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">3:</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0B631E">"Dark Purple Aqua Love"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">4:</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0B631E">"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span></span>
+<span class="line"><span style="color:#333333">│     }</span></span>
+<span class="line"><span style="color:#333333">│ )</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">40300</span><span style="color:#BBBBBB">(   </span><span style="color:#8D8C8C">/ seed /</span></span>
+<span class="line"><span style="color:#BBBBBB">│     {</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">1:</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#4EC9B0">h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">2:</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">1</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1614124800</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#8D8C8C">   / date /</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">3:</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#8ABE5E">"Dark Purple Aqua Love"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">4:</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#8ABE5E">"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span></span>
+<span class="line"><span style="color:#BBBBBB">│     }</span></span>
+<span class="line"><span style="color:#BBBBBB">│ )</span></span></code></pre></div>
 <p>Now it's much easier to see that the entire structure is a map with four keys: the first key is a byte string, the second key is a tagged number representing a date, and so on. The entire structure is tagged with <code>40300</code>, which is a registered CBOR tag for a cryptographic seed in this format. You can see the definition of this format in the <a href="https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-006-urtypes.md#cryptographic-seed-seed">Blockchain Commons Registry of UR Types</a>.</p>
 <p>The hex output format also supports the <code>--annotate</code> flag:</p>
-<pre><code class="language-bash">$ dcbor --in hex --annotate $CBOR_SEED
-d9 9d6c                                 # tag(40300) seed
-    a4                                  # map(4)
-        01                              # unsigned(1)
-        50                              # bytes(16)
-            59f2293a5bce7d4de59e71b4207ac5d2
-        02                              # unsigned(2)
-        c1                              # tag(1) date
-            1a60359700                  # unsigned(1614124800)
-        03                              # unsigned(3)
-        75                              # text(21)
-            4461726b20507572706c652041717561204c6f7665 # "Dark Purple Aqua Love"
-        04                              # unsigned(4)
-        78 7b                           # text(123)
-            4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e # "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+<pre><code class="language-bash">dcbor --in hex --annotate $CBOR_SEED
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">d9</span><span style="color:#0E76B0"> 9d6c</span><span style="color:#979696">                                 # tag(40300) seed</span></span>
+<span class="line"><span style="color:#333333">│     </span><span style="color:#0E76B0">a4</span><span style="color:#979696">                                  # map(4)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">01</span><span style="color:#979696">                              # unsigned(1)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">50</span><span style="color:#979696">                              # bytes(16)</span></span>
+<span class="line"><span style="color:#333333">│             </span><span style="color:#0E76B0">59f2293a5bce7d4de59e71b4207ac5d2</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">02</span><span style="color:#979696">                              # unsigned(2)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">c1</span><span style="color:#979696">                              # tag(1) date</span></span>
+<span class="line"><span style="color:#333333">│             </span><span style="color:#0E76B0">1a60359700</span><span style="color:#979696">                  # unsigned(1614124800)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">03</span><span style="color:#979696">                              # unsigned(3)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">75</span><span style="color:#979696">                              # text(21)</span></span>
+<span class="line"><span style="color:#333333">│             </span><span style="color:#0E76B0">4461726b20507572706c652041717561204c6f7665</span><span style="color:#979696"> # "Dark Purple Aqua Love"</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">04</span><span style="color:#979696">                              # unsigned(4)</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">78</span><span style="color:#0E76B0"> 7b</span><span style="color:#979696">                           # text(123)</span></span>
+<span class="line"><span style="color:#333333">│             </span><span style="color:#0E76B0">4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e</span><span style="color:#979696"> # "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">d9</span><span style="color:#34A5DA"> 9d6c</span><span style="color:#8D8C8C">                                 # tag(40300) seed</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#34A5DA">a4</span><span style="color:#8D8C8C">                                  # map(4)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">01</span><span style="color:#8D8C8C">                              # unsigned(1)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">50</span><span style="color:#8D8C8C">                              # bytes(16)</span></span>
+<span class="line"><span style="color:#BBBBBB">│             </span><span style="color:#34A5DA">59f2293a5bce7d4de59e71b4207ac5d2</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">02</span><span style="color:#8D8C8C">                              # unsigned(2)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">c1</span><span style="color:#8D8C8C">                              # tag(1) date</span></span>
+<span class="line"><span style="color:#BBBBBB">│             </span><span style="color:#34A5DA">1a60359700</span><span style="color:#8D8C8C">                  # unsigned(1614124800)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">03</span><span style="color:#8D8C8C">                              # unsigned(3)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">75</span><span style="color:#8D8C8C">                              # text(21)</span></span>
+<span class="line"><span style="color:#BBBBBB">│             </span><span style="color:#34A5DA">4461726b20507572706c652041717561204c6f7665</span><span style="color:#8D8C8C"> # "Dark Purple Aqua Love"</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">04</span><span style="color:#8D8C8C">                              # unsigned(4)</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">78</span><span style="color:#34A5DA"> 7b</span><span style="color:#8D8C8C">                           # text(123)</span></span>
+<span class="line"><span style="color:#BBBBBB">│             </span><span style="color:#34A5DA">4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e</span><span style="color:#8D8C8C"> # "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span></span></code></pre></div>
 <p>The annotated hex output also uses indentation and comments to make its structure and semantics more clear.</p>
 <p>Recall that the default input format is <code>diag</code>, and the default output format is <code>hex</code>. So in this case we're using <code>--in</code> to specify the input format as <code>hex</code>, and leaving the output format as the default <code>hex</code>, but adding the <code>--annotate</code> flag to produce the annotated output.</p>
 <h2 id="binary-input-and-output"><a class="header" href="#binary-input-and-output">Binary Input and Output</a></h2>
 <p>CBOR is, after all, a binary format, and <code>bin</code> can be used with <code>--in</code> or <code>--out</code> to specify binary input or output:</p>
 <pre><code class="language-bash"># Write the binary to a file using stdout.
-$ dcbor --in hex --out bin $CBOR_SEED &gt;test.bin
+dcbor --in hex --out bin $CBOR_SEED &gt;test.bin
 
 # Show the first 48 bytes of the binary file.
-(base) ➜  ~ hexdump -C test.bin | head -n 3
-00000000  d9 9d 6c a4 01 50 59 f2  29 3a 5b ce 7d 4d e5 9e  |..l..PY.):[.}M..|
-00000010  71 b4 20 7a c5 d2 02 c1  1a 60 35 97 00 03 75 44  |q. z.....`5...uD|
-00000020  61 72 6b 20 50 75 72 70  6c 65 20 41 71 75 61 20  |ark Purple Aqua |
-
-# The file is exactly 178 bytes long.
+hexdump -C test.bin | head -n 3
+</code></pre>
+<pre><code>│ 00000000  d9 9d 6c a4 01 50 59 f2  29 3a 5b ce 7d 4d e5 9e  |..l..PY.):[.}M..|
+│ 00000010  71 b4 20 7a c5 d2 02 c1  1a 60 35 97 00 03 75 44  |q. z.....`5...uD|
+│ 00000020  61 72 6b 20 50 75 72 70  6c 65 20 41 71 75 61 20  |ark Purple Aqua |
+</code></pre>
+<pre><code class="language-bash"># The file is exactly 178 bytes long.
 wc -c &lt; test.bin | xargs
-178
-
-# Read it back in from the file.
-$ dcbor --in bin &lt;test.bin
-d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e
-
-# Read it in again, but with output in diagnostic notation.
-$ dcbor --in bin --out diag &lt;test.bin
-40300({1: h'59f2293a5bce7d4de59e71b4207ac5d2', 2: 1(1614124800), 3: "Dark Purple Aqua Love", 4: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."})
+</code></pre>
+<pre><code>│ 178
+</code></pre>
+<pre><code class="language-bash"># Read it back in from the file.
+dcbor --in bin &lt;test.bin
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">d99d6ca4015059f2293a5bce7d4de59e71b4207ac5d202c11a6035970003754461726b20507572706c652041717561204c6f766504787b4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e</span></span></code></pre></div>
+<pre><code class="language-bash"># Read it in again, but with output in diagnostic notation.
+dcbor --in bin --out diag &lt;test.bin
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">40300</span><span style="color:#333333">({</span><span style="color:#0E76B0">1:</span><span style="color:#0D7D65"> h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 2:</span><span style="color:#0E76B0"> 1</span><span style="color:#333333">(</span><span style="color:#0E76B0">1614124800</span><span style="color:#333333">)</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 3:</span><span style="color:#0B631E"> "Dark Purple Aqua Love"</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 4:</span><span style="color:#0B631E"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span><span style="color:#333333">})</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">40300</span><span style="color:#BBBBBB">({</span><span style="color:#34A5DA">1:</span><span style="color:#4EC9B0"> h'59f2293a5bce7d4de59e71b4207ac5d2'</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 2:</span><span style="color:#34A5DA"> 1</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1614124800</span><span style="color:#BBBBBB">)</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 3:</span><span style="color:#8ABE5E"> "Dark Purple Aqua Love"</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 4:</span><span style="color:#8ABE5E"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</span><span style="color:#BBBBBB">})</span></span></code></pre></div>
+<pre><code class="language-bash"># Clean up the test file.
+rm test.bin
 </code></pre>
 <h2 id="a-more-complex-example"><a class="header" href="#a-more-complex-example">A More Complex Example</a></h2>
 <p>In <a href="../part_1/cbor_tags.html#example-tags-in-action">a previous chapter</a> we saw an example of a CBOR structure in diagnostic notation that used a number of different tags and complex types like arrays and maps. Let's see how to encode that structure using the <code>dcbor</code> tool:</p>
-<pre><code class="language-bash">$ dcbor &lt;&lt;EOF
+<pre><code class="language-bash">dcbor &lt;&lt;EOF
 {
   "sensorID": 37(h'f81d4fae7dec11d0a76500a0c91e6bf6'),    # Tag 37 for UUID
   "captureTime": 0("2023-10-27T14:30:15.123Z"),           # Tag 0 for RFC3339 string
@@ -409,58 +486,70 @@ $ dcbor --in bin --out diag &lt;test.bin
   "alertPayload": h'01020304'                             # Direct byte string
 }
 EOF
-a56772656164696e67c482223930386873656e736f724944d82550f81d4fae7dec11d0a76500a0c91e6bf66973746174757355524cd820782368747470733a2f2f6578616d706c652e636f6d2f7374617475732f66383164346661656b6361707475726554696d65c07818323032332d31302d32375431343a33303a31352e3132335a6c616c6572745061796c6f61644401020304
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">a56772656164696e67c482223930386873656e736f724944d82550f81d4fae7dec11d0a76500a0c91e6bf66973746174757355524cd820782368747470733a2f2f6578616d706c652e636f6d2f7374617475732f66383164346661656b6361707475726554696d65c07818323032332d31302d32375431343a33303a31352e3132335a6c616c6572745061796c6f61644401020304</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">a56772656164696e67c482223930386873656e736f724944d82550f81d4fae7dec11d0a76500a0c91e6bf66973746174757355524cd820782368747470733a2f2f6578616d706c652e636f6d2f7374617475732f66383164346661656b6361707475726554696d65c07818323032332d31302d32375431343a33303a31352e3132335a6c616c6572745061796c6f61644401020304</span></span></code></pre></div>
 <h2 id="composing-arrays-and-maps"><a class="header" href="#composing-arrays-and-maps">Composing Arrays and Maps</a></h2>
 <p>We've seen how to compose arrays and maps in CBOR diagnostic notation:</p>
 <pre><code class="language-bash"># Compose an array of strings:
-$ dcbor &lt;&lt;EOF
+dcbor &lt;&lt;EOF
 [ "Hello", "World" ]
 EOF
-826548656c6c6f65576f726c64
-
-# Compose a map of with string keys and values:
-$ dcbor &lt;&lt;EOF
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">826548656c6c6f65576f726c64</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">826548656c6c6f65576f726c64</span></span></code></pre></div>
+<pre><code class="language-bash"># Compose a map with string keys and values:
+dcbor &lt;&lt;EOF
 { "Hello": "World" }
 EOF
-a26148656c6c6f576f726c64
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">a16548656c6c6f65576f726c64</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">a16548656c6c6f65576f726c64</span></span></code></pre></div>
 <p>When working with shell scripts, you can interpolate shell variable into the input. For example, let's define a shell variable with a string value:</p>
-<pre><code class="language-bash">$ HELLO="Hello"
-$ dcbor &lt;&lt;EOF
+<pre><code class="language-bash">HELLO="Hello"
+dcbor &lt;&lt;EOF
 [ "$HELLO", "World" ]
 EOF
-826548656c6c6f65576f726c64
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">826548656c6c6f65576f726c64</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">826548656c6c6f65576f726c64</span></span></code></pre></div>
 <p>This isn't bad when you know the number of elements in the array, but what if you have a variable number of elements? Here's a little script that generates the first 10 Fibonacci numbers and puts them in an array:</p>
-<pre><code class="language-bash">$ FIB=($(awk 'BEGIN{a=1;b=1;for(i=0;i&lt;10;i++){printf "%d ",a; t=a;a=b;b=t+b}}'))
-$ echo "${FIB[@]}"
-1 1 2 3 5 8 13 21 34 55
+<pre><code class="language-bash">FIB=($(awk 'BEGIN{a=1;b=1;for(i=0;i&lt;10;i++){printf "%d ",a; t=a;a=b;b=t+b}}'))
+echo "${FIB[@]}"
+
+│ 1 1 2 3 5 8 13 21 34 55
 </code></pre>
 <p>To get this into a CBOR array, we can use the <code>array</code> subcommand of the <code>dcbor</code> tool:</p>
-<pre><code class="language-bash">$ FIB_DIAG=`dcbor array --out diag "${FIB[@]}"`
-$ echo $FIB_DIAG
-[1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+<pre><code class="language-bash">FIB_DIAG=`dcbor array --out diag "${FIB[@]}"`
+echo $FIB_DIAG
 </code></pre>
-<p>The <code>array</code> subcommand takes a strings which can be <em>any</em> diagnostic notation (not just atomic values like the numbers we're using here), and produces a CBOR array so you don't have to muck about with brackets and commas.</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#0E76B0"> 1,</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3,</span><span style="color:#0E76B0"> 5,</span><span style="color:#0E76B0"> 8,</span><span style="color:#0E76B0"> 13,</span><span style="color:#0E76B0"> 21,</span><span style="color:#0E76B0"> 34,</span><span style="color:#0E76B0"> 55</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#34A5DA"> 1,</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3,</span><span style="color:#34A5DA"> 5,</span><span style="color:#34A5DA"> 8,</span><span style="color:#34A5DA"> 13,</span><span style="color:#34A5DA"> 21,</span><span style="color:#34A5DA"> 34,</span><span style="color:#34A5DA"> 55</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<p>The <code>array</code> subcommand takes all its arguments, which can be <em>any</em> diagnostic notation (not just atomic values like the numbers we're using here), and produces a CBOR array so you don't have to muck about with brackets and commas.</p>
 <p>Now let's say you want to use <code>$FIB_DIAG</code> in a CBOR map. You can use the <code>map</code> subcommand to do this:</p>
-<pre><code class="language-bash">$ FIB_MAP=`dcbor map --annotate --out diag \
+<pre><code class="language-bash">FIB_MAP=`dcbor map --annotate --out diag \
     '"name"' '"Fibonacci Numbers"' \
     '"value"' "$FIB_DIAG"`
-
-$ echo $FIB_MAP
-{
-    "name":
-    "Fibonacci Numbers",
-    "value":
-    [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
-}
+echo $FIB_MAP
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span></span>
+<span class="line"><span style="color:#333333">│     </span><span style="color:#0B631E">"name"</span><span style="color:#0E76B0">:</span></span>
+<span class="line"><span style="color:#333333">│     </span><span style="color:#0B631E">"Fibonacci Numbers"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#333333">│     </span><span style="color:#0B631E">"value"</span><span style="color:#0E76B0">:</span></span>
+<span class="line"><span style="color:#333333">│     [</span><span style="color:#0E76B0">1,</span><span style="color:#0E76B0"> 1,</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3,</span><span style="color:#0E76B0"> 5,</span><span style="color:#0E76B0"> 8,</span><span style="color:#0E76B0"> 13,</span><span style="color:#0E76B0"> 21,</span><span style="color:#0E76B0"> 34,</span><span style="color:#0E76B0"> 55</span><span style="color:#333333">]</span></span>
+<span class="line"><span style="color:#333333">│ }</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#8ABE5E">"name"</span><span style="color:#34A5DA">:</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#8ABE5E">"Fibonacci Numbers"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#8ABE5E">"value"</span><span style="color:#34A5DA">:</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#34A5DA"> 1,</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3,</span><span style="color:#34A5DA"> 5,</span><span style="color:#34A5DA"> 8,</span><span style="color:#34A5DA"> 13,</span><span style="color:#34A5DA"> 21,</span><span style="color:#34A5DA"> 34,</span><span style="color:#34A5DA"> 55</span><span style="color:#D4D4D4">]</span></span>
+<span class="line"><span style="color:#BBBBBB">│ }</span></span></code></pre></div>
 <p>The <code>map</code> subcommand takes a list alternating keys and values. Note how we're being careful to quote the keys and values, with single-quotes being used for strings (so they don't get interpreted by the shell) and double-quotes used for the <code>$FIB_DIAG</code> variable (so it gets interpolated).</p>
-<p>When we've got our map composed the way we want it, we can serialized it to binary, or hex for use with the <code>envelope</code> tool we'll discuss in Part III:</p>
-<pre><code class="language-bash">$ dcbor --in diag --out hex $FIB_MAP
-a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518221837
+<p>When we've got our map composed the way we want it, we can serialize it to binary, or hex for use with the <code>envelope</code> tool we'll discuss in Part III:</p>
+<pre><code class="language-bash">dcbor --in diag --out hex $FIB_MAP
 </code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518221837</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518221837</span></span></code></pre></div>
 
                     </main>
 
@@ -470,7 +559,7 @@ a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../part_2/dcbor_cli_matching.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -484,7 +573,7 @@ a2646e616d65714669626f6e61636369204e756d626572736576616c75658a0101020305080d1518
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../part_2/dcbor_cli_matching.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

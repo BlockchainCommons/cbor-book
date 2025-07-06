@@ -221,14 +221,14 @@
 </tbody></table>
 </div>
 <p>Immediately following the initial byte(s) that encode the tag number comes the complete encoding of the single data item that serves as the tag's content.</p>
-<p><strong>Example:</strong> Tag 2 (unsigned bignum) applied to the byte string <code>h'0102'</code></p>
+<p><strong>Example:</strong> Tag 2 (unsigned bignum) applied to the byte string <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'0102'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'0102'</span></span></code></p>
 <div class="table-wrapper"><table><thead><tr><th>CBOR Hex</th><th>MT</th><th>AI</th><th>Explanation</th></tr></thead><tbody>
 <tr><td><code>c2</code></td><td>6</td><td>2</td><td>Tag(2): Major Type 6, AI encodes tag number 2</td></tr>
 <tr><td><code>42</code></td><td>2</td><td>2</td><td>Byte String (Major Type 2), length = 2 bytes</td></tr>
 <tr><td><code>0102</code></td><td>–</td><td>–</td><td>Tag Content: raw bytes <code>0x01</code>, <code>0x02</code></td></tr>
 </tbody></table>
 </div>
-<p><strong>CBOR Diagnostic Notation:</strong> <code>2(h'0102')</code></p>
+<p><strong>CBOR Diagnostic Notation:</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">2</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'0102'</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">2</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'0102'</span><span style="color:#BBBBBB">)</span></span></code></p>
 <div id="admonition-info-1" class="admonition admonish-info" role="note" aria-labelledby="admonition-info-1-title">
 <div class="admonition-title">
 <div id="admonition-info-1-title">
@@ -424,30 +424,34 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 <ul>
 <li><strong>Content:</strong> UTF-8 string</li>
 <li><strong>Semantics:</strong> Represents a date and time expressed as a string, following the standard format defined in <a href="https://datatracker.ietf.org/doc/html/rfc3339">RFC 3339</a> (a profile of ISO 8601). This is a human-readable format.</li>
-<li><strong>Diagnostic:</strong> <code>0("2013-03-21T20:04:00Z")</code></li>
+<li><strong>Diagnostic:</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">0</span><span style="color:#333333">(</span><span style="color:#0B631E">"2013-03-21T20:04:00Z"</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">0</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"2013-03-21T20:04:00Z"</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example:</strong></li>
 </ul>
-<pre><code>C0                                      # tag(0)
-   74                                   # text(20)
-      323031332D30332D32315432303A30343A30305A # "2013-03-21T20:04:00Z"
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">C0</span><span style="color:#979696">                                      # tag(0)</span></span>
+<span class="line"><span style="color:#0E76B0">   74</span><span style="color:#979696">                                   # text(20)</span></span>
+<span class="line"><span style="color:#0E76B0">      323031332D30332D32315432303A30343A30305A</span><span style="color:#979696"> # "2013-03-21T20:04:00Z"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">C0</span><span style="color:#8D8C8C">                                      # tag(0)</span></span>
+<span class="line"><span style="color:#34A5DA">   74</span><span style="color:#8D8C8C">                                   # text(20)</span></span>
+<span class="line"><span style="color:#34A5DA">      323031332D30332D32315432303A30343A30305A</span><span style="color:#8D8C8C"> # "2013-03-21T20:04:00Z"</span></span></code></pre></div>
 <h3 id="tag-1-epoch-based-datetime"><a class="header" href="#tag-1-epoch-based-datetime">Tag 1: Epoch-Based Date/Time</a></h3>
 <ul>
 <li><strong>Content:</strong> Integer or Floating-point number</li>
 <li><strong>Semantics:</strong> Represents a point in time as a numeric offset (in seconds, with optional fractional part for floats) from the standard Unix epoch (1970-01-01T00:00:00Z UTC). More compact and suitable for computation than Tag 0.</li>
-<li><strong>Diagnostic (Integer):</strong> <code>1(1363896240)</code></li>
+<li><strong>Diagnostic (Integer):</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1</span><span style="color:#333333">(</span><span style="color:#0E76B0">1363896240</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1363896240</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example (Integer):</strong></li>
 </ul>
-<pre><code>C1             # tag(1)
-   1A 514B67B0 # unsigned(1363896240)
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">C1</span><span style="color:#979696">             # tag(1)</span></span>
+<span class="line"><span style="color:#0E76B0">   1A</span><span style="color:#0E76B0"> 514B67B0</span><span style="color:#979696"> # unsigned(1363896240)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">C1</span><span style="color:#8D8C8C">             # tag(1)</span></span>
+<span class="line"><span style="color:#34A5DA">   1A</span><span style="color:#34A5DA"> 514B67B0</span><span style="color:#8D8C8C"> # unsigned(1363896240)</span></span></code></pre></div>
 <ul>
-<li><strong>Diagnostic (Float):</strong> <code>1(1698417015.123)</code></li>
+<li><strong>Diagnostic (Float):</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1</span><span style="color:#333333">(</span><span style="color:#0E76B0">1698417015.123</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1698417015.123</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example (Float - double precision):</strong></li>
 </ul>
-<pre><code>C1                     # tag(1)
-   FB 41D94EF25DC7DF3B # 1698417015.123
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">C1</span><span style="color:#979696">                     # tag(1)</span></span>
+<span class="line"><span style="color:#0E76B0">   FB</span><span style="color:#0E76B0"> 41D94EF25DC7DF3B</span><span style="color:#979696"> # 1698417015.123</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">C1</span><span style="color:#8D8C8C">                     # tag(1)</span></span>
+<span class="line"><span style="color:#34A5DA">   FB</span><span style="color:#34A5DA"> 41D94EF25DC7DF3B</span><span style="color:#8D8C8C"> # 1698417015.123</span></span></code></pre></div>
 <div id="admonition-tip-2" class="admonition admonish-tip" role="note" aria-labelledby="admonition-tip-2-title">
 <div class="admonition-title">
 <div id="admonition-tip-2-title">
@@ -463,34 +467,39 @@ Tags intended to assist with implementation, such as invalid tags and programmin
 <ul>
 <li><strong>Content:</strong> Byte string</li>
 <li><strong>Semantics:</strong> Represents an arbitrarily large non-negative integer (Tag 2) or negative integer (Tag 3) that does not have to fit into the 64-bit unsigned integer (Major Type 0). The byte string contains the magnitude of the integer in network byte order (big-endian), with no leading zero bytes permitted in preferred/deterministic encoding.</li>
-<li><strong>Diagnostic (representing 18446744073709551616):</strong> <code>2(h'010000000000000000')</code></li>
+<li><strong>Diagnostic (representing 18446744073709551616):</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">2</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'010000000000000000'</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">2</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'010000000000000000'</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example (representing 18446744073709551616):</strong></li>
 </ul>
-<pre><code>C2                         # Tag(2, non-negative bignum)
-    49 010000000000000000  # Byte String (length 9 bytes, 18446744073709551616)
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">C2</span><span style="color:#979696">                         # Tag(2, non-negative bignum)</span></span>
+<span class="line"><span style="color:#0E76B0">    49</span><span style="color:#0E76B0"> 010000000000000000</span><span style="color:#979696">  # Byte String (length 9 bytes, 18446744073709551616)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">C2</span><span style="color:#8D8C8C">                         # Tag(2, non-negative bignum)</span></span>
+<span class="line"><span style="color:#34A5DA">    49</span><span style="color:#34A5DA"> 010000000000000000</span><span style="color:#8D8C8C">  # Byte String (length 9 bytes, 18446744073709551616)</span></span></code></pre></div>
 <h3 id="tag-32-uri"><a class="header" href="#tag-32-uri">Tag 32: URI</a></h3>
 <ul>
 <li><strong>Content:</strong> UTF-8 string</li>
 <li><strong>Semantics:</strong> Identifies the text string content as a Uniform Resource Identifier according to(<a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC-3986</a>).</li>
-<li><strong>Diagnostic:</strong> <code>32("http://cbor.io/")</code></li>
+<li><strong>Diagnostic:</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">32</span><span style="color:#333333">(</span><span style="color:#0B631E">"http://cbor.io/"</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">32</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"http://cbor.io/"</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example:</strong></li>
 </ul>
-<pre><code>D8 20                                # tag(32)
-   6F                                # text(15)
-      687474703A2F2F63626F722E696F2F # "http://cbor.io/"
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">D8</span><span style="color:#0E76B0"> 20</span><span style="color:#979696">                                # tag(32)</span></span>
+<span class="line"><span style="color:#0E76B0">   6F</span><span style="color:#979696">                                # text(15)</span></span>
+<span class="line"><span style="color:#0E76B0">      687474703A2F2F63626F722E696F2F</span><span style="color:#979696"> # "http://cbor.io/"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">D8</span><span style="color:#34A5DA"> 20</span><span style="color:#8D8C8C">                                # tag(32)</span></span>
+<span class="line"><span style="color:#34A5DA">   6F</span><span style="color:#8D8C8C">                                # text(15)</span></span>
+<span class="line"><span style="color:#34A5DA">      687474703A2F2F63626F722E696F2F</span><span style="color:#8D8C8C"> # "http://cbor.io/"</span></span></code></pre></div>
 <p><strong>Tag 37: UUID</strong></p>
 <ul>
 <li><strong>Content:</strong> Byte string (must be 16 bytes long)</li>
 <li><strong>Semantics:</strong> Identifies the byte string content as a Universally Unique Identifier, as defined in(<a href="https://datatracker.ietf.org/doc/html/rfc9562">RFC-9562</a>).</li>
-<li><strong>Diagnostic:</strong> <code>37(h'f81d4fae7dec11d0a76500a0c91e6bf6')</code></li>
+<li><strong>Diagnostic:</strong> <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">37</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#34A5DA">37</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'f81d4fae7dec11d0a76500a0c91e6bf6'</span><span style="color:#BBBBBB">)</span></span></code></li>
 <li><strong>Hex Example:</strong></li>
 </ul>
-<pre><code>D8 25                   # Tag(37) - uses 1+1 encoding (0xd8 0x25)
-    50                   # Byte String (length 16 bytes)
-        f81d4fae7dec11d0a76500a0c91e6bf6
-</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#0E76B0">D8</span><span style="color:#0E76B0"> 25</span><span style="color:#979696">                   # Tag(37) - uses 1+1 encoding (0xd8 0x25)</span></span>
+<span class="line"><span style="color:#0E76B0">    50</span><span style="color:#979696">                  # Byte String (length 16 bytes)</span></span>
+<span class="line"><span style="color:#0E76B0">        f81d4fae7dec11d0a76500a0c91e6bf6</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#34A5DA">D8</span><span style="color:#34A5DA"> 25</span><span style="color:#8D8C8C">                   # Tag(37) - uses 1+1 encoding (0xd8 0x25)</span></span>
+<span class="line"><span style="color:#34A5DA">    50</span><span style="color:#8D8C8C">                  # Byte String (length 16 bytes)</span></span>
+<span class="line"><span style="color:#34A5DA">        f81d4fae7dec11d0a76500a0c91e6bf6</span></span></code></pre></div>
 <h2 id="example-tags-in-action"><a class="header" href="#example-tags-in-action">Example: Tags in Action:</a></h2>
 <p>Let's see how these tags combine with basic CBOR types to represent a more complex data structure. Consider this JSON object representing a hypothetical sensor reading message:</p>
 <pre><code class="language-json">{

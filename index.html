@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Cover - The CBOR, dCBOR, and Gordian Envelope Book</title>
+        <title>Test - The CBOR, dCBOR, and Gordian Envelope Book</title>
 
 
         <!-- Custom HTML head -->
@@ -170,18 +170,45 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><img src="images/cover.jpg" alt="Cover Art" /></p>
-<h1 id="the-cbor-dcbor-and-gordian-envelope-book"><a class="header" href="#the-cbor-dcbor-and-gordian-envelope-book">The CBOR, dCBOR, and Gordian Envelope Book</a></h1>
-<p><em>Wolf McNally</em><br />
-<em>Christopher Allen</em></p>
-<p><a href="https://www.blockchaincommons.com/">Blockchain Commons</a></p>
+                        <p>Block JSON Highlighting:</p>
+<pre><code class="language-json">{
+    "firstName": "Wolf",
+    "lastName": "McNally",
+}
+</code></pre>
+<p>Inline highlighting using <code>mdbook-inline-highlighting</code>:</p>
+<p>Here is some JSON: <code class="hljs language-json">{"firstName": "Wolf", "lastName": "McNally"}</code></p>
+<p>Our custom syntax in a block:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">    "firstName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Wolf"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">    "lastName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "McNally"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">    "firstName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Wolf"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "lastName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "McNally"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>Out custom syntax inline:</p>
+<p>Here is some dCBOR: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#0B631E">"firstName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Wolf"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "lastName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "McNally"</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#8ABE5E">"firstName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Wolf"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "lastName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "McNally"</span><span style="color:#BBBBBB">}</span></span></code></p>
+<p>This highlights correctly: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span></span></code></p>
+<p>This also works: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#D4D4D4">]</span></span></code></p>
+<p>This looks good: <code class="hljs language-json">[_, "a", "b"]</code></p>
+<p>This also looks good: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#9E5C1A">_</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "a"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "b"</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#FDCB56">_</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "a"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "b"</span><span style="color:#D4D4D4">]</span></span></code></p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#BF2828">/regex/</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/regex/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#DE6E6E">/regex/</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/regex/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<p>Works here: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/regex/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/regex/</span></span></code></p>
+<p>And here: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/regex/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/regex/</span><span style="color:#4EC9B0">'</span></span></code></p>
+<p>This works: <code>*</code></p>
+<p>So does this: <code class="hljs language-json">*</code></p>
+<p>This works: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
 
-                            <a rel="next prefetch" href="introduction/colophon.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="introduction/cover.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -192,7 +219,7 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
 
-                    <a rel="next prefetch" href="introduction/colophon.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="introduction/cover.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

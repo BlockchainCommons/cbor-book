@@ -1,0 +1,1044 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Matching using the dcbor CLI - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/mdbook-admonish.css">
+        <link rel="stylesheet" href="../theme/mdbook-admonish-custom.css">
+        <link rel="stylesheet" href="../theme/pagetoc.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="matching-patterns-with-dcbor-cli"><a class="header" href="#matching-patterns-with-dcbor-cli">Matching Patterns with <code>dcbor</code> CLI</a></h1>
+<p>The <code>dcbor</code> CLI tool includes powerful pattern matching capabilities that allow you to search for, extract, and validate specific structures within dCBOR data. This chapter introduces the <code>dcbor match</code> subcommand, which leverages the comprehensive pattern expression (AKA <em>"patex"</em>) syntax of the <code>dcbor-pattern</code> crate to enable sophisticated data analysis and extraction workflows.</p>
+<div id="admonition-tip" class="admonition admonish-tip" role="note" aria-labelledby="admonition-tip-title">
+<div class="admonition-title">
+<div id="admonition-tip-title">
+<p>Tip</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-tip"></a>
+</div>
+<div>
+<p>This chapter builds on the foundation established in <a href="dcbor_cli.html">The <code>dcbor</code> Command Line Tool</a> chapter. If you haven't read that chapter yet, we recommend doing so first to familiarize yourself with the basic <code>dcbor</code> CLI operations.</p>
+</div>
+</div>
+<h2 id="what-is-pattern-matching"><a class="header" href="#what-is-pattern-matching">What is Pattern Matching?</a></h2>
+<p>Pattern matching in the context of dCBOR allows you to:</p>
+<ul>
+<li><strong>Find specific data structures</strong> within complex CBOR documents</li>
+<li><strong>Extract values</strong> that match certain criteria</li>
+<li><strong>Validate data conformance</strong> to expected patterns</li>
+<li><strong>Find the paths</strong> that lead to matching values within nested structures</li>
+<li><strong>Transform data</strong> by capturing and reformatting matches</li>
+</ul>
+<h3 id="the-dcbor-match-command"><a class="header" href="#the-dcbor-match-command">The <code>dcbor match</code> Command</a></h3>
+<p>The basic syntax of the <code>dcbor match</code> command is:</p>
+<pre><code class="language-bash">dcbor match &lt;PATTERN&gt; [INPUT] [OPTIONS]
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code class="hljs language-bash"><PATTERN></code> is a pattern expression (AKA <em>"patex"</em>) written in dcbor-pattern expression syntax we'll explore in detail</li>
+<li><code class="hljs language-bash">[INPUT]</code> is the dCBOR data to match against (or read from stdin)</li>
+<li><code class="hljs language-bash">[OPTIONS]</code> control input/output formats and matching behavior</li>
+</ul>
+<h3 id="pattern-syntax-reference"><a class="header" href="#pattern-syntax-reference">Pattern Syntax Reference</a></h3>
+<p>You can find a complete reference for the patex syntax in the <a href="../appendices/dcbor_patex.html">dCBOR Expression Syntax Appendix</a>. This appendix provides a quick reference for the patex syntax, including value patterns, structure patterns, and meta patterns we'll cover later.</p>
+<h2 id="value-patterns"><a class="header" href="#value-patterns">Value Patterns</a></h2>
+<p>Value patterns are the foundation of dCBOR pattern matching. They allow you to match specific data types and exact values. Let's start with the most basic patterns and build up your understanding progressively.</p>
+<h3 id="numbers"><a class="header" href="#numbers">Numbers</a></h3>
+<p>Recall that if you simply type:</p>
+<pre><code class="language-bash">dcbor 42
+</code></pre>
+<p>You get back the hex representation of the CBOR number 42:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">182a</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">182a</span></span></code></pre></div>
+<p>If you want the CBOR diagnostic notation, you can use the <code>--diag</code> option:</p>
+<pre><code class="language-bash">dcbor -o diag 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+<div class="admonition-title">
+<div id="admonition-note-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+<p>In the examples in this chapter, the actual patex used is shown in its own block, and referred to in the command lines that follow it as <code class="hljs language-bash">$PATTERN</code>. So when you see a block like this:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">PATTERN</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">number</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">PATTERN</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">number</span></span></code></pre></div>
+<p>What we're hiding is that we really wrote this:</p>
+<pre><code class="language-bash">PATTERN=$(cat &lt;&lt;'EOF'
+number
+EOF
+)
+</code></pre>
+<p>This little bit of <em>heredoc</em> awkwardness is the most reliable way to make sure everything in a pattern is assigned to a shell variable verbatim. For many patterns you won't need to use it yourself.</p>
+<p>But if you do, now you know.</p>
+</div>
+</div>
+<p>What if you have two pieces of CBOR data, and you want to check whether one of them is a number?</p>
+<pre><code class="language-bash">CBOR1=182a
+CBOR2=6548656c6c6f
+</code></pre>
+<p>You can use the <code>dcbor match</code> command to check whether either of these is a number:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">number</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">number</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER -i hex $CBOR1
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER -i hex $CBOR2
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> Match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> Match</span></span></code></pre></div>
+<p>We can see that <code>CBOR1</code> is the number <code>42</code>, and <code>CBOR2</code> is not a numeric value. So let's see whether it is a textual string by using the <code>TEXT</code> pattern:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">TEXT</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">text</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">TEXT</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">text</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $TEXT -i hex $CBOR2
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"Hello"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"Hello"</span></span></code></pre></div>
+<p>The pattern matches, and we can see it is the string <code>"Hello"</code>.</p>
+<p>The <code>number</code> pattern matches <em>any</em> numeric value, whether it's an integer or floating-point number:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">number</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">number</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER 3.14
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">3.14</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">3.14</span></span></code></pre></div>
+<div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+<div class="admonition-title">
+<div id="admonition-note-1-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-1"></a>
+</div>
+<div>
+<p>Numbers in CBOR can be positive or negative integers, or floating-point values.</p>
+</div>
+</div>
+<div id="admonition-tip-1" class="admonition admonish-tip" role="note" aria-labelledby="admonition-tip-1-title">
+<div class="admonition-title">
+<div id="admonition-tip-1-title">
+<p>Tip</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-tip-1"></a>
+</div>
+<div>
+<p>To avoid confusion with command-line flags, you can use <code>--</code> to separate the pattern from the input. <code>--</code> signals that there are no command-line flags following it, allowing you to pass values that might otherwise be interpreted as flags. This is especially useful for negative numbers or special values like <code>-Infinity</code>.</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">number</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">number</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER -- -1
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">-1</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">-1</span></span></code></pre></div>
+</div>
+</div>
+<h3 id="text-strings"><a class="header" href="#text-strings">Text Strings</a></h3>
+<p>As we demonstrated above, the <code>text</code> pattern matches any text string:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">TEXT</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">text</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">TEXT</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">text</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $TEXT '"hello"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"hello"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"hello"</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $TEXT '"🌎"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"🌎"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"🌎"</span></span></code></pre></div>
+<p>Notice that when providing text strings as input to the CLI, you need to include the double-quotes as part of the dCBOR diagnostic notation. This is the same quoting consideration we discussed in the <a href="dcbor_cli.html#quoting-input">basic dcbor CLI chapter</a>.</p>
+<h3 id="byte-strings"><a class="header" href="#byte-strings">Byte Strings</a></h3>
+<p>The <code>bstr</code> pattern matches any byte string. Byte strings in CBOR are sequences of raw bytes, distinct from text strings which have UTF-8 character encoding semantics:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">BSTR</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">bstr</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">BSTR</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">bstr</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $BSTR "h'68656c6c6f'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'68656c6c6f'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'68656c6c6f'</span></span></code></pre></div>
+<p>The empty byte string is perfectly legal:</p>
+<pre><code class="language-bash">dcbor match $BSTR "h''"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h''</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h''</span></span></code></pre></div>
+<h3 id="booleans-and-null"><a class="header" href="#booleans-and-null">Booleans and Null</a></h3>
+<p>The <code>bool</code> pattern matches both boolean values:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">BOOL</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">bool</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">BOOL</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">bool</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $BOOL true
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#5D3CA9">true</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#9C9CF9">true</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $BOOL false
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#5D3CA9">false</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#9C9CF9">false</span></span></code></pre></div>
+<div id="admonition-note-2" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-2-title">
+<div class="admonition-title">
+<div id="admonition-note-2-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-2"></a>
+</div>
+<div>
+<p>Don't confuse the response <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">false</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">false</span></span></code> here as meaning that the pattern didn't match; it means that the input value was <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">false</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">false</span></span></code>, which is a valid match for the <code>bool</code> pattern.</p>
+</div>
+</div>
+<p>The <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">null</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">null</span></span></code> pattern matches CBOR's <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">null</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">null</span></span></code> value:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NULL</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#5D3CA9">null</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NULL</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#9C9CF9">null</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NULL null
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#5D3CA9">null</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#9C9CF9">null</span></span></code></pre></div>
+<h3 id="the-universal-pattern"><a class="header" href="#the-universal-pattern">The Universal Pattern</a></h3>
+<p>The <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code> ("any") pattern matches any CBOR value whatsoever.</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ANY</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#529815">*</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ANY</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#9BCD70">*</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY '"hello"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"hello"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"hello"</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY "h'1234'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'1234'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'1234'</span></span></code></pre></div>
+<p><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code> is useful when you want to match any value in a particular position within a larger structure.</p>
+<h2 id="specific-value-matching"><a class="header" href="#specific-value-matching">Specific Value Matching</a></h2>
+<p>Beyond matching types, you can match exact values by providing the specific value as your pattern.</p>
+<h3 id="specific-numbers"><a class="header" href="#specific-numbers">Specific Numbers</a></h3>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">FORTY_TWO</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">FORTY_TWO</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#34A5DA">42</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $FORTY_TWO 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<p>This won't match because 43 ≠ 42:</p>
+<pre><code class="language-bash">dcbor match $FORTY_TWO 43
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h3 id="specific-text-strings"><a class="header" href="#specific-text-strings">Specific Text Strings</a></h3>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">HELLO</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0B631E">"hello"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">HELLO</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#8ABE5E">"hello"</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $HELLO '"hello"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"hello"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"hello"</span></span></code></pre></div>
+<p>This won't match because the strings are different:</p>
+<pre><code class="language-bash">dcbor match $HELLO '"world"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h3 id="specific-byte-strings"><a class="header" href="#specific-byte-strings">Specific Byte Strings</a></h3>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">TWO_BYTES</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0D7D65">h'1234'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">TWO_BYTES</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#4EC9B0">h'1234'</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $TWO_BYTES "h'1234'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'1234'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'1234'</span></span></code></pre></div>
+<h3 id="specific-boolean-values"><a class="header" href="#specific-boolean-values">Specific Boolean Values</a></h3>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">BOOL_TRUE</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#5D3CA9">true</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">BOOL_TRUE</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#9C9CF9">true</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $BOOL_TRUE true
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#5D3CA9">true</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#9C9CF9">true</span></span></code></pre></div>
+<p>This won't match because false ≠ true:</p>
+<pre><code class="language-bash">dcbor match $BOOL_TRUE false
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h3 id="advanced-value-patterns"><a class="header" href="#advanced-value-patterns">Advanced Value Patterns</a></h3>
+<p>Beyond basic type and exact value matching, dCBOR patterns support sophisticated matching criteria including ranges for numbers and regular expressions for text and byte strings.</p>
+<h4 id="number-ranges"><a class="header" href="#number-ranges">Number Ranges</a></h4>
+<p>Numbers can be matched using ranges and inequality operators, which is useful for validating data within acceptable bounds.</p>
+<h5 id="range-matching"><a class="header" href="#range-matching">Range Matching</a></h5>
+<p>You can match numbers within a specific range using the <code>...</code> syntax:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ONE_TO_TEN</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0E76B0">1</span><span style="color:#529815">...</span><span style="color:#0E76B0">10</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ONE_TO_TEN</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#34A5DA">1</span><span style="color:#9BCD70">...</span><span style="color:#34A5DA">10</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ONE_TO_TEN 5
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">5</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">5</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ONE_TO_TEN 15
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<div id="admonition-note-3" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-3-title">
+<div class="admonition-title">
+<div id="admonition-note-3-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-3"></a>
+</div>
+<div>
+<p>The <code>...</code> syntax is shorthand for an <em>inclusive</em>, or <em>closed</em> range, meaning it includes the start and end values in the range.</p>
+<p>The same range of numbers can also be specified with a more complex syntax using the <code>&amp;</code> operator, which we'll cover later.</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ONE_TO_TEN</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#529815">>=</span><span style="color:#0E76B0">1</span><span style="color:#529815"> &#x26;</span><span style="color:#529815"> &#x3C;=</span><span style="color:#0E76B0">10</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ONE_TO_TEN</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#9BCD70">>=</span><span style="color:#34A5DA">1</span><span style="color:#9BCD70"> &#x26;</span><span style="color:#9BCD70"> &#x3C;=</span><span style="color:#34A5DA">10</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ONE_TO_TEN 5
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">5</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">5</span></span></code></pre></div>
+</div>
+</div>
+<h5 id="inequality-operators"><a class="header" href="#inequality-operators">Inequality Operators</a></h5>
+<p>Numbers support various inequality operators. Quoting is important here to ensure the shell doesn't misinterpret the operators as command-line directives:</p>
+<p>Greater than:</p>
+<pre><code class="language-bash">dcbor match "&gt;5" 10
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">10</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">10</span></span></code></pre></div>
+<p>Greater than or equal to:</p>
+<pre><code class="language-bash">dcbor match "&gt;=5" 5
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">5</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">5</span></span></code></pre></div>
+<p>Less than:</p>
+<pre><code class="language-bash">dcbor match "&lt;10" 8
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">8</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">8</span></span></code></pre></div>
+<p>Less than or equal to:</p>
+<pre><code class="language-bash">dcbor match "&lt;=10" 10
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">10</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">10</span></span></code></pre></div>
+<h5 id="half-open-ranges"><a class="header" href="#half-open-ranges">Half-Open Ranges</a></h5>
+<p>Using the <code>&amp;</code> operator allows you to construct patterns that match <em>half-open</em> ranges (where one end is inclusive and the other is exclusive):</p>
+<pre><code class="language-bash">dcbor match "&gt;1 &amp; &lt;=10" 10
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">10</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">10</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match "&gt;1 &amp; &lt;=10" 1
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h5 id="special-number-values"><a class="header" href="#special-number-values">Special Number Values</a></h5>
+<p>You can also match three special floating-point values: <code>NaN</code> ("not a number"), <code>Infinity</code>, and <code>-Infinity</code>.</p>
+<pre><code class="language-bash">dcbor match "NaN" NaN
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">NaN</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">NaN</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match "Infinity" Infinity
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">Infinity</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">Infinity</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match -- "-Infinity" -Infinity
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">-Infinity</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">-Infinity</span></span></code></pre></div>
+<div id="admonition-note-4" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-4-title">
+<div class="admonition-title">
+<div id="admonition-note-4-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-4"></a>
+</div>
+<div>
+<p>Note the use of <code>--</code> to signal the end of command-line options, allowing you to pass values that might otherwise be interpreted as flags.</p>
+</div>
+</div>
+<h4 id="text-regular-expressions"><a class="header" href="#text-regular-expressions">Text Regular Expressions</a></h4>
+<p>Regular expressions (or <em>regexes</em>) are powerful pattern matching tools for text, allowing you to search for specific patterns rather than exact text. They use special characters and syntax to define search patterns. For instance, <code>d+</code> matches one or more digits, <code class="hljs language-plain">[A-Z]+</code> matches one or more uppercase letters, and <code>^</code> and <code>$</code> anchor patterns to the beginning and end of a string respectively. With regular expressions, you can validate formats, extract information, and perform sophisticated text processing operations.</p>
+<p>dCBOR patexes that this chapter describes are based on some of the same concepts as regexes, but they are not the same. The dCBOR pattern expression syntax is designed specifically for matching CBOR data structures and values, while regular expressions are specifically for processing text. Nonetheless, some of the types you can match with dCBOR patterns, such as text strings and byte strings, can be matched using regular expressions.</p>
+<p>Text strings can be matched using regular expressions, by using the a regex enclosed in forward slashes: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/regex/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/regex/</span></span></code>:</p>
+<h5 id="match-strings-starting-with-temp"><a class="header" href="#match-strings-starting-with-temp">Match strings starting with "temp"</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">STARTS_WITH_TEMP</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#BF2828">/^temp/</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">STARTS_WITH_TEMP</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#DE6E6E">/^temp/</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $STARTS_WITH_TEMP '"temporary"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"temporary"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"temporary"</span></span></code></pre></div>
+<p>This won't match because it doesn't start with "temp":</p>
+<pre><code class="language-bash">dcbor match $STARTS_WITH_TEMP '"permanent"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h5 id="match-any-email-like-pattern"><a class="header" href="#match-any-email-like-pattern">Match any email-like pattern</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">EMAIL_ADDRESS</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#BF2828">/^[^@]+@[^@]+</span><span style="color:#DF9E1C;font-weight:bold">\.</span><span style="color:#BF2828">[^@]+$/</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">EMAIL_ADDRESS</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#DE6E6E">/^[^@]+@[^@]+</span><span style="color:#D08401;font-weight:bold">\.</span><span style="color:#DE6E6E">[^@]+$/</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $EMAIL_ADDRESS '"user@example.com"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"user@example.com"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"user@example.com"</span></span></code></pre></div>
+<div id="admonition-about-regular-expressions" class="admonition admonish-note" role="note" aria-labelledby="admonition-about-regular-expressions-title">
+<div class="admonition-title">
+<div id="admonition-about-regular-expressions-title">
+<p>About Regular Expressions</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-about-regular-expressions"></a>
+</div>
+<div>
+<p>Regular expressions use standard Rust regex syntax, which is based on <a href="https://www.pcre.org/">Perl-compatible regular expressions (PCRE)</a>. This allows for complex pattern matching including:</p>
+<ul>
+<li>Literal characters: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/abc/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/abc/</span></span></code>, <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/123/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/123/</span></span></code></li>
+<li>Any character: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/./</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/./</span></span></code></li>
+<li>Character classes: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/[a-z]/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/[a-z]/</span></span></code>, <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/[0-9]/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/[0-9]/</span></span></code>, <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#DF9E1C;font-weight:bold">\</span><span style="color:#BF2828">d/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#D08401;font-weight:bold">\</span><span style="color:#DE6E6E">d/</span></span></code> (digit), <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#DF9E1C;font-weight:bold">\</span><span style="color:#BF2828">w/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#D08401;font-weight:bold">\</span><span style="color:#DE6E6E">w/</span></span></code> (word character)</li>
+<li>Quantifiers: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">*/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">*/</span></span></code> (zero or more), <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">+/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">+/</span></span></code> (one or more), <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">?/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">?/</span></span></code> (zero or one), <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">{n,m}/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">{n,m}/</span></span></code> (between n and m times)</li>
+<li>Anchors: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/^</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/^</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">/</span></span></code> (start), <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">$/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">$/</span></span></code> (end)</li>
+<li>Groups: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/(</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern&gt;</span><span style="color:#BF2828">)/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/(</span><span style="color:#7474BD;font-style:italic">&lt;pattern&gt;</span><span style="color:#DE6E6E">)/</span></span></code></li>
+<li>Alternation: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern1&gt;</span><span style="color:#BF2828">|</span><span style="color:#8E8EE8;font-style:italic">&lt;pattern2&gt;</span><span style="color:#BF2828">/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;pattern1&gt;</span><span style="color:#DE6E6E">|</span><span style="color:#7474BD;font-style:italic">&lt;pattern2&gt;</span><span style="color:#DE6E6E">/</span></span></code></li>
+</ul>
+<p>Explaining the full syntax of regular expressions is beyond the scope of this book, but you can find more information on the specific Rust implementation in the <a href="https://docs.rs/regex/latest/regex/#syntax">Rust regex documentation</a>.</p>
+</div>
+</div>
+<h4 id="byte-string-regular-expressions"><a class="header" href="#byte-string-regular-expressions">Byte String Regular Expressions</a></h4>
+<p>Byte strings also support regular expression matching, useful for matching binary patterns or encoded data. Binary regexes operate on raw byte content, not on the hex string representation you see in diagnostic notation. The syntax is like <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#8E8EE8;font-style:italic">&lt;hex&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#7474BD;font-style:italic">&lt;hex&gt;</span><span style="color:#4EC9B0">'</span></span></code> above, but for regexes its: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#4EC9B0">'</span></span></code>.</p>
+<div id="admonition-flags-for-binary-regexes" class="admonition admonish-note" role="note" aria-labelledby="admonition-flags-for-binary-regexes-title">
+<div class="admonition-title">
+<div id="admonition-flags-for-binary-regexes-title">
+<p>Flags for Binary Regexes</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-flags-for-binary-regexes"></a>
+</div>
+<div>
+<p>Binary regexes must start with the <code>(?s-u)</code> flags to work correctly:</p>
+<ul>
+<li><code>(?s)</code> enables "dot matches newline" mode, allowing <code>.</code> to match across newlines (like byte <code>0x0a</code>)</li>
+<li><code>(?-u)</code> disables Unicode mode, allowing <code>.</code> to match any byte value instead of just valid UTF-8 sequences</li>
+<li>Use <code>x</code> notation for specific byte values (e.g., <code>xFF</code> for byte 255)</li>
+</ul>
+<p>Without these flags, patterns may fail on byte strings containing newlines or invalid UTF-8 sequences.</p>
+</div>
+</div>
+<h5 id="match-byte-strings-containing-the-byte-0xff0xff-anywhere"><a class="header" href="#match-byte-strings-containing-the-byte-0xff0xff-anywhere">Match byte strings containing the byte <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">0xFF</span></span><span class="dark-theme-only"><span style="color:#34A5DA">0xFF</span></span></code> anywhere</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">CONTAINS_FF</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/(?s-u).*</span><span style="color:#DF9E1C;font-weight:bold">\x</span><span style="color:#BF2828">FF.*/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">CONTAINS_FF</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/(?s-u).*</span><span style="color:#D08401;font-weight:bold">\x</span><span style="color:#DE6E6E">FF.*/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $CONTAINS_FF "h'ff01020304'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'ff01020304'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'ff01020304'</span></span></code></pre></div>
+<h5 id="match-byte-strings-starting-with-specific-bytes-01020102"><a class="header" href="#match-byte-strings-starting-with-specific-bytes-01020102">Match byte strings starting with specific bytes <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">0102</span></span><span class="dark-theme-only"><span style="color:#34A5DA">0102</span></span></code></a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">STARTS_WITH_0102</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/(?s-u)^</span><span style="color:#DF9E1C;font-weight:bold">\x</span><span style="color:#BF2828">01</span><span style="color:#DF9E1C;font-weight:bold">\x</span><span style="color:#BF2828">02/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">STARTS_WITH_0102</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/(?s-u)^</span><span style="color:#D08401;font-weight:bold">\x</span><span style="color:#DE6E6E">01</span><span style="color:#D08401;font-weight:bold">\x</span><span style="color:#DE6E6E">02/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $STARTS_WITH_0102 "h'01020304'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'01020304'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'01020304'</span></span></code></pre></div>
+<h5 id="match-byte-strings-ending-with-specific-bytes"><a class="header" href="#match-byte-strings-ending-with-specific-bytes">Match byte strings ending with specific bytes</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ENDS_WITH_0304</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/(?s-u)</span><span style="color:#DF9E1C;font-weight:bold">\x</span><span style="color:#BF2828">03</span><span style="color:#DF9E1C;font-weight:bold">\x</span><span style="color:#BF2828">04$/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ENDS_WITH_0304</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/(?s-u)</span><span style="color:#D08401;font-weight:bold">\x</span><span style="color:#DE6E6E">03</span><span style="color:#D08401;font-weight:bold">\x</span><span style="color:#DE6E6E">04$/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ENDS_WITH_0304 "h'01020304'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'01020304'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'01020304'</span></span></code></pre></div>
+<h5 id="match-any-4-byte-sequence"><a class="header" href="#match-any-4-byte-sequence">Match any 4-byte sequence</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ANY_FOUR_BYTES</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/(?s-u)^.{4}$/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ANY_FOUR_BYTES</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/(?s-u)^.{4}$/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_FOUR_BYTES "h'12345678'"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0D7D65">h'12345678'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#4EC9B0">h'12345678'</span></span></code></pre></div>
+<h4 id="practical-examples"><a class="header" href="#practical-examples">Practical Examples</a></h4>
+<p>These advanced patterns are particularly useful for data validation and extraction:</p>
+<h5 id="validate-that-ages-are-reasonable-0-120"><a class="header" href="#validate-that-ages-are-reasonable-0-120">Validate that ages are reasonable (0-120)</a></h5>
+<pre><code class="language-bash">dcbor match "0...120" 25
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">25</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">25</span></span></code></pre></div>
+<h5 id="extract-valid-email-addresses-from-text"><a class="header" href="#extract-valid-email-addresses-from-text">Extract valid email addresses from text</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">EMAIL_ADDRESS</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#BF2828">/^</span><span style="color:#DF9E1C;font-weight:bold">\w</span><span style="color:#BF2828">+@</span><span style="color:#DF9E1C;font-weight:bold">\w</span><span style="color:#BF2828">+</span><span style="color:#DF9E1C;font-weight:bold">\.\w</span><span style="color:#BF2828">+$/</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">EMAIL_ADDRESS</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#DE6E6E">/^</span><span style="color:#D08401;font-weight:bold">\w</span><span style="color:#DE6E6E">+@</span><span style="color:#D08401;font-weight:bold">\w</span><span style="color:#DE6E6E">+</span><span style="color:#D08401;font-weight:bold">\.\w</span><span style="color:#DE6E6E">+$/</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $EMAIL_ADDRESS '"john@example.com"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"john@example.com"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"john@example.com"</span></span></code></pre></div>
+<h5 id="find-numeric-ids-above-a-threshold"><a class="header" href="#find-numeric-ids-above-a-threshold">Find numeric IDs above a threshold</a></h5>
+<pre><code class="language-bash">dcbor match "&gt;1000" 1001
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">1001</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">1001</span></span></code></pre></div>
+<h5 id="match-iso-8601-date-like-strings"><a class="header" href="#match-iso-8601-date-like-strings">Match ISO-8601 date-like strings</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ISO_DATE</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#BF2828">/^</span><span style="color:#DF9E1C;font-weight:bold">\d</span><span style="color:#BF2828">{4}-</span><span style="color:#DF9E1C;font-weight:bold">\d</span><span style="color:#BF2828">{2}-</span><span style="color:#DF9E1C;font-weight:bold">\d</span><span style="color:#BF2828">{2}$/</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ISO_DATE</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#DE6E6E">/^</span><span style="color:#D08401;font-weight:bold">\d</span><span style="color:#DE6E6E">{4}-</span><span style="color:#D08401;font-weight:bold">\d</span><span style="color:#DE6E6E">{2}-</span><span style="color:#D08401;font-weight:bold">\d</span><span style="color:#DE6E6E">{2}$/</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ISO_DATE '"2023-12-25"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0B631E">"2023-12-25"</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#8ABE5E">"2023-12-25"</span></span></code></pre></div>
+<p>These advanced value patterns form the building blocks for more complex structure matching, which we'll explore in the next section.</p>
+<h3 id="understanding-match-output"><a class="header" href="#understanding-match-output">Understanding Match Output</a></h3>
+<p>When a pattern matches, the default output shows the matched value. This seems simple now, but it becomes more meaningful when we start working with complex structures where patterns might match multiple values or nested elements.</p>
+<pre><code class="language-bash">dcbor match number 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span></span></code></pre></div>
+<p>The output <code>42</code> tells us that the pattern <code>number</code> matched the input value <code>42</code>. When we move to structure patterns, you'll see how this output format shows the path through complex data structures.</p>
+<h3 id="pattern-validation-and-error-messages"><a class="header" href="#pattern-validation-and-error-messages">Pattern Validation and Error Messages</a></h3>
+<p>When a pattern doesn't match, the CLI returns an error:</p>
+<pre><code class="language-bash">dcbor match text 42
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<p>This happens because the input <code>42</code> is a number, but the pattern <code>text</code> expects a string. Understanding these error messages helps you debug your patterns and understand why they might not be working as expected.</p>
+<p>Finally, here's are a couple of example of patterns that fail to parse:</p>
+<pre><code class="language-bash">dcbor match tex '"Hello"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> Failed</span><span style="color:#9E5C1A"> to</span><span style="color:#9E5C1A"> parse</span><span style="color:#9E5C1A"> pattern</span><span style="color:#9E5C1A"> at</span><span style="color:#9E5C1A"> position</span><span style="color:#0E76B0"> 0</span><span style="color:#333333">..</span><span style="color:#0E76B0">1:</span><span style="color:#9E5C1A"> unrecognized</span><span style="color:#9E5C1A"> token</span><span style="color:#529721"> 't'</span></span>
+<span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Pattern</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> tex</span></span>
+<span class="line"><span style="color:#333333">│          ^</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> Failed</span><span style="color:#FDCB56"> to</span><span style="color:#FDCB56"> parse</span><span style="color:#FDCB56"> pattern</span><span style="color:#FDCB56"> at</span><span style="color:#FDCB56"> position</span><span style="color:#34A5DA"> 0</span><span style="color:#BBBBBB">..</span><span style="color:#34A5DA">1:</span><span style="color:#FDCB56"> unrecognized</span><span style="color:#FDCB56"> token</span><span style="color:#D6E893"> 't'</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Pattern</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> tex</span></span>
+<span class="line"><span style="color:#BBBBBB">│          ^</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match '"Hello' '"Hello"'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> Failed</span><span style="color:#9E5C1A"> to</span><span style="color:#9E5C1A"> parse</span><span style="color:#9E5C1A"> pattern</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> Unterminated</span><span style="color:#9E5C1A"> string</span><span style="color:#9E5C1A"> literal</span><span style="color:#9E5C1A"> at</span><span style="color:#0E76B0"> 0</span><span style="color:#333333">..</span><span style="color:#0E76B0">1</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> Failed</span><span style="color:#FDCB56"> to</span><span style="color:#FDCB56"> parse</span><span style="color:#FDCB56"> pattern</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> Unterminated</span><span style="color:#FDCB56"> string</span><span style="color:#FDCB56"> literal</span><span style="color:#FDCB56"> at</span><span style="color:#34A5DA"> 0</span><span style="color:#BBBBBB">..</span><span style="color:#34A5DA">1</span></span></code></pre></div>
+<h2 id="structure-patterns"><a class="header" href="#structure-patterns">Structure Patterns</a></h2>
+<p>Beyond matching individual values, dCBOR patterns support matching complex structures like arrays, maps, and tagged values. These patterns allow you to validate data schemas and extract elements from nested structures.</p>
+<h3 id="array-patterns"><a class="header" href="#array-patterns">Array Patterns</a></h3>
+<h4 id="basic-array-matching"><a class="header" href="#basic-array-matching">Basic Array Matching</a></h4>
+<p>The <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">array</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">array</span></span></code> pattern matches any array structure:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ANY_ARRAY</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">array</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ANY_ARRAY</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">array</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_ARRAY '[1, 2, 3]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_ARRAY '["hello", "world"]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0B631E">"hello"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "world"</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"hello"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "world"</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_ARRAY '[]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ []</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[]</span></span></code></pre></div>
+<div id="admonition-note-5" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-5-title">
+<div class="admonition-title">
+<div id="admonition-note-5-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-5"></a>
+</div>
+<div>
+<p>If you want to match the empty array specifically, then the pattern is just the empty array: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[]</span></span></code>.</p>
+</div>
+</div>
+<h4 id="array-sequence-patterns"><a class="header" href="#array-sequence-patterns">Array Sequence Patterns</a></h4>
+<p>The array pattern can contain a comma-separated list of patterns, where each pattern matches zero or more elements in the array in sequence.</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">[ </span><span style="color:#8E8EE8;font-style:italic">&#x3C;patex></span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &#x3C;patex></span><span style="color:#0E76B0">,</span><span style="color:#529815"> ...</span><span style="color:#333333"> ]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#D4D4D4">[</span><span style="color:#7474BD;font-style:italic"> &#x3C;patex></span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &#x3C;patex></span><span style="color:#34A5DA">,</span><span style="color:#9BCD70"> ...</span><span style="color:#D4D4D4"> ]</span></span></code></pre></div>
+<h5 id="match-an-array-with-a-number-followed-by-text"><a class="header" href="#match-an-array-with-a-number-followed-by-text">Match an array with a number followed by text</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER_THEN_TEXT</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">[</span><span style="color:#1661E1">number</span><span style="color:#0E76B0">,</span><span style="color:#1661E1"> text</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER_THEN_TEXT</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#D4D4D4">[</span><span style="color:#6AA1FF">number</span><span style="color:#34A5DA">,</span><span style="color:#6AA1FF"> text</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER_THEN_TEXT '[42, "hello"]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<div id="admonition-note-6" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-6-title">
+<div class="admonition-title">
+<div id="admonition-note-6-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-6"></a>
+</div>
+<div>
+<p><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#1661E1">number</span><span style="color:#0E76B0">,</span><span style="color:#1661E1"> text</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#6AA1FF">number</span><span style="color:#34A5DA">,</span><span style="color:#6AA1FF"> text</span><span style="color:#D4D4D4">]</span></span></code> means the first element must be a number, followed by a text string, and that's it: these must be the only elements and they must appear in that order, so adding another element would not match:</p>
+<pre><code class="language-bash">dcbor match $NUMBER_THEN_TEXT '[42, "hello", 0]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+</div>
+</div>
+<p>In this case the first element must be the exact number <code>42</code>, but the second element can be any text string:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">FORTY_TWO_THEN_TEXT</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">[</span><span style="color:#0E76B0">42,</span><span style="color:#1661E1"> text</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">FORTY_TWO_THEN_TEXT</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#6AA1FF"> text</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $FORTY_TWO_THEN_TEXT '[42, "hello"]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<p>This won't match because the elements are in wrong order:</p>
+<pre><code class="language-bash">dcbor match $FORTY_TWO_THEN_TEXT '["hello", 42]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h5 id="match-array-starting-with-number-then-text-then-anything-else"><a class="header" href="#match-array-starting-with-number-then-text-then-anything-else">Match array starting with number, then text, then anything else</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER_THEN_TEXT_THEN_ANY</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">[</span><span style="color:#1661E1">number</span><span style="color:#0E76B0">,</span><span style="color:#1661E1"> text</span><span style="color:#0E76B0">,</span><span style="color:#529815"> *</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER_THEN_TEXT_THEN_ANY</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#D4D4D4">[</span><span style="color:#6AA1FF">number</span><span style="color:#34A5DA">,</span><span style="color:#6AA1FF"> text</span><span style="color:#34A5DA">,</span><span style="color:#9BCD70"> *</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER_THEN_TEXT_THEN_ANY '[42, "hello", true]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<div id="admonition-note-7" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-7-title">
+<div class="admonition-title">
+<div id="admonition-note-7-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-7"></a>
+</div>
+<div>
+<p>In the example above, the <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code> operator by itself matches <em>exactly one</em> element. If you want to match zero or more of any elements from this point on, you can use the repeating pattern <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">(</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">(</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span></span></code>:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER_THEN_TEXT_THEN_REST</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">[</span><span style="color:#1661E1">number</span><span style="color:#0E76B0">,</span><span style="color:#1661E1"> text</span><span style="color:#0E76B0">,</span><span style="color:#333333"> (</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER_THEN_TEXT_THEN_REST</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#D4D4D4">[</span><span style="color:#6AA1FF">number</span><span style="color:#34A5DA">,</span><span style="color:#6AA1FF"> text</span><span style="color:#34A5DA">,</span><span style="color:#BBBBBB"> (</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER_THEN_TEXT_THEN_REST '[42, "hello"]'
+dcbor match $NUMBER_THEN_TEXT_THEN_REST '[42, "hello", true]'
+dcbor match $NUMBER_THEN_TEXT_THEN_REST '[42, "hello", true, false]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#333333">]</span></span>
+<span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#333333">]</span></span>
+<span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">42,</span><span style="color:#0B631E"> "hello"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> false</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#D4D4D4">]</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#D4D4D4">]</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#8ABE5E"> "hello"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> false</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<p>We'll cover repeating patterns more thoroughly later.</p>
+</div>
+</div>
+<h3 id="map-patterns"><a class="header" href="#map-patterns">Map Patterns</a></h3>
+<h4 id="basic-map-matching"><a class="header" href="#basic-map-matching">Basic Map Matching</a></h4>
+<p>The <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">map</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">map</span></span></code> pattern matches any map structure</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ANY_MAP</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">map</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ANY_MAP</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">map</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_MAP '{1: 2, 3: 4}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0E76B0">1:</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3:</span><span style="color:#0E76B0"> 4</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#34A5DA">1:</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3:</span><span style="color:#34A5DA"> 4</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_MAP '{"hello": "world"}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0B631E">"hello"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "world"</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#8ABE5E">"hello"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "world"</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_MAP '{}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {}</span></span></code></pre></div>
+<div id="admonition-note-8" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-8-title">
+<div class="admonition-title">
+<div id="admonition-note-8-title">
+<p>Note</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-note-8"></a>
+</div>
+<div>
+<p>If you want to match the empty map specifically, then the pattern is just the empty map: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{}</span></span></code>.</p>
+</div>
+</div>
+<h4 id="key-value-constraints"><a class="header" href="#key-value-constraints">Key-Value Constraints</a></h4>
+<p>Maps can be matched by specifying key-value constraints using <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;key&gt;</span><span style="color:#0E76B0">:</span><span style="color:#8E8EE8;font-style:italic"> &lt;value&gt;</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;key&gt;</span><span style="color:#34A5DA">:</span><span style="color:#7474BD;font-style:italic"> &lt;value&gt;</span></span></code> notation. For each constraint, the target map must have at least one key-value pair that satisfies the constraint.</p>
+<h5 id="match-map-with-a-specific-key-and-a-text-value"><a class="header" href="#match-map-with-a-specific-key-and-a-text-value">Match map with a specific key, and a text value</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">HAS_KEY_NAME</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">{</span><span style="color:#0B631E">"name"</span><span style="color:#0E76B0">:</span><span style="color:#1661E1"> text</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">HAS_KEY_NAME</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#BBBBBB">{</span><span style="color:#8ABE5E">"name"</span><span style="color:#34A5DA">:</span><span style="color:#6AA1FF"> text</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $HAS_KEY_NAME '{"name": "Alice", "age": 30}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0B631E">"age"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 30,</span><span style="color:#0B631E"> "name"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Alice"</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#8ABE5E">"age"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 30,</span><span style="color:#8ABE5E"> "name"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Alice"</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>Notice that it is not necessary to match every key-value pair in the map; you can match just the ones you care about. The output will show the entire map.</p>
+<h5 id="match-map-with-number-valued-key"><a class="header" href="#match-map-with-number-valued-key">Match map with number-valued key</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">HAS_KEY_1</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">{</span><span style="color:#0E76B0">1:</span><span style="color:#1661E1"> text</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">HAS_KEY_1</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#BBBBBB">{</span><span style="color:#34A5DA">1:</span><span style="color:#6AA1FF"> text</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $HAS_KEY_1 '{1: "first", 2: "second"}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0E76B0">1:</span><span style="color:#0B631E"> "first"</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 2:</span><span style="color:#0B631E"> "second"</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#34A5DA">1:</span><span style="color:#8ABE5E"> "first"</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 2:</span><span style="color:#8ABE5E"> "second"</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>If you want to match a map that <em>only</em> contains a specific key-value pair, you can specify the exact number of entries using the <code>&amp;</code> operator and a map pattern containing a quantifier:</p>
+<h5 id="match-map-with-exactly-one-key-value-pair-where-key-is-1-and-value-is-any-text"><a class="header" href="#match-map-with-exactly-one-key-value-pair-where-key-is-1-and-value-is-any-text">Match map with exactly one key-value pair, where key is 1 and value is any text</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">HAS_SINGLE_ENTRY_WITH_KEY_1</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">{ {</span><span style="color:#0E76B0">1</span><span style="color:#333333">} } </span><span style="color:#529815">&#x26;</span><span style="color:#333333"> {</span><span style="color:#0E76B0">1:</span><span style="color:#1661E1"> text</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">HAS_SINGLE_ENTRY_WITH_KEY_1</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#BBBBBB">{ {</span><span style="color:#34A5DA">1</span><span style="color:#BBBBBB">} } </span><span style="color:#9BCD70">&#x26;</span><span style="color:#BBBBBB"> {</span><span style="color:#34A5DA">1:</span><span style="color:#6AA1FF"> text</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>This will not match because it has two entries, and the patex specifies one:</p>
+<pre><code class="language-bash">dcbor match $HAS_SINGLE_ENTRY_WITH_KEY_1 '{1: "first"}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0E76B0">1:</span><span style="color:#0B631E"> "first"</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#34A5DA">1:</span><span style="color:#8ABE5E"> "first"</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>There are two entries, so no match:</p>
+<pre><code class="language-bash">dcbor match $HAS_SINGLE_ENTRY_WITH_KEY_1 '{1: "first", 2: "second"}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#9E5C1A">Error</span><span style="color:#0E76B0">:</span><span style="color:#9E5C1A"> No</span><span style="color:#9E5C1A"> match</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#FDCB56">Error</span><span style="color:#34A5DA">:</span><span style="color:#FDCB56"> No</span><span style="color:#FDCB56"> match</span></span></code></pre></div>
+<h5 id="match-map-with-multiple-required-entries"><a class="header" href="#match-map-with-multiple-required-entries">Match map with multiple required entries</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">HAS_ID_AND_NAME</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#333333">{</span><span style="color:#0B631E">"id"</span><span style="color:#0E76B0">:</span><span style="color:#1661E1"> number</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "name"</span><span style="color:#0E76B0">:</span><span style="color:#1661E1"> text</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">HAS_ID_AND_NAME</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#BBBBBB">{</span><span style="color:#8ABE5E">"id"</span><span style="color:#34A5DA">:</span><span style="color:#6AA1FF"> number</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "name"</span><span style="color:#34A5DA">:</span><span style="color:#6AA1FF"> text</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>Both key-value pairs must exist, but other entries are allowed</p>
+<pre><code class="language-bash">dcbor match $HAS_ID_AND_NAME '{"id": 1, "name": "Alice", "age": 30}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0B631E">"id"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 1,</span><span style="color:#0B631E"> "age"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 30,</span><span style="color:#0B631E"> "name"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Alice"</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#8ABE5E">"id"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 1,</span><span style="color:#8ABE5E"> "age"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 30,</span><span style="color:#8ABE5E"> "name"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Alice"</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<h3 id="tagged-value-patterns"><a class="header" href="#tagged-value-patterns">Tagged Value Patterns</a></h3>
+<p>CBOR tagged values apply semantic meaning to data. Patterns can match both the tag and the content.</p>
+<h4 id="tag-number-matching"><a class="header" href="#tag-number-matching">Tag Number Matching</a></h4>
+<h5 id="match-any-value-with-tag-1234-containing-a-number"><a class="header" href="#match-any-value-with-tag-1234-containing-a-number">Match any value with tag 1234 containing a number</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER_TAGGED_1234</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">tagged</span><span style="color:#333333">(</span><span style="color:#0E76B0">1234,</span><span style="color:#1661E1"> number</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER_TAGGED_1234</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">1234,</span><span style="color:#6AA1FF"> number</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER_TAGGED_1234 "1234(42)"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">1234</span><span style="color:#333333">(</span><span style="color:#0E76B0">42</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">1234</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">42</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<h5 id="match-tag-12345-with-any-content"><a class="header" href="#match-tag-12345-with-any-content">Match tag 12345 with any content</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">ANY_TAGGED_12345</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">tagged</span><span style="color:#333333">(</span><span style="color:#0E76B0">12345,</span><span style="color:#529815"> *</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">ANY_TAGGED_12345</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">12345,</span><span style="color:#9BCD70"> *</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $ANY_TAGGED_12345 '12345("tagged string")'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">12345</span><span style="color:#333333">(</span><span style="color:#0B631E">"tagged string"</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">12345</span><span style="color:#BBBBBB">(</span><span style="color:#8ABE5E">"tagged string"</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<h4 id="content-pattern-matching"><a class="header" href="#content-pattern-matching">Content Pattern Matching</a></h4>
+<p>Tagged patterns specify both the tag value and required content patterns:</p>
+<h5 id="match-tag-2-bignum-with-byte-string-content"><a class="header" href="#match-tag-2-bignum-with-byte-string-content">Match tag 2 (bignum) with byte string content</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">BIGNUM</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">tagged</span><span style="color:#333333">(</span><span style="color:#0E76B0">2,</span><span style="color:#1661E1"> bstr</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">BIGNUM</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">2,</span><span style="color:#6AA1FF"> bstr</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $BIGNUM "2(h'0102')"
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">2</span><span style="color:#333333">(</span><span style="color:#0D7D65">h'0102'</span><span style="color:#333333">)</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">2</span><span style="color:#BBBBBB">(</span><span style="color:#4EC9B0">h'0102'</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<h5 id="match-tag-with-array-content-having-specific-structure"><a class="header" href="#match-tag-with-array-content-having-specific-structure">Match tag with array content having specific structure</a></h5>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#9E5C1A">NUMBER_TEXT_ARRAY_TAGGED_42</span><span style="color:#333333">=</span></span>
+<span class="line"><span style="color:#1661E1">tagged</span><span style="color:#333333">(</span><span style="color:#0E76B0">42,</span><span style="color:#333333"> [</span><span style="color:#1661E1">number</span><span style="color:#0E76B0">,</span><span style="color:#1661E1"> text</span><span style="color:#333333">])</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#FDCB56">NUMBER_TEXT_ARRAY_TAGGED_42</span><span style="color:#BBBBBB">=</span></span>
+<span class="line"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB">(</span><span style="color:#34A5DA">42,</span><span style="color:#D4D4D4"> [</span><span style="color:#6AA1FF">number</span><span style="color:#34A5DA">,</span><span style="color:#6AA1FF"> text</span><span style="color:#D4D4D4">]</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match $NUMBER_TEXT_ARRAY_TAGGED_42 '42([1, "data"])'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">42</span><span style="color:#333333">([</span><span style="color:#0E76B0">1,</span><span style="color:#0B631E"> "data"</span><span style="color:#333333">])</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">42</span><span style="color:#BBBBBB">(</span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#8ABE5E"> "data"</span><span style="color:#D4D4D4">]</span><span style="color:#BBBBBB">)</span></span></code></pre></div>
+<h2 id="introducing-paths"><a class="header" href="#introducing-paths">Introducing Paths</a></h2>
+<h3 id="single-path-single-element-output"><a class="header" href="#single-path-single-element-output">Single Path, Single Element Output</a></h3>
+<p>When a pattern matches, the default output shows the matching value. For structures, this represents the entire matching structure:</p>
+<pre><code class="language-bash">dcbor match 'array' '[1, 2, 3]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#0E76B0"> 2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#34A5DA"> 2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span></span></code></pre></div>
+<pre><code class="language-bash">dcbor match '{"key": *}' '{"key": "value", "other": 42}'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ {</span><span style="color:#0B631E">"key"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "value"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "other"</span><span style="color:#0E76B0">:</span><span style="color:#0E76B0"> 42</span><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ {</span><span style="color:#8ABE5E">"key"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "value"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "other"</span><span style="color:#34A5DA">:</span><span style="color:#34A5DA"> 42</span><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>The examples above only include one match, and one way to get there. But dCBOR items are actually <em>trees</em>, with arrays and maps representing possible branchs. This becomes more meaningful when working with search patterns or captures that can match multiple items or nested elements. For example, later we'll discuss the <code>search</code> pattern, which visits all the elements in a dcbor item. For a quick example, if you match a pattern that finds all numbers in an array, the output will show each number along with its context, or <em>path</em> from the root of the structure:</p>
+<pre><code class="language-bash">dcbor match 'search(number)' '[1, [2, 3]]'
+</code></pre>
+<p>The output shows three <em>paths</em> from the root item to numbers within it:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#333333"> [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]]</span></span>
+<span class="line"><span style="color:#333333">│     </span><span style="color:#0E76B0">1</span></span>
+<span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#333333"> [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]]</span></span>
+<span class="line"><span style="color:#333333">│     [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">2</span></span>
+<span class="line"><span style="color:#333333">│ [</span><span style="color:#0E76B0">1,</span><span style="color:#333333"> [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]]</span></span>
+<span class="line"><span style="color:#333333">│     [</span><span style="color:#0E76B0">2,</span><span style="color:#0E76B0"> 3</span><span style="color:#333333">]</span></span>
+<span class="line"><span style="color:#333333">│         </span><span style="color:#0E76B0">3</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#D4D4D4"> [</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]]</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#34A5DA">1</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#D4D4D4"> [</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]]</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">2</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#D4D4D4"> [</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]]</span></span>
+<span class="line"><span style="color:#BBBBBB">│     </span><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">2,</span><span style="color:#34A5DA"> 3</span><span style="color:#D4D4D4">]</span></span>
+<span class="line"><span style="color:#BBBBBB">│         </span><span style="color:#34A5DA">3</span></span></code></pre></div>
+<p>You can choose to output the last item of each path using the <code>--last-only</code> option, which will only show the final matched items:</p>
+<pre><code class="language-bash">dcbor match --last-only "search(number)" '[1, [2, 3]]'
+</code></pre>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">1</span></span>
+<span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">2</span></span>
+<span class="line"><span style="color:#333333">│ </span><span style="color:#0E76B0">3</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">1</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">2</span></span>
+<span class="line"><span style="color:#BBBBBB">│ </span><span style="color:#34A5DA">3</span></span></code></pre></div>
+<h3 id="output-options-overview"><a class="header" href="#output-options-overview">Output Options Overview</a></h3>
+<p>The <code>dcbor match</code> command provides several options for controlling output format:</p>
+<ul>
+<li><code>--captures</code>: Show named capture information (covered in advanced chapter)</li>
+<li><code>--last-only</code>: Show only the final matched items</li>
+<li><code>--in FORMAT</code> / <code>--out FORMAT</code>: Control input/output formats (hex, diag, etc.)</li>
+</ul>
+<div id="admonition-work-in-progress" class="admonition admonish-wip" role="note" aria-labelledby="admonition-work-in-progress-title">
+<div class="admonition-title">
+<div id="admonition-work-in-progress-title">
+<p>Work in Progress</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-work-in-progress"></a>
+</div>
+<div>
+<p>The next chapter will cover advanced matching techniques.</p>
+<p>The appendices include a <a href="../appendices/dcbor_patex.html">dCBOR Patex Reference</a>.</p>
+</div>
+</div>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part_2/dcbor_cli.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part_2/dcbor_cli.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../part_3/introducing_gordian_envelope.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../theme/pagetoc.js"></script>
+
+
+    </div>
+    </body>
+</html>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tooling and Libraries - The CBOR, dCBOR, and Gordian Envelope Book</title>
+        <title>Test - The CBOR, dCBOR, and Gordian Envelope Book</title>
 
 
         <!-- Custom HTML head -->
@@ -12,37 +12,37 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../favicon.svg">
-        <link rel="shortcut icon" href="../favicon.png">
-        <link rel="stylesheet" href="../css/variables.css">
-        <link rel="stylesheet" href="../css/general.css">
-        <link rel="stylesheet" href="../css/chrome.css">
-        <link rel="stylesheet" href="../css/print.css" media="print">
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../fonts/fonts.css">
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/mdbook-admonish.css">
-        <link rel="stylesheet" href="../theme/mdbook-admonish-custom.css">
-        <link rel="stylesheet" href="../theme/pagetoc.css">
-        <link rel="stylesheet" href="../theme/custom.css">
+        <link rel="stylesheet" href="theme/mdbook-admonish.css">
+        <link rel="stylesheet" href="theme/mdbook-admonish-custom.css">
+        <link rel="stylesheet" href="theme/pagetoc.css">
+        <link rel="stylesheet" href="theme/custom.css">
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../";
+            const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc.js"></script>
+        <script src="toc.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +106,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                     <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
 
                     <div class="right-buttons">
-                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -170,30 +170,45 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="tooling-and-libraries"><a class="header" href="#tooling-and-libraries">Tooling and Libraries</a></h1>
-<div id="admonition-forthcoming" class="admonition admonish-wip" role="note" aria-labelledby="admonition-forthcoming-title">
-<div class="admonition-title">
-<div id="admonition-forthcoming-title">
-<p>Forthcoming...</p>
-</div>
-<a class="admonition-anchor-link" href="#admonition-forthcoming"></a>
-</div>
-<div>
-<p><em>Empty page appears</em><br />
-<em>fingers hover over keys</em><br />
-<em>clarity deferred</em></p>
-</div>
-</div>
+                        <p>Block JSON Highlighting:</p>
+<pre><code class="language-json">{
+    "firstName": "Wolf",
+    "lastName": "McNally",
+}
+</code></pre>
+<p>Inline highlighting using <code>mdbook-inline-highlighting</code>:</p>
+<p>Here is some JSON: <code class="hljs language-json">{"firstName": "Wolf", "lastName": "McNally"}</code></p>
+<p>Our custom syntax in a block:</p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#333333">{</span></span>
+<span class="line"><span style="color:#0B631E">    "firstName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Wolf"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#0B631E">    "lastName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "McNally"</span><span style="color:#0E76B0">,</span></span>
+<span class="line"><span style="color:#333333">}</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#BBBBBB">{</span></span>
+<span class="line"><span style="color:#8ABE5E">    "firstName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Wolf"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#8ABE5E">    "lastName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "McNally"</span><span style="color:#34A5DA">,</span></span>
+<span class="line"><span style="color:#BBBBBB">}</span></span></code></pre></div>
+<p>Out custom syntax inline:</p>
+<p>Here is some dCBOR: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#0B631E">"firstName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "Wolf"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "lastName"</span><span style="color:#0E76B0">:</span><span style="color:#0B631E"> "McNally"</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#8ABE5E">"firstName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "Wolf"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "lastName"</span><span style="color:#34A5DA">:</span><span style="color:#8ABE5E"> "McNally"</span><span style="color:#BBBBBB">}</span></span></code></p>
+<p>This highlights correctly: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span></span><span class="dark-theme-only"><span style="color:#34A5DA">1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span></span></code></p>
+<p>This also works: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">1,</span><span style="color:#0B631E"> "foo"</span><span style="color:#0E76B0">,</span><span style="color:#5D3CA9"> true</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">1,</span><span style="color:#8ABE5E"> "foo"</span><span style="color:#34A5DA">,</span><span style="color:#9C9CF9"> true</span><span style="color:#D4D4D4">]</span></span></code></p>
+<p>This looks good: <code class="hljs language-json">[_, "a", "b"]</code></p>
+<p>This also looks good: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#9E5C1A">_</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "a"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "b"</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#FDCB56">_</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "a"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "b"</span><span style="color:#D4D4D4">]</span></span></code></p>
+<div class="light-theme-only"><pre class="shiki dCBOR Envelope Light Theme" style="background-color:#fffffe;color:#333333" tabindex="0"><code><span class="line"><span style="color:#BF2828">/regex/</span></span>
+<span class="line"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/regex/</span><span style="color:#0D7D65">'</span></span></code></pre></div>
+<div class="dark-theme-only"><pre class="shiki dCBOR Envelope Dark Theme" style="background-color:#1e1e1e;color:#bbbbbb" tabindex="0"><code><span class="line"><span style="color:#DE6E6E">/regex/</span></span>
+<span class="line"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/regex/</span><span style="color:#4EC9B0">'</span></span></code></pre></div>
+<p>Works here: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/regex/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/regex/</span></span></code></p>
+<p>And here: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/regex/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/regex/</span><span style="color:#4EC9B0">'</span></span></code></p>
+<p>This works: <code>*</code></p>
+<p>So does this: <code class="hljs language-json">*</code></p>
+<p>This works: <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../part_3/practical_applications_and_patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
 
-                            <a rel="next prefetch" href="../part_3/advanced_topics.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="introduction/cover.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -203,11 +218,8 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../part_3/practical_applications_and_patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
 
-                    <a rel="next prefetch" href="../part_3/advanced_topics.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="introduction/cover.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -222,16 +234,16 @@
         </script>
 
 
-        <script src="../elasticlunr.min.js"></script>
-        <script src="../mark.min.js"></script>
-        <script src="../searcher.js"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="../clipboard.min.js"></script>
-        <script src="../highlight.js"></script>
-        <script src="../book.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script src="../theme/pagetoc.js"></script>
+        <script src="theme/pagetoc.js"></script>
 
 
     </div>

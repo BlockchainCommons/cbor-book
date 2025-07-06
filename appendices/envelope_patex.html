@@ -1,0 +1,789 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Appendix C: Envelope Patex Reference - The CBOR, dCBOR, and Gordian Envelope Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/mdbook-admonish.css">
+        <link rel="stylesheet" href="../theme/mdbook-admonish-custom.css">
+        <link rel="stylesheet" href="../theme/pagetoc.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The CBOR, dCBOR, and Gordian Envelope Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="envelope-pattern-expressions-patex"><a class="header" href="#envelope-pattern-expressions-patex">Envelope Pattern Expressions (<em>patex</em>)</a></h1>
+<p>This syntax is inspired by regular expressions but is specifically designed for Gordian Envelope.</p>
+<p>The patex syntax is designed to be flexible and expressive. Patterns can be composed of <em>leaf patterns</em>, <em>structure patterns</em>, and combinators known as <em>meta-patterns</em>.</p>
+<p>Keywords like <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">bool</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">bool</span></span></code>, <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">number</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">number</span></span></code>, etc., are case-sensitive. Patterns can include specific values, ranges, or regexes to match against the corresponding parts of the envelope.</p>
+<p>Parentheses are used to group patterns or specify ranges. The syntax <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">(</span><span style="color:#9E5C1A">pattern</span><span style="color:#333333">)</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">(</span><span style="color:#FDCB56">pattern</span><span style="color:#BBBBBB">)</span></span></code> is really just the repeat pattern with a repeat that matches the pattern exactly once.</p>
+<p>White space is ignored between tokens, so you can use it to make patterns more readable. The syntax examples below include white space both to show where it can be used and to show where it <em>cannot</em> be used (i.e., between characters of a token like <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*?</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*?</span></span></code>)</p>
+<h2 id="leaf-patterns"><a class="header" href="#leaf-patterns">Leaf Patterns</a></h2>
+<p>All leaf patterns match Envelope leaves, which are CBOR values.</p>
+<h3 id="dcbor-value-patterns"><a class="header" href="#dcbor-value-patterns">dCBOR Value Patterns</a></h3>
+<ul>
+<li>Boolean
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">bool</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">bool</span></span></code>
+<ul>
+<li>Matches any boolean value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">true</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">true</span></span></code>
+<ul>
+<li>Matches the boolean value <code>true</code>.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">false</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">false</span></span></code>
+<ul>
+<li>Matches the boolean value <code>false</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ByteString
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">bstr</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">bstr</span></span></code>
+<ul>
+<li>Matches any byte string.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#8E8EE8;font-style:italic">&lt;hex&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#7474BD;font-style:italic">&lt;hex&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a byte string with the specified hex value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">h'</span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">h'</span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a byte string that matches the specified binary regex.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Date
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span></span></code>
+<ul>
+<li>Matches any date value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;iso-date&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;iso-date&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a date value with the specified ISO 8601 format.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;iso-date&gt;</span><span style="color:#0D7D65">...</span><span style="color:#8E8EE8;font-style:italic">&lt;iso-date&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;iso-date&gt;</span><span style="color:#4EC9B0">...</span><span style="color:#7474BD;font-style:italic">&lt;iso-date&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a date value within the specified range.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;iso-date&gt;</span><span style="color:#0D7D65">...'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;iso-date&gt;</span><span style="color:#4EC9B0">...'</span></span></code>
+<ul>
+<li>Matches a date value greater than or equal to the specified ISO 8601 date.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span><span style="color:#0D7D65">'...</span><span style="color:#8E8EE8;font-style:italic">&lt;iso-date&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span><span style="color:#4EC9B0">'...</span><span style="color:#7474BD;font-style:italic">&lt;iso-date&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a date value less than or equal to the specified ISO 8601 date.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">date</span><span style="color:#0D7D65">'</span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">date</span><span style="color:#4EC9B0">'</span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a date value that matches the specified regex.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Known Value
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">known</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">known</span></span></code>
+<ul>
+<li>Matches any known value. (See the <code>known-values</code> crate for more information.)</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;value&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;value&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches the specified known value, which is a u64 value. dCBOR prints known values enclosed in single quotes, so we use that syntax here for familiarity. Note: This is a non-prefixed single-quoted pattern.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;name&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;name&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches the known value with the specified name. Again we use single quotes here for familiarity. Note: This is a non-prefixed single-quoted pattern.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0D7D65">'</span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#4EC9B0">'</span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a known value with a name that matches the specified regex. We do not use the single quotes here. Note: This is a non-prefixed single-quoted pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Null
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#5D3CA9">null</span></span><span class="dark-theme-only"><span style="color:#9C9CF9">null</span></span></code>
+<ul>
+<li>Matches the null value.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Number
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">number</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">number</span></span></code>
+<ul>
+<li>Matches any number.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span></span></code>
+<ul>
+<li>Bare numeric value matches the specified number.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span><span style="color:#529815">...</span><span style="color:#8E8EE8;font-style:italic">&lt;m&gt;</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span><span style="color:#9BCD70">...</span><span style="color:#7474BD;font-style:italic">&lt;m&gt;</span></span></code>
+<ul>
+<li>Matches a number within the specified range.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">&gt;= </span><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">&gt;= </span><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span></span></code>
+<ul>
+<li>Matches a number greater than or equal to the specified value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">&lt;= </span><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">&lt;= </span><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span></span></code>
+<ul>
+<li>Matches a number less than or equal to the specified value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">&gt; </span><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">&gt; </span><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span></span></code>
+<ul>
+<li>Matches a number greater than the specified value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">&lt; </span><span style="color:#8E8EE8;font-style:italic">&lt;n&gt;</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">&lt; </span><span style="color:#7474BD;font-style:italic">&lt;n&gt;</span></span></code>
+<ul>
+<li>Matches a number less than the specified value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">NaN</span></span><span class="dark-theme-only"><span style="color:#34A5DA">NaN</span></span></code>
+<ul>
+<li>Matches the NaN (Not a Number) value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">Infinity</span></span><span class="dark-theme-only"><span style="color:#34A5DA">Infinity</span></span></code>
+<ul>
+<li>Matches the Infinity value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">-Infinity</span></span><span class="dark-theme-only"><span style="color:#34A5DA">-Infinity</span></span></code>
+<ul>
+<li>Matches the negative Infinity value.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Text
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">text</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">text</span></span></code>
+<ul>
+<li>Matches any text value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0B631E">"</span><span style="color:#8E8EE8;font-style:italic">&lt;string&gt;</span><span style="color:#0B631E">"</span></span><span class="dark-theme-only"><span style="color:#8ABE5E">"</span><span style="color:#7474BD;font-style:italic">&lt;string&gt;</span><span style="color:#8ABE5E">"</span></span></code>
+<ul>
+<li>Matches a text value with the specified string. dCBOR diagnostic notation uses double quotes for text strings, so we use that syntax here for familiarity.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span></span><span class="dark-theme-only"><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span></span></code>
+<ul>
+<li>Matches a text value that matches the specified regex. No double quotes are used here, as the regex is not a string but a pattern to match against the text value.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Digest
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span></span></code>
+<ul>
+<li>Matches any digest value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;hex&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;hex&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a digest whose value starts with the specified hex prefix. Up to 32 bytes can be specified, which is the length of the full SHA-256 digest.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span><span style="color:#0D7D65">'</span><span style="color:#8E8EE8;font-style:italic">&lt;ur:digest&gt;</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span><span style="color:#4EC9B0">'</span><span style="color:#7474BD;font-style:italic">&lt;ur:digest&gt;</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches the specified <code>ur:digest</code> value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span><span style="color:#0D7D65">'</span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0D7D65">'</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span><span style="color:#4EC9B0">'</span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#4EC9B0">'</span></span></code>
+<ul>
+<li>Matches a digest value that matches the specified binary regex.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Array
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">array</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">array</span></span></code>
+<ul>
+<li>Matches any array.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[{</span><span style="color:#9E5C1A">n</span><span style="color:#333333">}]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#BBBBBB">{</span><span style="color:#FDCB56">n</span><span style="color:#BBBBBB">}</span><span style="color:#D4D4D4">]</span></span></code>
+<ul>
+<li>Matches an array with exactly <code>n</code> elements.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[{</span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A">m</span><span style="color:#333333">}]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#BBBBBB">{</span><span style="color:#FDCB56">n</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56">m</span><span style="color:#BBBBBB">}</span><span style="color:#D4D4D4">]</span></span></code>
+<ul>
+<li>Matches an array with between <code>n</code> and <code>m</code> elements, inclusive.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[{</span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0">,</span><span style="color:#333333">}]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#BBBBBB">{</span><span style="color:#FDCB56">n</span><span style="color:#34A5DA">,</span><span style="color:#BBBBBB">}</span><span style="color:#D4D4D4">]</span></span></code>
+<ul>
+<li>Matches an array with at least <code>n</code> elements.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#0E76B0">,</span><span style="color:#529815"> ...</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#34A5DA">,</span><span style="color:#9BCD70"> ...</span><span style="color:#D4D4D4">]</span></span></code>
+<ul>
+<li>Matches an array where the elements match the specified pattern. The pattern can be a simple pattern, a sequence of patterns, or patterns with repeat quantifiers.</li>
+<li>Examples:
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#529815">*</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#9BCD70">*</span><span style="color:#D4D4D4">]</span></span></code> - Array containing exactly one element of any type</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">42</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42</span><span style="color:#D4D4D4">]</span></span></code> - Array containing exactly one element: the number 42</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0B631E">"a"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "b"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "c"</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"a"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "b"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "c"</span><span style="color:#D4D4D4">]</span></span></code> - Array containing exactly <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0B631E">"a"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "b"</span><span style="color:#0E76B0">,</span><span style="color:#0B631E"> "c"</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#8ABE5E">"a"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "b"</span><span style="color:#34A5DA">,</span><span style="color:#8ABE5E"> "c"</span><span style="color:#D4D4D4">]</span></span></code> in sequence</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[(</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 42,</span><span style="color:#333333"> (</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#BBBBBB">(</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 42,</span><span style="color:#BBBBBB"> (</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span><span style="color:#D4D4D4">]</span></span></code> - Array containing 42 anywhere within it</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[</span><span style="color:#0E76B0">42,</span><span style="color:#333333"> (</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#34A5DA">42,</span><span style="color:#BBBBBB"> (</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span><span style="color:#D4D4D4">]</span></span></code> - Array starting with 42, followed by any elements</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">[(</span><span style="color:#529815">*</span><span style="color:#333333">)</span><span style="color:#529815">*</span><span style="color:#0E76B0">,</span><span style="color:#0E76B0"> 42</span><span style="color:#333333">]</span></span><span class="dark-theme-only"><span style="color:#D4D4D4">[</span><span style="color:#BBBBBB">(</span><span style="color:#9BCD70">*</span><span style="color:#BBBBBB">)</span><span style="color:#9BCD70">*</span><span style="color:#34A5DA">,</span><span style="color:#34A5DA"> 42</span><span style="color:#D4D4D4">]</span></span></code> - Array ending with 42, preceded by any elements</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Map
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">map</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">map</span></span></code>
+<ul>
+<li>Matches any map.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{{</span><span style="color:#9E5C1A">n</span><span style="color:#333333">}}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{{</span><span style="color:#FDCB56">n</span><span style="color:#BBBBBB">}}</span></span></code>
+<ul>
+<li>Matches a map with exactly <code>n</code> entries.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{{</span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A">m</span><span style="color:#333333">}}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{{</span><span style="color:#FDCB56">n</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56">m</span><span style="color:#BBBBBB">}}</span></span></code>
+<ul>
+<li>Matches a map with between <code>n</code> and <code>m</code> entries, inclusive.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{{</span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0">,</span><span style="color:#333333">}}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{{</span><span style="color:#FDCB56">n</span><span style="color:#34A5DA">,</span><span style="color:#BBBBBB">}}</span></span></code>
+<ul>
+<li>Matches a map with at least <code>n</code> entries.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">{</span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#0E76B0">:</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#0E76B0">:</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#0E76B0">,</span><span style="color:#529815"> ...</span><span style="color:#333333">}</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">{</span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#34A5DA">:</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#34A5DA">:</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#34A5DA">,</span><span style="color:#9BCD70"> ...</span><span style="color:#BBBBBB">}</span></span></code>
+<ul>
+<li>Matches if the specified patterns match the map's keys and values (order isn't important).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Tagged
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">tagged</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">tagged</span></span></code>
+<ul>
+<li>Matches any CBOR tagged value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">tagged</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;value&gt;</span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;value&gt;</span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches the specified CBOR tagged value with content that matches the given pattern. The tag value is a u64 value, formatted as a bare integer with no delimiters apart from the enclosing parentheses.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">tagged</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;name&gt;</span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;name&gt;</span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches the CBOR tagged value with the specified name and content that matches the given patex. The tag name is formatted as a bare alphanumeric string (including hyphens and underscores) with no delimiters apart from the enclosing parentheses.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">tagged</span><span style="color:#333333"> ( </span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;regex&gt;</span><span style="color:#BF2828">/</span><span style="color:#0E76B0">,</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">tagged</span><span style="color:#BBBBBB"> ( </span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;regex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#34A5DA">,</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a CBOR tagged value with a name that matches the specified regex and content that matches the given pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="envelope-dcbor-patterns"><a class="header" href="#envelope-dcbor-patterns">Envelope dCBOR Patterns</a></h3>
+<ul>
+<li>CBOR
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">cbor</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">cbor</span></span></code>
+<ul>
+<li>Matches any subject CBOR value.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">cbor</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;dcbor-diagnostic-notation&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">cbor</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;dcbor-diagnostic-notation&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a subject CBOR value that matches the specified diagnostic notation.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">cbor</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;ur:type/value&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">cbor</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;ur:type/value&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a subject CBOR value that matches the specified <code>ur</code>.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">cbor</span><span style="color:#333333"> ( </span><span style="color:#BF2828">/</span><span style="color:#8E8EE8;font-style:italic">&lt;dcbor-patex&gt;</span><span style="color:#BF2828">/</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">cbor</span><span style="color:#BBBBBB"> ( </span><span style="color:#DE6E6E">/</span><span style="color:#7474BD;font-style:italic">&lt;dcbor-patex&gt;</span><span style="color:#DE6E6E">/</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a subject CBOR value that matches the specified dcbor-pattern expression. This enables advanced pattern matching within CBOR structures including quantifiers, captures, and complex structural patterns. The pattern expression uses dcbor-pattern syntax.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="structure-patterns"><a class="header" href="#structure-patterns">Structure Patterns</a></h2>
+<p>Structure patterns match parts of Gordian Envelope structures.</p>
+<ul>
+<li>Leaf
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">leaf</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">leaf</span></span></code>
+<ul>
+<li>Matches any leaf envelope (terminal nodes in the envelope tree), a "bare subject". This is distinct from the <code>node</code> pattern, which matches a subject with one or more assertions.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Assertions
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">assert</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">assert</span></span></code>
+<ul>
+<li>Matches any assertion.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">assertpred</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">assertpred</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches an assertion having a predicate that matches the specified pattern.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">assertobj</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">assertobj</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches an assertion having an object that matches the specified pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Digest
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;hex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;hex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a digest whose value starts with the specified hex prefix. Up to 32 bytes can be specified, which is the length of the full SHA-256 digest.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">digest</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;ur:digest&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">digest</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;ur:digest&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches the specified <code>ur:digest</code> value, parsed using the <code>bc-ur</code> crate.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Node
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">node</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">node</span></span></code>
+<ul>
+<li>Matches any Gordian Envelope node, which is an envelope with at least one assertion.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">node</span><span style="color:#333333"> ( { </span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0">,</span><span style="color:#9E5C1A"> m</span><span style="color:#333333"> } )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">node</span><span style="color:#BBBBBB"> ( { </span><span style="color:#FDCB56">n</span><span style="color:#34A5DA">,</span><span style="color:#FDCB56"> m</span><span style="color:#BBBBBB"> } )</span></span></code>
+<ul>
+<li>Matches a Gordian Envelope node with between <code>n</code> and <code>m</code> assertions, inclusive. An <code>n</code> of zero will never match.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Objects
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">obj</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">obj</span></span></code>
+<ul>
+<li>Matches any object.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">obj</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">obj</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches an object that matches the specified pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Obscured
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">obscured</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">obscured</span></span></code>
+<ul>
+<li>Matches any obscured (elided, encrypted, or compressed) branch of the Envelope tree.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">elided</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">elided</span></span></code>
+<ul>
+<li>Matches any elided branch of the Envelope tree.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">encrypted</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">encrypted</span></span></code>
+<ul>
+<li>Matches any encrypted branch of the Envelope tree.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">compressed</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">compressed</span></span></code>
+<ul>
+<li>Matches any compressed branch of the Envelope tree.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Predicates
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">pred</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">pred</span></span></code>
+<ul>
+<li>Matches any predicate.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">pred</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">pred</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a predicate that matches the specified pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Subjects
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">subj</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">subj</span></span></code>
+<ul>
+<li>Matches any subject. If the envelope is not a NODE, then this is the identity function.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">subj</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">subj</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Matches a subject that matches the specified pattern.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Wrapped
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">wrapped</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">wrapped</span></span></code>
+<ul>
+<li>Matches any wrapped Envelope.</li>
+</ul>
+</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">unwrap</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">unwrap</span></span></code>
+<ul>
+<li>Matches on the content of a wrapped Envelope.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="meta-patterns"><a class="header" href="#meta-patterns">Meta Patterns</a></h2>
+<p>The following meta patterns are available to combine or modify other patterns.</p>
+<p>Precedence: Repeat has the highest precedence, followed by And, Not, Traversal, and then Or. Parentheses can be used to group patterns and change precedence.</p>
+<ul>
+<li>And
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#529815"> &amp;</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#529815"> &amp;</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#529815">...</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#9BCD70"> &amp;</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#9BCD70"> &amp;</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#9BCD70">...</span></span></code>
+<ul>
+<li>Matches if all specified patterns match.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Any
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">*</span></span></code>
+<ul>
+<li>Always matches.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Capture
+<ul>
+<li><code>@[name] ( &lt;patex&gt; )</code>
+<ul>
+<li>Matches the specified pattern and captures the match for later use with the given name.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Not
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">!</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span></span><span class="dark-theme-only"><span style="color:#9BCD70">!</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span></span></code>
+<ul>
+<li>Matches if the specified patex does not match.</li>
+<li>A pattern that never matches can be represented as <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#529815">!*</span></span><span class="dark-theme-only"><span style="color:#9BCD70">!*</span></span></code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Or
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#529815"> |</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#529815"> |</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#529815"> ...</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#9BCD70"> |</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#9BCD70"> |</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#9BCD70"> ...</span></span></code>
+<ul>
+<li>Matches if any of the specified patterns match.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Repeat
+<ul>
+<li>Greedy — grabs as many repetitions as possible, then backtracks if the rest of the patex cannot match.
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code> (exactly once, this is used to group patterns)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">*</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">*</span></span></code> (0 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">?</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">?</span></span></code> (0 or 1)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">+</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">+</span></span></code> (1 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> ){ </span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0"> ,</span><span style="color:#9E5C1A"> m</span><span style="color:#333333"> }</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> ){ </span><span style="color:#FDCB56">n</span><span style="color:#34A5DA"> ,</span><span style="color:#FDCB56"> m</span><span style="color:#BBBBBB"> }</span></span></code> (<code>n</code> to <code>m</code> repeats, inclusive)</li>
+</ul>
+</li>
+<li>Lazy — starts with as few repetitions as possible, adding more only if the rest of the pattern cannot match.
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">*?</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">*?</span></span></code> (0 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">??</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">??</span></span></code> (0 or 1)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">+?</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">+?</span></span></code> (1 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> ){ </span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0"> ,</span><span style="color:#9E5C1A"> m</span><span style="color:#333333"> }</span><span style="color:#529815">?</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> ){ </span><span style="color:#FDCB56">n</span><span style="color:#34A5DA"> ,</span><span style="color:#FDCB56"> m</span><span style="color:#BBBBBB"> }</span><span style="color:#9BCD70">?</span></span></code> (<code>n</code> to <code>m</code> repeats, inclusive)</li>
+</ul>
+</li>
+<li>Possessive — grabs as many repetitions as possible and never backtracks; if the rest of the pattern cannot match, the whole match fails.
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">*+</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">*+</span></span></code> (0 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">?+</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">?+</span></span></code> (0 or 1)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span><span style="color:#529815">++</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span><span style="color:#9BCD70">++</span></span></code> (1 or more)</li>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#333333">( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> ){ </span><span style="color:#9E5C1A">n</span><span style="color:#0E76B0"> ,</span><span style="color:#9E5C1A"> m</span><span style="color:#333333"> }</span><span style="color:#529815">+</span></span><span class="dark-theme-only"><span style="color:#BBBBBB">( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> ){ </span><span style="color:#FDCB56">n</span><span style="color:#34A5DA"> ,</span><span style="color:#FDCB56"> m</span><span style="color:#BBBBBB"> }</span><span style="color:#9BCD70">+</span></span></code> (<code>n</code> to <code>m</code> repeats, inclusive)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Search
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#1661E1">search</span><span style="color:#333333"> ( </span><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#333333"> )</span></span><span class="dark-theme-only"><span style="color:#6AA1FF">search</span><span style="color:#BBBBBB"> ( </span><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#BBBBBB"> )</span></span></code>
+<ul>
+<li>Visits every node in the Envelope tree, matching the specified pattern against each node.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Traversal
+<ul>
+<li><code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#8E8EE8;font-style:italic">&lt;patex&gt;</span><span style="color:#529815"> -&gt;</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span><span style="color:#529815"> -&gt;</span><span style="color:#8E8EE8;font-style:italic"> &lt;patex&gt;</span></span><span class="dark-theme-only"><span style="color:#7474BD;font-style:italic">&lt;patex&gt;</span><span style="color:#9BCD70"> -&gt;</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span><span style="color:#9BCD70"> -&gt;</span><span style="color:#7474BD;font-style:italic"> &lt;patex&gt;</span></span></code>
+<ul>
+<li>Matches if the specified patterns match a traversal path, with no other nodes in between.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendices/dcbor_patex.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendices/dcbor_patex.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../theme/pagetoc.js"></script>
+
+
+    </div>
+    </body>
+</html>

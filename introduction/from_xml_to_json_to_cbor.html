@@ -231,15 +231,15 @@
 <h3 id="designing-json-key-value-pairs-arrays-and-minimal-types"><a class="header" href="#designing-json-key-value-pairs-arrays-and-minimal-types">Designing JSON: Key-Value Pairs, Arrays, and Minimal Types</a></h3>
 <p>JSON's syntax is deliberately minimal, built on just a few structural elements from JavaScript:</p>
 <ul>
-<li><strong>Objects</strong>: Unordered key-value pairs in curly braces <code>{}</code>. Keys must be double-quoted strings, followed by a colon <code>:</code>, with comma-separated pairs. Example: <code>{ "name": "Alice", "age": 30 }</code>.</li>
-<li><strong>Arrays</strong>: Ordered value sequences in square brackets <code>[]</code>, separated by commas. Example: <code>[ "apple", "banana", "cherry" ]</code>.</li>
+<li><strong>Objects</strong>: Unordered key-value pairs in curly braces <code class="hljs language-json">{}</code>. Keys must be double-quoted strings, followed by a colon <code class="hljs language-json">:</code>, with comma-separated pairs. Example: <code class="hljs language-json">{ "name": "Alice", "age": 30 }</code>.</li>
+<li><strong>Arrays</strong>: Ordered value sequences in square brackets <code class="hljs language-json">[]</code>, separated by commas. Example: <code class="hljs language-json">[ "apple", "banana", "cherry" ]</code>.</li>
 </ul>
 <p>Values can only be:</p>
 <ul>
 <li><strong>String</strong>: Double-quoted Unicode characters</li>
 <li><strong>Number</strong>: Numeric values (without type distinction)</li>
-<li><strong>Boolean</strong>: <code>true</code> or <code>false</code> (lowercase)</li>
-<li><strong>Null</strong>: <code>null</code> (lowercase)</li>
+<li><strong>Boolean</strong>: <code class="hljs language-json">true</code> or <code class="hljs language-json">false</code> (lowercase)</li>
+<li><strong>Null</strong>: <code class="hljs language-json">null</code> (lowercase)</li>
 <li><strong>Object</strong>: Nested JSON object</li>
 <li><strong>Array</strong>: Nested JSON array</li>
 </ul>

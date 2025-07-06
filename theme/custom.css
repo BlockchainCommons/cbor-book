@@ -10,6 +10,20 @@
   display: block;
 }
 
+/* For inline theme switching spans - use inline display instead of block */
+code .dark-theme-only,
+code .light-theme-only {
+  display: inline;
+}
+
+code .dark-theme-only {
+  display: none;
+}
+
+code .light-theme-only {
+  display: inline;
+}
+
 /* When mdbook switches to dark theme - covers all dark themes */
 html[data-theme="coal"] .dark-theme-only,
 html[data-theme="navy"] .dark-theme-only,
@@ -18,6 +32,16 @@ html[data-theme="ayu"] .dark-theme-only,
 .navy .dark-theme-only,
 .ayu .dark-theme-only {
   display: block;
+}
+
+/* For inline theme switching in dark themes */
+html[data-theme="coal"] code .dark-theme-only,
+html[data-theme="navy"] code .dark-theme-only,
+html[data-theme="ayu"] code .dark-theme-only,
+.coal code .dark-theme-only,
+.navy code .dark-theme-only,
+.ayu code .dark-theme-only {
+  display: inline;
 }
 
 html[data-theme="coal"] .light-theme-only,
@@ -29,6 +53,16 @@ html[data-theme="ayu"] .light-theme-only,
   display: none;
 }
 
+/* For inline theme switching in dark themes */
+html[data-theme="coal"] code .light-theme-only,
+html[data-theme="navy"] code .light-theme-only,
+html[data-theme="ayu"] code .light-theme-only,
+.coal code .light-theme-only,
+.navy code .light-theme-only,
+.ayu code .light-theme-only {
+  display: none;
+}
+
 /* For light themes */
 html[data-theme="light"] .light-theme-only,
 html[data-theme="rust"] .light-theme-only,
@@ -37,10 +71,26 @@ html[data-theme="rust"] .light-theme-only,
   display: block;
 }
 
+/* For inline theme switching in light themes */
+html[data-theme="light"] code .light-theme-only,
+html[data-theme="rust"] code .light-theme-only,
+.light code .light-theme-only,
+.rust code .light-theme-only {
+  display: inline;
+}
+
 html[data-theme="light"] .dark-theme-only,
 html[data-theme="rust"] .dark-theme-only,
 .light .dark-theme-only,
 .rust .dark-theme-only {
+  display: none;
+}
+
+/* For inline theme switching in light themes */
+html[data-theme="light"] code .dark-theme-only,
+html[data-theme="rust"] code .dark-theme-only,
+.light code .dark-theme-only,
+.rust code .dark-theme-only {
   display: none;
 }
 

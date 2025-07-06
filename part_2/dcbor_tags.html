@@ -174,7 +174,7 @@
 <p>As discussed in <a href="../part_1/cbor_tags.html">Part I: CBOR Tags</a>, CBOR tags are a powerful feature of CBOR that provides a space of integers used to "tag" CBOR data items, specifying their type or meaning.</p>
 <p>Let's say we wanted to define a tag that identifies a string as holding an ISO 4217 currency code like <code>USD</code> or <code>EUR</code>. We could just use a bare string, but if we want our type to be completely self-describing, we can define a tag for it.</p>
 <p>As long as you are the only one using that tag, you can choose any integer you want. But if you want your structure to interoperate with other systems, you should use a tag that is registered with IANA, discussed previously <a href="../part_1/cbor_tags.html#how-to-register-your-own-fcfs-tags">here</a>.</p>
-<p>For our demonstration we'll use the tag <code>33000</code>, which as of this writing is unassigned by IANA.</p>
+<p>For our demonstration we'll use the tag <code class="hljs dcbor-inline"><span class="light-theme-only"><span style="color:#0E76B0">33000</span></span><span class="dark-theme-only"><span style="color:#34A5DA">33000</span></span></code>, which as of this writing is unassigned by IANA.</p>
 <p>How would we tag a string as a currency type? Let's start by defining a constant for our tag:</p>
 <pre><code class="language-rust">const TAG_CURRENCY_CODE: u64 = 33000;</code></pre>
 <p>We now associate our string with the tag by using the <code>to_tagged_value()</code> method:</p>
