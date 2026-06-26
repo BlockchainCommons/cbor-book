@@ -23,6 +23,10 @@ build:
 serve:
     mdbook serve --open
 
+# 📖 Build the book as an EPUB (output in book/epub/)
+epub:
+    mdbook build
+
 # 🧼 Clean deploy worktree and build artifacts
 clean:
     git worktree remove --force /tmp/book-deploy || true

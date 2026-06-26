@@ -4,7 +4,7 @@
 
 `mdbook` requires the Rust toolchain to be installed. If you don't have it installed, follow the steps at the following link:
 
-- https://www.rust-lang.org/tools/install
+- <https://www.rust-lang.org/tools/install>
 
 ## `mdbook` Installation
 
@@ -12,14 +12,18 @@ To build and view the documentation, you need to have `mdbook` and the other nec
 
 1. Install `mdbook` and the necessary plugins:
 
+```bash
+cargo install mdbook --version 0.4.52 \
+  && cargo install mdbook-admonish --version 1.20.0 \
+  && cargo install mdbook-embed --version 0.2.0 \
+  && cargo install mdbook-variables --version 0.3.0 \
+  && cargo install mdbook-linkcheck --version 0.7.7 \
+  && cargo install mdbook-pagetoc --version 0.2.0 \
+  && cargo install mdbook-inline-highlighting --version 1.0.0 \
+  && cargo install mdbook-epub --version 0.4.51
 ```
-cargo install mdbook \
-    mdbook-admonish \
-    mdbook-embed \
-    mdbook-variables \
-    mdbook-linkcheck \
-    mdbook-pagetoc
-```
+
+The pinned versions are needed in order to build specifically for ePub. These are the newest versions of the plugins compatible with `mdbook ^0.4` and able to build the book without issues.
 
 ## CBOR, dCBOR, and Envelope Syntax Highlighting
 
@@ -94,6 +98,9 @@ The documentation uses the following tools and plugins:
 - [`mdbook-variables`](https://crates.io/crates/mdbook-variables): For interpolating variables like the copyright year.
 - [`mdbook-linkcheck`](https://github.com/Michael-F-Bryan/mdbook-linkcheck): For checking the validity of image links in the documentation.
 - [`mdbook-pagetoc`](https://github.com/slowsage/mdbook-pagetoc): For generating a table of contents for each page.
+- [`mdbook-inline-highlighting`](https://crates.io/crates/mdbook-inline-highlighting): For inline syntax highlighting within text.
+- [`mdbook-epub`](https://crates.io/crates/mdbook-epub): For building the book as an EPUB (`book/epub/`).
 
 And the custom preprocessor:
+
 - `mdbook-dcbor-shiki` For syntax highlighting of CBOR, dCBOR, and Envelope code blocks.

@@ -21,6 +21,7 @@ icon = "./theme/wip.svg"
 color = "#d0da14"
 
 [preprocessor.pagetoc]
+renderers = ["html"]    # Isolate rendering HTML elements to not effect ePub 
 
 [preprocessor.dcbor-shiki]
 
@@ -44,6 +45,8 @@ level = 0     # 0 = everything starts closed,
 # 1 = top-level open, deeper levels closed, etc.
 
 [output.linkcheck]
+
+[output.epub]
 
 [output.html.playground]
 runnable = false
